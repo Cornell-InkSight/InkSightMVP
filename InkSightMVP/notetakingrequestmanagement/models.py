@@ -1,0 +1,16 @@
+from django.db import models
+from usermanagement.models import Notetaker
+from coursemanagement.models import Course
+from schoolmanagement.models import SDSCoordinator
+
+class NoteTakingRequest(models.Model):
+    """Model For Creating Notetaking Request"""
+    id = models.AutoField(primary_key=True)
+    request = models.TextField()
+    notetaker = models.ForeignKey(Notetaker, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    sdscoordinator = models.ForeignKey(SDSCoordinator, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"Request {self.id} for Course {self.course.name}"
+    
