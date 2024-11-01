@@ -42,6 +42,9 @@ INSTALLED_APPS = [
     'notetakingrequestmanagement',
     'schoolmanagement',
     'usermanagement',
+    'lecturesessionsmanagement',
+    'notepacketsmanagement',
+    'permissionsmanagement',
 ]
 
 MIDDLEWARE = [
