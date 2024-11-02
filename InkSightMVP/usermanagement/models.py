@@ -1,29 +1,39 @@
 from django.db import models
 from schoolmanagement.models import School
 
-class Student(models.Model):
-    """Model for adding student to database"""
+class User(models.Model):
+    """Generic User Model"""
     id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=666)
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return self.name
+
+class Student(User):
+    """Model for adding student to database"""
+    
     year = models.IntegerField()
     disability = models.CharField(max_length=666)
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
 
-    def __str__(self):
-        return self.name
+    
 
 
-class Professor(models.Model):
+class Professor(User):
     """Model for adding Professor to database"""
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=666)
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    title = models.CharField(max_length=666)
+    
 
-    def __str__(self):
-        return self.name
-
-class TeacherAssistant(models.Model):
+class TeacherAssistant(User):
     """Model for adding Teacher Assistant to database"""
-    id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=666)
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
+
+
+class SDSCoordinator(User):
+    """Model for creating an SDS Coordinator"""
+    school = models.ForeignKey(School, on_delete=models.CASCADE)
+    
+    

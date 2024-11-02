@@ -11,9 +11,22 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import json 
+import os
+from django.core.exceptions import ImproperlyConfigured
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+with open(os.path.join(BASE_DIR, 'InkSightMVP', 'secrets.json')) as f:
+    secrets = json.loads(f.read())
+
+def get_secret(setting, secrets=secrets):
+    try:
+        return secrets[setting]
+    except KeyError:
+        error_msg = f'Set the {setting} environment variable'
+        raise ImproperlyConfigured(error_msg)
 
 
 # Quick-start development settings - unsuitable for production
@@ -45,6 +58,7 @@ INSTALLED_APPS = [
     'lecturesessionsmanagement',
     'notepacketsmanagement',
     'permissionsmanagement',
+    'rest_framework'
 ]
 
 MIDDLEWARE = [
@@ -82,11 +96,16 @@ WSGI_APPLICATION = 'InkSightMVP.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": get_secret('database_name'),
+        "USER": get_secret('database_user'),
+        "PASSWORD": get_secret('database_pwd'),
+        "HOST": get_secret('database_host'),
+        "PORT": get_secret('database_port'),
     }
 }
+
 
 
 # Password validation

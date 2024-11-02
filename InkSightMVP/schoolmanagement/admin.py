@@ -1,5 +1,4 @@
 from django.contrib import admin
-from .models import School, SDSCoordinator
+from .models import School
 
 admin.site.register(School)
-admin.site.register(SDSCoordinator)

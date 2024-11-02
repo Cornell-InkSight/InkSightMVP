@@ -1,6 +1,6 @@
 from django.db import models
 from coursemanagement.models import Course
-from schoolmanagement.models import SDSCoordinator
+from usermanagement.models import SDSCoordinator
 
 class NoteTakingRequest(models.Model):
     """Model For Creating Notetaking Request"""
