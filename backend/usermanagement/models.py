@@ -34,6 +34,5 @@ class TeacherAssistant(User):
 
 class SDSCoordinator(User):
     """Model for creating an SDS Coordinator"""
-    school = models.ForeignKey(School, on_delete=models.CASCADE)
-    
+    position = models.CharField(max_length=666)    
     

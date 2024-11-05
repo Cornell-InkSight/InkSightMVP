@@ -82,3 +82,4 @@ def assign_all_permissions():
 
     for sdscoordinator in SDSCoordinator.objects.all():
         assign_sds_coordinator_permissions(sdscoordinator)
+
