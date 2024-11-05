@@ -97,3 +97,89 @@ def get_all_students_for_sds_coordinator(sds_coordinator_id):
         return Response(serializer.data, status=200)
     except Course.DoesNotExist:
         return Response({"error": "SDS Coordinator does not exist or has no courses"}, status=404)
+    
+"""
+POST (Course) Methods
+1. Get the request data from the server (JSON)
+2. List required fields and make sure the request has all necessary data, if not redo
+3. create a new Object with all the fields, serialize and return
+"""
+@api_view(['POST'])
+def add_course(request):
+    """Method to Add New course"""
+    course_data = request.data
+
+    required_fields = ["name", "school_id", "professor_id", "sds_coordinator_id"]
+    for field in required_fields:
+        if field not in course_data:
+            return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    course = course.objects.create(
+        name=course_data["name"], 
+        school_id=course_data["school_id"], 
+        professor_id = course_data["professor_id"],
+        sds_coordinator_id = course_data["sds_coordinator_id"]
+    )
+
+    serializer = CourseSerializer(course)
+    return Response(serializer.data, status=201)    
+
+@api_view(['POST'])
+def add_student_course(request):
+    """Method to Add New student_course"""
+    student_course_data = request.data
+
+    required_fields = ["name", "student_id", "course_id"]
+    for field in required_fields:
+        if field not in student_course_data:
+            return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    student_course = student_course.objects.create(
+        name=student_course_data["name"], 
+        student_id=student_course_data["student_id"],
+        course_id =student_course_data["course_id"] 
+    )
+
+    serializer = StudentCourseSerializer(student_course)
+    return Response(serializer.data, status=201)    
+
+@api_view(['POST'])
+def add_course_for_student(request, student_id):
+    """
+    Method to Add Existing or New Course for a Specific Student.
+    If the course already exists, it only links the course with the student in StudentCourse.
+    """
+    course_data = request.data
+
+    required_fields = ["name", "school_id", "professor_id", "sds_coordinator_id"]
+    for field in required_fields:
+        if field not in course_data:
+            return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        student = Student.objects.get(id=student_id)
+    except Student.DoesNotExist:
+        return Response({"error": "Student does not exist"}, status=status.HTTP_404_NOT_FOUND)
+
+    course, created_course = Course.objects.get_or_create(
+        name=course_data["name"],
+        school_id=course_data["school_id"],
+        professor_id=course_data["professor_id"],
+        sds_coordinator_id=course_data["sds_coordinator_id"]
+    )
+
+    if StudentCourse.objects.filter(student=student, course=course).exists():
+        return Response({"error": "Student is already enrolled in this course"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Link the course with the student in StudentCourse
+    student_course = StudentCourse.objects.create(student=student, course=course)
+
+    course_serializer = CourseSerializer(course)
+    student_course_serializer = StudentCourseSerializer(student_course)
+
+    return Response({
+        "course": course_serializer.data,
+        "student_course": student_course_serializer.data
+    }, status=status.HTTP_201_CREATED)

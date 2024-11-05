@@ -27,3 +27,31 @@ def get_note_packet(note_packet_id):
         return Response(serializer.data)
     except NotesPacket.DoesNotExist:
         return Response({"error": "Notes Packet Note in Database"}, 404)
+    
+
+"""
+POST (Notes Packet) Methods
+1. Get the request data from the server (JSON)
+2. List required fields and make sure the request has all necessary data, if not redo
+3. create a new Object with all the fields, serialize and return
+"""
+@api_view(['POST'])
+def add_notes_packet(request):
+    """Method to Add New Notes Packet"""
+    notes_packet_data = request.data
+
+    required_fields = ["note", "student_course_id", "professor_id", "teahcher_assistant_id"]
+    for field in required_fields:
+        if field not in notes_packet_data:
+            return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    notes_packet = NotesPacket.objects.create(
+        note=notes_packet_data["note"], 
+        student_course_id=notes_packet_data["student_course_id"], 
+        professor_id = notes_packet_data["professor_id"],
+        teahcher_assistant_id = notes_packet_data["teahcher_assistant_id"]
+    )
+
+    serializer = NotesPacketSerializer(notes_packet)
+    return Response(serializer.data, status=201)    
