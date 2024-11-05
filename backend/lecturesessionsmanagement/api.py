@@ -12,14 +12,14 @@ GET (LectureSession Management) Methods
 4. For specific users (fetched using id), use try/catch to check if that specific id exists
 """
 @api_view(["GET"])
-def get_lecture_sessions():
+def get_lecture_sessions(request):
     """Method to Fetch Courses"""
     lecture_sessions = LectureSession.objects.all()
     serializer = LectureSessionSerializer(lecture_sessions, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
-def get_lecture_session(lecture_session_id):
+def get_lecture_session(request, lecture_session_id):
     """Method to Fetch Course"""
     try:
         course = LectureSession.objects.get(lecture_session_id)
@@ -29,14 +29,14 @@ def get_lecture_session(lecture_session_id):
         return Response({"error": "Course Does Not Exist in Database"}, 404)
 
 @api_view(["GET"])
-def get_recording_sessions():
+def get_recording_sessions(request):
     """Method to Fetch Courses"""
     recording_sessions = RecordingSession.objects.all()
     serializer = RecordingSessionSerializer(recording_sessions, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
-def get_recording_session(recording_session_id):
+def get_recording_session(request, recording_session_id):
     """Method to Fetch Course"""
     try:
         course = RecordingSession.objects.get(recording_session_id)

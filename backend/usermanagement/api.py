@@ -16,14 +16,14 @@ GET (User) Methods
 4. For specific users (fetched using id), use try/catch to check if that specific id exists
 """
 @api_view(['GET'])
-def get_students():
+def get_students(request):
     """Method to Fetch Student Objects"""
     students = Student.objects.all()
     serializer = StudentSerializer(students, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_student(student_id):
+def get_student(request, student_id):
     """Method to Fetch Student"""
     
     try:
@@ -35,14 +35,14 @@ def get_student(student_id):
     
 
 @api_view(['GET'])
-def get_sdscoordinators():
+def get_sdscoordinators(request):
     """Method to Fetch SDS Coordinators"""
     sdscoordinators = SDSCoordinator.objects.all()
     serializer = SDSCoordinatorSerializer(sdscoordinators, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_sdscoordinator(sds_coordinator_id):
+def get_sdscoordinator(request, sds_coordinator_id):
     """Method to Fetch SDS Coordinator"""
     try:
         sdscoordinator = SDSCoordinator.objects.get(sds_coordinator_id)
@@ -52,14 +52,14 @@ def get_sdscoordinator(sds_coordinator_id):
         return Response({"error": "SDS Coordinator Not in Database"}, 404)
 
 @api_view(['GET'])
-def get_professors():
+def get_professors(request):
     """Method to Fetch Professors"""
     professors = Professor.objects.all()
     serializer = ProfessorSerializer(professors, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_professor(professor_id):
+def get_professor(request, professor_id):
     """Method to Fetch Professor"""
     try:
         professor = Professor.objects.get(professor_id)
@@ -69,14 +69,14 @@ def get_professor(professor_id):
         return Response({"error": "Professor Is Not in Database"}, 404)
 
 @api_view(['GET'])
-def get_tas():
+def get_tas(request):
     """Method to Fetch TAs"""
     teacherassistants = TeacherAssistant.objects.all()
     serializer = TeacherAssistantSerializer(teacherassistants, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_ta(ta_id):
+def get_ta(request, ta_id):
     """Method to Fetch TA"""
     try:
         teacherassistant = TeacherAssistant.objects.get(ta_id)

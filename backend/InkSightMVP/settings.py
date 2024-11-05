@@ -39,6 +39,9 @@ SECRET_KEY = 'django-insecure-xx+95-0ch!v8c&+2au!=$hyyls+pj^rt9u18&$=&r4tnvnr@6$
 DEBUG = True
 
 ALLOWED_HOSTS = []
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173", 
+]
 
 
 # Application definition
@@ -58,10 +61,13 @@ INSTALLED_APPS = [
     'lecturesessionsmanagement',
     'notepacketsmanagement',
     'permissionsmanagement',
-    'rest_framework'
+
+    'rest_framework',
+    'corsheaders'
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -69,9 +75,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.common.CommonMiddleware'
 ]
 
 ROOT_URLCONF = 'InkSightMVP.urls'
+CORS_ALLOW_ALL_ORIGINS = True
 
 TEMPLATES = [
     {

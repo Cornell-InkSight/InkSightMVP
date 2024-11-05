@@ -13,13 +13,13 @@ GET (Permissions) Methods
 """
 
 @api_view(['GET'])
-def get_permissions():
+def get_permissions(request):
     """Method to Get Notes Packets"""
     permissions = Permissions.objects.all()
     serializer = PermissionsSerializer(permissions, many=True)
     return Response(serializer.data)
 
-def get_note_packet(note_packet_id):
+def get_note_packet(request, note_packet_id):
     """Method to Get Notes Packet ID"""
     try:
         permission = Permissions.objects.get(note_packet_id)

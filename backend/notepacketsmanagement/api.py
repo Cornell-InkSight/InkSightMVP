@@ -13,13 +13,13 @@ GET (Note Packets Management) Methods
 """
 
 @api_view(['GET'])
-def get_notes_packets():
+def get_notes_packets(request):
     """Method to Get Notes Packets"""
     notes_packets = NotesPacket.objects.all()
     serializer = NotesPacketSerializer(notes_packets, many=True)
     return Response(serializer.data)
 
-def get_note_packet(note_packet_id):
+def get_note_packet(request, note_packet_id):
     """Method to Get Notes Packet ID"""
     try:
         notes_packet = NotesPacket.objects.get(note_packet_id)

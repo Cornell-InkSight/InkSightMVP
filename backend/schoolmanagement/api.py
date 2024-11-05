@@ -15,14 +15,14 @@ GET (School Management) Methods
 """
 
 @api_view(['GET'])
-def get_schools():
+def get_schools(request):
     """Method to School Packets"""
     schools = School.objects.all()
     serializer = SchoolSerializer(schools, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_school(school_id):
+def get_school(request, school_id):
     """Method to Get School ID"""
     try:
         school = School.objects.get(school_id)
@@ -32,7 +32,7 @@ def get_school(school_id):
         return Response({"error": "School Note in Database"}, 404)
     
 @api_view(['GET'])
-def get_professors_in_school(school_id):
+def get_professors_in_school(request, school_id):
     try:
         school = School.objects.get(school_id)
         professor = Professor.objects.filter(school_id__in=school)
