@@ -19,11 +19,12 @@ def get_schools():
     serializer = SchoolSerializer(schools, many=True)
     return Response(serializer.data)
 
-def get_note_packet(school_id):
+def get_school(school_id):
     """Method to Get Notes Packet ID"""
     try:
-        school = School.objects.prefetch_related(school_id)
+        school = School.objects.get(school_id)
         serializer = SchoolSerializer(school)
         return Response(serializer.data)
     except School.DoesNotExist:
         return Response({"error": "Notes Packet Note in Database"}, 404)
+    

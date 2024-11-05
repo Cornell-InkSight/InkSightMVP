@@ -22,7 +22,7 @@ def get_notes_packets():
 def get_note_packet(note_packet_id):
     """Method to Get Notes Packet ID"""
     try:
-        notes_packet = Permissions.objects.prefetch_related(note_packet_id)
+        notes_packet = Permissions.objects.get(note_packet_id)
         serializer = PermissionsSerializer(notes_packet)
         return Response(serializer.data)
     except Permissions.DoesNotExist:

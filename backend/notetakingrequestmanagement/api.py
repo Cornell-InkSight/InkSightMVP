@@ -22,7 +22,7 @@ def get_notes_packets():
 def get_note_packet(note_packet_id):
     """Method to Get Notes Packet ID"""
     try:
-        notes_packet = NoteTakingRequest.objects.prefetch_related(note_packet_id)
+        notes_packet = NoteTakingRequest.objects.get(note_packet_id)
         serializer = NoteTakingRequestSerializer(notes_packet)
         return Response(serializer.data)
     except NoteTakingRequest.DoesNotExist:
