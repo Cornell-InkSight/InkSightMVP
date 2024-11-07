@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import Course, StudentCourse
-from .serializers import CourseSerializer, StudentCourseSerializer
+from .models import Course, StudentCourse, ProfessorCourse
+from .serializers import CourseSerializer, StudentCourseSerializer, ProfessorCourseSerializer
 from usermanagement.models import Professor, Student
 from usermanagement.serializers import StudentSerializer
 from django.shortcuts import render
@@ -46,6 +46,24 @@ def get_student_course(request, student_id, course_id):
         return Response(serializer.data)
     except StudentCourse.DoesNotExist:
         return Response({"error": "Course Doex Not Exist in Database"}, 404)
+    
+@api_view(["GET"])
+def get_professor_courses(request):
+    """Method to Fetch professor-Courses Intermediates"""
+    professor_courses = ProfessorCourse.objects.all()
+    serializer = ProfessorCourseSerializer(professor_courses, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def get_professor_course(request, professor_id, course_id):
+    """Method to Fetch professor-Courses Intermediate"""
+    try:
+        professor_course = ProfessorCourse.objects.get(professor_id=professor_id, course_id=course_id)
+        serializer = ProfessorCourseSerializer(professor_course)
+        return Response(serializer.data)
+    except ProfessorCourse.DoesNotExist:
+        return Response({"error": "Course Doex Not Exist in Database"}, 404)
+
 
 """
 GET (Course-User) Methods
@@ -74,8 +92,9 @@ def get_all_courses_for_student(request, student_id):
 def get_all_students_for_professor(request, professor_id):
     """Method to Fetch Students for a Specific Professor's Courses"""
     try:
-        courses = Course.objects.filter(professor_id=professor_id)
-        student_courses = StudentCourse.objects.filter(course_id__in=courses)
+        professor_courses = ProfessorCourse.objects.filter(professor_id=professor_id)
+        course_ids = professor_courses.values_list("course_id", flat=True).distinct()
+        student_courses = StudentCourse.objects.filter(course_id__in=course_ids)
 
         student_ids = student_courses.values_list("student_id", flat=True).distinct()
         students = Student.objects.filter(id__in=student_ids)
@@ -96,7 +115,7 @@ def get_all_students_for_sds_coordinator(request, sds_coordinator_id):
         student_ids = student_courses.values_list("student_id", flat=True).distinct()
         students = Student.objects.filter(id__in = student_ids)
 
-        serializer = StudentSerializer(students)
+        serializer = StudentSerializer(students, many=True)
         return Response(serializer.data, status=200)
     except Course.DoesNotExist:
         return Response({"error": "SDS Coordinator does not exist or has no courses"}, status=404)
@@ -112,7 +131,7 @@ def add_course(request):
     """Method to Add New course"""
     course_data = request.data
 
-    required_fields = ["name", "school_id", "professor_id", "sds_coordinator_id"]
+    required_fields = ["name", "school_id", "sds_coordinator_id"]
     for field in required_fields:
         if field not in course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -121,7 +140,6 @@ def add_course(request):
     course = course.objects.create(
         name=course_data["name"], 
         school_id=course_data["school_id"], 
-        professor_id = course_data["professor_id"],
         sds_coordinator_id = course_data["sds_coordinator_id"]
     )
 
@@ -149,6 +167,26 @@ def add_student_course(request):
     return Response(serializer.data, status=201)    
 
 @api_view(['POST'])
+def add_professor_course(request):
+    """Method to Add Profssor to Course"""
+    professor_course_data = request.data
+
+    required_fields = ["name", "professor_course", "course_id"]
+    for field in required_fields:
+        if field not in professor_course_data:
+            return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+    professor_course = professor_course.objects.create(
+        name=professor_course_data["name"], 
+        professor_course=professor_course_data["professor_course"],
+        course_id =professor_course_data["course_id"] 
+    )
+
+    serializer = ProfessorCourseSerializer(professor_course)
+    return Response(serializer.data, status=201)    
+
+@api_view(['POST'])
 def add_course_for_student(request, student_id):
     """
     Method to Add Existing or New Course for a Specific Student.
@@ -156,7 +194,7 @@ def add_course_for_student(request, student_id):
     """
     course_data = request.data
 
-    required_fields = ["name", "school_id", "professor_id", "sds_coordinator_id"]
+    required_fields = ["name", "school_id", "sds_coordinator_id"]
     for field in required_fields:
         if field not in course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -169,7 +207,6 @@ def add_course_for_student(request, student_id):
     course, created_course = Course.objects.get_or_create(
         name=course_data["name"],
         school_id=course_data["school_id"],
-        professor_id=course_data["professor_id"],
         sds_coordinator_id=course_data["sds_coordinator_id"]
     )
 

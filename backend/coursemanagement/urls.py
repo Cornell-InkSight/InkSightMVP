@@ -13,7 +13,7 @@ urlpatterns = [
     # Specific User-Course Relations GET methods
     path("students/<int:student_id>/courses/", get_all_courses_for_student, name="get_all_courses_for_student"),
     path("professors/<int:professor_id>/students/", get_all_students_for_professor, name="get_all_students_for_professor"),
-    path("sds-coordinators/<int:sds_coordinator_id>/students/", get_all_students_for_sds_coordinator, name="get_all_students_for_sds_coordinator"),
+    path("sdscoordinators/<int:sds_coordinator_id>/students/", get_all_students_for_sds_coordinator, name="get_all_students_for_sds_coordinator"),
     
     # Course POST methods
     path("courses/add/", add_course, name="add_course"),

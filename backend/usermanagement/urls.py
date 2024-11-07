@@ -12,5 +12,5 @@ urlpatterns = [
     path("tas/<int:ta_id>", get_ta, name="get_ta"),
 
     path("sdscoordinators", get_sdscoordinators, name="get_sdscoordinators"),
-    path("sdscoordinators/<int:sds_coordinators_id>", get_sdscoordinators, name="get_sdscoordinators"),
+    path("sdscoordinators/<int:sds_coordinator_id>", get_sdscoordinator, name="get_sdscoordinator"),
 ]

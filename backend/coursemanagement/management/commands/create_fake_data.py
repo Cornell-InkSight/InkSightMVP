@@ -6,7 +6,7 @@ from faker import Faker
 
 from usermanagement.models import Student, Professor, SDSCoordinator, TeacherAssistant
 from schoolmanagement.models import School
-from coursemanagement.models import Course, StudentCourse
+from coursemanagement.models import Course, StudentCourse, ProfessorCourse
 
 fake = Faker()
 
@@ -76,21 +76,20 @@ class Command(BaseCommand):
             students.append(student)
         return students
 
-    def create_fake_courses(self, schools, professors, sds_coordinators, num_courses=20):
-        """Create fake courses with assigned professors and SDS coordinators."""
+    def create_fake_courses(self, schools, sds_coordinators, num_courses=20):
+        """Create fake courses with assigned SDS coordinators."""
         courses = []
         for _ in range(num_courses):
             course = Course.objects.create(
                 name=f"{fake.word().capitalize()} 101",
                 school=random.choice(schools),
-                professor=random.choice(professors),
                 sds_coordinator=random.choice(sds_coordinators)
             )
             courses.append(course)
         return courses
 
     def create_fake_data(self):
-        # Create schools
+        """Combine Functions to Create Full Fake Dataaset"""
         schools = self.create_fake_school()
 
         # Create professors, SDS coordinators, TAs, and students
@@ -100,10 +99,14 @@ class Command(BaseCommand):
         students = self.create_fake_students(schools)
 
         # Create courses and associate with students
-        courses = self.create_fake_courses(schools, professors, sds_coordinators)
+        courses = self.create_fake_courses(schools, sds_coordinators)
         for student in students:
             student_courses = random.sample(courses, k=random.randint(1, 3))
             for course in student_courses:
                 StudentCourse.objects.create(student=student, course=course)
+        for professor in professors:
+            professor_courses = random.sample(courses, k=random.randint(1, 3))
+            for course in professor_courses:
+                ProfessorCourse.objects.create(professor=professor, course=course)
 
         self.stdout.write(self.style.SUCCESS("Fake data created successfully!"))

@@ -47,37 +47,53 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
+import { fetchStudent, fetchCourses } from "@/services/api/fetch"
 
 const route = useRoute()
-const courses = ref<any[]>([])
-const student = ref(null)
-const loading = ref<boolean>(true)
-const error = ref<string | null>(null)
+const courses = ref<any[]>([]) // Holds data for students courses, initially empty
+const student = ref(null) // Holds data for student, initially null
+const loading = ref<boolean>(true) // Loading state indicator
+const error = ref<string | null>(null) // Error message, if any
 
-const fetchStudent = async (studentId: string) => {  
-  try {
-    const response = await axios.get(`http://127.0.0.1:8000/usermanagement/students/${studentId}`)
-    student.value = response.data;
-  } catch (err) {
-    error.value = "Failed to load student"
+/**
+ * Fetches data for the given student and assigns it to `student`
+ * Logs error message if request fails
+ * 
+ * @param studentId // The id of the given student, from route params
+ * @returns {Promise<Void>} // A Promise that resolves when the data is fetched and assigned
+ */
+const loadStudent = async (studentId: string) => {
+  const { data, error: studentError } = await fetchStudent(studentId);
+  if (studentError) {
+    error.value = studentError;
+    return;
+  } 
+  student.value = data;
+};
+
+/**
+ * Fetches data for the courses for the given student and assigns it to `courses`
+ * Logs error message if request fails
+ * @param studentId // the id of the given student, from route params
+ * @returns {Promise<Void>} // A Promise that resolves when the data is fetched and assigned
+ */
+const loadCourses = async (studentId: string) => {
+  const { data, error: coursesError } = await fetchCourses(studentId);
+  if (coursesError) {
+    error.value = coursesError;
+  } else {
+    courses.value = data;
   }
-}
+};
 
-const fetchCourses = async (studentId: string) => {
-  try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/students/${studentId}/courses/`)
-    console.log("Courses data:", JSON.stringify(response.data, null, 2))  
-    courses.value = response.data
-  } catch (err) {
-    error.value = "Failed to load courses"
-  } finally {
-    loading.value = false
-  }
-}
-
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for both the professor and their students.
+ */
 onMounted(async () => {
   const studentId = route.params.studentId as string
-  await fetchStudent(studentId)
-  await fetchCourses(studentId)
+  await loadStudent(studentId);
+  await loadCourses(studentId);
+  loading.value = false; 
 })
 </script>
