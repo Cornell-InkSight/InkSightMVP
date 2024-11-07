@@ -61,11 +61,14 @@ def get_all_courses_for_student(request, student_id):
     try:
         student_courses = StudentCourse.objects.filter(student_id=student_id)
         course_ids = student_courses.values_list("course_id", flat=True).distinct()
-        courses = Course.objects.filter(id__in=course_ids)
-        serializer = StudentCourseSerializer(courses, many=True)
+        courses = Course.objects.filter(id__in=course_ids)        
+        serializer = CourseSerializer(courses, many=True) 
         return Response(serializer.data)
-    except StudentCourse.DoesNotExist:
-        return Response({"error": "Course Doex Not Exist in Database"}, 404)
+        
+    except Exception as e:
+        # Log the error if needed, and return a generic error message
+        return Response({"error": str(e)}, status=500)
+
 
 @api_view(["GET"])
 def get_all_students_for_professor(request, professor_id):
