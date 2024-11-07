@@ -27,7 +27,7 @@ def get_student(request, student_id):
     """Method to Fetch Student"""
     
     try:
-        student = Student.objects.get(student_id)
+        student = Student.objects.get(id=student_id)
         serializer = StudentSerializer(student)
         return Response(serializer.data)
     except Student.DoesNotExist:
@@ -45,7 +45,7 @@ def get_sdscoordinators(request):
 def get_sdscoordinator(request, sds_coordinator_id):
     """Method to Fetch SDS Coordinator"""
     try:
-        sdscoordinator = SDSCoordinator.objects.get(sds_coordinator_id)
+        sdscoordinator = SDSCoordinator.objects.get(id=sds_coordinator_id)
         serializer = SDSCoordinatorSerializer(sdscoordinator)
         return Response(serializer.data)
     except SDSCoordinator.DoesNotExist:
@@ -62,7 +62,7 @@ def get_professors(request):
 def get_professor(request, professor_id):
     """Method to Fetch Professor"""
     try:
-        professor = Professor.objects.get(professor_id)
+        professor = Professor.objects.get(id=professor_id)
         serializer = ProfessorSerializer(professor)
         return Response(serializer.data)
     except Professor.DoesNotExist:
@@ -79,7 +79,7 @@ def get_tas(request):
 def get_ta(request, ta_id):
     """Method to Fetch TA"""
     try:
-        teacherassistant = TeacherAssistant.objects.get(ta_id)
+        teacherassistant = TeacherAssistant.objects.get(id=ta_id)
         serializer = TeacherAssistantSerializer(teacherassistant)
         return Response(serializer.data)
     except TeacherAssistant.DoesNotExist:

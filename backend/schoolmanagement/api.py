@@ -25,7 +25,7 @@ def get_schools(request):
 def get_school(request, school_id):
     """Method to Get School ID"""
     try:
-        school = School.objects.get(school_id)
+        school = School.objects.get(id=school_id)
         serializer = SchoolSerializer(school)
         return Response(serializer.data)
     except School.DoesNotExist:
@@ -34,7 +34,7 @@ def get_school(request, school_id):
 @api_view(['GET'])
 def get_professors_in_school(request, school_id):
     try:
-        school = School.objects.get(school_id)
+        school = School.objects.get(id=school_id)
         professor = Professor.objects.filter(school_id__in=school)
         serializer = ProfessorSerializer(professor)
         return Response(serializer.data)

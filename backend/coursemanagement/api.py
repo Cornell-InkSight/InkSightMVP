@@ -24,7 +24,7 @@ def get_courses(request):
 def get_course(request, course_id):
     """Method to Fetch Course"""
     try:
-        course = Course.objects.get(course_id)
+        course = Course.objects.get(id=course_id)
         serializer = CourseSerializer(course)
         return Response(serializer.data)
     except Course.DoesNotExist:

@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
+from rest_framework import status
 from .models import NotesPacket
 from .serializers import NotesPacketSerializer
 
@@ -19,10 +20,11 @@ def get_notes_packets(request):
     serializer = NotesPacketSerializer(notes_packets, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
 def get_note_packet(request, note_packet_id):
     """Method to Get Notes Packet ID"""
     try:
-        notes_packet = NotesPacket.objects.get(note_packet_id)
+        notes_packet = NotesPacket.objects.get(id=note_packet_id)
         serializer = NotesPacketSerializer(notes_packet)
         return Response(serializer.data)
     except NotesPacket.DoesNotExist:
@@ -40,7 +42,7 @@ def add_notes_packet(request):
     """Method to Add New Notes Packet"""
     notes_packet_data = request.data
 
-    required_fields = ["note", "student_course_id", "professor_id", "teahcher_assistant_id"]
+    required_fields = ["note", "student_course_id", "professor_id", "teacher_assistant_id"]
     for field in required_fields:
         if field not in notes_packet_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -50,7 +52,7 @@ def add_notes_packet(request):
         note=notes_packet_data["note"], 
         student_course_id=notes_packet_data["student_course_id"], 
         professor_id = notes_packet_data["professor_id"],
-        teahcher_assistant_id = notes_packet_data["teahcher_assistant_id"]
+        teacher_assistant_id = notes_packet_data["teacher_assistant_id"]
     )
 
     serializer = NotesPacketSerializer(notes_packet)

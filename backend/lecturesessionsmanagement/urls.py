@@ -1,0 +1,11 @@
+from django.urls import path
+from .api import *
+
+urlpatterns = [
+    path("lecture-sessions/", get_lecture_sessions, name="get_lecture_sessions"),
+    path("lecture-sessions/<int:lecture_session_id>/", get_lecture_session, name="get_lecture_session"),
+    path("recording-sessions/", get_recording_sessions, name="get_recording_sessions"),
+    path("recording-sessions/<int:recording_session_id>/", get_recording_session, name="get_recording_session"),
+    path("lecture-sessions/add/", add_lecture_session, name="add_lecture_session"),
+    path("recording-sessions/add/", add_recording_session, name="add_recording_session"),
+]

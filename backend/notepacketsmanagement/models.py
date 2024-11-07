@@ -8,5 +8,5 @@ class NotesPacket(models.Model):
     notes = models.JSONField()
     student_course = models.ForeignKey(StudentCourse, on_delete=models.CASCADE)
     professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
-    teahcher_assistant = models.ForeignKey(TeacherAssistant, on_delete=models.CASCADE)
+    teacher_assistant = models.ForeignKey(TeacherAssistant, on_delete=models.CASCADE)
 

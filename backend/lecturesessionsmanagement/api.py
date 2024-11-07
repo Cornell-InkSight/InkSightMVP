@@ -22,11 +22,11 @@ def get_lecture_sessions(request):
 def get_lecture_session(request, lecture_session_id):
     """Method to Fetch Course"""
     try:
-        course = LectureSession.objects.get(lecture_session_id)
-        serializer = LectureSessionSerializer(course)
+        lecture_session = LectureSession.objects.get(id=lecture_session_id)
+        serializer = LectureSessionSerializer(lecture_session)
         return Response(serializer.data)
     except LectureSession.DoesNotExist:
-        return Response({"error": "Course Does Not Exist in Database"}, 404)
+        return Response({"error": "Lecture Session Does Not Exist in Database"}, 404)
 
 @api_view(["GET"])
 def get_recording_sessions(request):
@@ -39,11 +39,11 @@ def get_recording_sessions(request):
 def get_recording_session(request, recording_session_id):
     """Method to Fetch Course"""
     try:
-        course = RecordingSession.objects.get(recording_session_id)
-        serializer = RecordingSessionSerializer(course)
+        recording_session = RecordingSession.objects.get(id=recording_session_id)
+        serializer = RecordingSessionSerializer(recording_session)
         return Response(serializer.data)
     except RecordingSession.DoesNotExist:
-        return Response({"error": "Course Does Not Exist in Database"}, 404)
+        return Response({"error": "Recording Session Does Not Exist in Database"}, 404)
     
 
 """
@@ -57,7 +57,7 @@ def add_lecture_session(request):
     """Method to Add New Lecture Session"""
     lecture_session_data = request.data
 
-    required_fields = ["date", "course", "notepacket", "status"]
+    required_fields = ["date", "course_id", "notepacket", "status"]
     for field in required_fields:
         if field not in lecture_session_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -78,7 +78,7 @@ def add_recording_session(request):
     """Method to Add New Recording Session"""
     recording_session_data = request.data
 
-    required_fields = ["lecture_session", "recording_type", "file_path", "created_at"]
+    required_fields = ["lecture_session_id", "recording_type", "file_path", "created_at"]
     for field in required_fields:
         if field not in recording_session_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
