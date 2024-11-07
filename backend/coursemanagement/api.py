@@ -5,221 +5,232 @@ from .serializers import CourseSerializer, StudentCourseSerializer, ProfessorCou
 from usermanagement.models import Professor, Student
 from usermanagement.serializers import StudentSerializer
 from django.shortcuts import render
+from rest_framework import status
 
 """
 GET (Course) Methods
-1. Uses ORMs to query database, translating SQL to Python
-2. Serializes data to turn into native Python data type (dictionary in this case), for conversion to JSON
-3. Returns the data as an HttpResponse object, in the format of JSON
-4. For specific users (fetched using id), use try/catch to check if that specific id exists
+Provides methods for retrieving information about courses, student-course relationships, and professor-course relationships.
+Each function:
+1. Queries the database using Django's ORM.
+2. Serializes the data to native Python types (dictionaries) for conversion to JSON.
+3. Returns the data as an HTTP response in JSON format.
+4. Uses try-except blocks to handle cases where specific entries are not found.
 """
+
 @api_view(["GET"])
 def get_courses(request):
-    """Method to Fetch Courses"""
+    """
+    Retrieve all courses.
+    Fetches all courses in the database and returns them as a JSON response.
+    """
     courses = Course.objects.all()
     serializer = CourseSerializer(courses, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
 def get_course(request, course_id):
-    """Method to Fetch Course"""
+    """
+    Retrieve a specific course by ID.
+    Args:
+        course_id (int): The ID of the course to retrieve.
+    Returns:
+        JSON response containing course data if found; otherwise, a 404 error.
+    """
     try:
         course = Course.objects.get(id=course_id)
         serializer = CourseSerializer(course)
         return Response(serializer.data)
     except Course.DoesNotExist:
-        return Response({"error": "Course Does Not Exist in Database"}, 404)
-    
+        return Response({"error": "Course does not exist in the database"}, status=404)
+
 @api_view(["GET"])
 def get_student_courses(request):
-    """Method to Fetch Student-Courses Intermediates"""
+    """
+    Retrieve all student-course relationships.
+    Returns all records linking students to their courses.
+    """
     student_courses = StudentCourse.objects.all()
     serializer = StudentCourseSerializer(student_courses, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
 def get_student_course(request, student_id, course_id):
-    """Method to Fetch Student-Courses Intermediate"""
+    """
+    Retrieve a specific student-course relationship by student and course ID.
+    Args:
+        student_id (int): The ID of the student.
+        course_id (int): The ID of the course.
+    """
     try:
         student_course = StudentCourse.objects.get(student_id=student_id, course_id=course_id)
         serializer = StudentCourseSerializer(student_course)
         return Response(serializer.data)
     except StudentCourse.DoesNotExist:
-        return Response({"error": "Course Doex Not Exist in Database"}, 404)
-    
+        return Response({"error": "Student-Course entry does not exist"}, status=404)
+
 @api_view(["GET"])
 def get_professor_courses(request):
-    """Method to Fetch professor-Courses Intermediates"""
+    """
+    Retrieve all professor-course relationships.
+    Returns all records linking professors to their courses.
+    """
     professor_courses = ProfessorCourse.objects.all()
     serializer = ProfessorCourseSerializer(professor_courses, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
 def get_professor_course(request, professor_id, course_id):
-    """Method to Fetch professor-Courses Intermediate"""
+    """
+    Retrieve a specific professor-course relationship by professor and course ID.
+    Args:
+        professor_id (int): The ID of the professor.
+        course_id (int): The ID of the course.
+    """
     try:
         professor_course = ProfessorCourse.objects.get(professor_id=professor_id, course_id=course_id)
         serializer = ProfessorCourseSerializer(professor_course)
         return Response(serializer.data)
     except ProfessorCourse.DoesNotExist:
-        return Response({"error": "Course Doex Not Exist in Database"}, 404)
+        return Response({"error": "Professor-Course entry does not exist"}, status=404)
 
-
-"""
-GET (Course-User) Methods
-1. Uses ORMs to query database, translating SQL to Python
-2. find the specific courses that each student has, or professor/SDS Coordinator
-2. Serializes data to turn into native Python data type (dictionary in this case), for conversion to JSON
-3. Returns the data as an HttpResponse object, in the format of JSON
-4. For specific users (fetched using id), use try/catch to check if that specific id exists
-"""
 @api_view(["GET"])
 def get_all_courses_for_student(request, student_id):
-    """Method to Fetch All Courses For Specific Student"""
-    try:
-        student_courses = StudentCourse.objects.filter(student_id=student_id)
-        course_ids = student_courses.values_list("course_id", flat=True).distinct()
-        courses = Course.objects.filter(id__in=course_ids)        
-        serializer = CourseSerializer(courses, many=True) 
-        return Response(serializer.data)
-        
-    except Exception as e:
-        # Log the error if needed, and return a generic error message
-        return Response({"error": str(e)}, status=500)
-
+    """
+    Retrieve all courses associated with a specific student.
+    Args:
+        student_id (int): The ID of the student.
+    Returns:
+        JSON response containing courses associated with the student, or an error message.
+    """
+    student_courses = StudentCourse.objects.filter(student_id=student_id)
+    course_ids = student_courses.values_list("course_id", flat=True).distinct()
+    courses = Course.objects.filter(id__in=course_ids)
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
 
 @api_view(["GET"])
 def get_all_students_for_professor(request, professor_id):
-    """Method to Fetch Students for a Specific Professor's Courses"""
-    try:
-        professor_courses = ProfessorCourse.objects.filter(professor_id=professor_id)
-        course_ids = professor_courses.values_list("course_id", flat=True).distinct()
-        student_courses = StudentCourse.objects.filter(course_id__in=course_ids)
-
-        student_ids = student_courses.values_list("student_id", flat=True).distinct()
-        students = Student.objects.filter(id__in=student_ids)
-        
-        serializer = StudentSerializer(students, many=True)
-        return Response(serializer.data, status=200)
-
-    except Course.DoesNotExist:
-        return Response({"error": "Professor does not exist or has no courses"}, status=404)
+    """
+    Retrieve all students enrolled in a professor's courses.
+    Args:
+        professor_id (int): The ID of the professor.
+    Returns:
+        JSON response containing student data or an error if no students found.
+    """
+    professor_courses = ProfessorCourse.objects.filter(professor_id=professor_id)
+    course_ids = professor_courses.values_list("course_id", flat=True).distinct()
+    student_courses = StudentCourse.objects.filter(course_id__in=course_ids)
+    student_ids = student_courses.values_list("student_id", flat=True).distinct()
+    students = Student.objects.filter(id__in=student_ids)
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)
 
 @api_view(["GET"])
 def get_all_students_for_sds_coordinator(request, sds_coordinator_id):
-    """Method To Fetch All Students for SDS Coordinator"""
-    try:
-        courses = Course.objects.filter(sds_coordinator_id=sds_coordinator_id)
-        student_courses = StudentCourse.objects.filter(course_id__in=courses)
+    """
+    Retrieve all students associated with courses overseen by an SDS coordinator.
+    Args:
+        sds_coordinator_id (int): The ID of the SDS coordinator.
+    Returns:
+        JSON response with student data or a 404 error if none found.
+    """
+    courses = Course.objects.filter(sds_coordinator_id=sds_coordinator_id)
+    student_courses = StudentCourse.objects.filter(course_id__in=courses)
+    student_ids = student_courses.values_list("student_id", flat=True).distinct()
+    students = Student.objects.filter(id__in=student_ids)
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)
 
-        student_ids = student_courses.values_list("student_id", flat=True).distinct()
-        students = Student.objects.filter(id__in = student_ids)
-
-        serializer = StudentSerializer(students, many=True)
-        return Response(serializer.data, status=200)
-    except Course.DoesNotExist:
-        return Response({"error": "SDS Coordinator does not exist or has no courses"}, status=404)
-    
 """
 POST (Course) Methods
-1. Get the request data from the server (JSON)
-2. List required fields and make sure the request has all necessary data, if not redo
-3. create a new Object with all the fields, serialize and return
+Handles the creation of new entries in the database.
+Each function:
+1. Retrieves JSON data from the request.
+2. Validates that all required fields are provided.
+3. Creates the object, serializes it, and returns it in the response.
 """
+
 @api_view(['POST'])
 def add_course(request):
-    """Method to Add New course"""
+    """
+    Add a new course to the database.
+    Expected JSON fields: name, school_id, sds_coordinator_id.
+    """
     course_data = request.data
-
     required_fields = ["name", "school_id", "sds_coordinator_id"]
     for field in required_fields:
         if field not in course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-    course = course.objects.create(
-        name=course_data["name"], 
-        school_id=course_data["school_id"], 
-        sds_coordinator_id = course_data["sds_coordinator_id"]
+    course = Course.objects.create(
+        name=course_data["name"],
+        school_id=course_data["school_id"],
+        sds_coordinator_id=course_data["sds_coordinator_id"]
     )
-
     serializer = CourseSerializer(course)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
 
 @api_view(['POST'])
 def add_student_course(request):
-    """Method to Add New student_course"""
+    """
+    Add a new student-course entry to associate a student with a course.
+    Expected JSON fields: name, student_id, course_id.
+    """
     student_course_data = request.data
-
     required_fields = ["name", "student_id", "course_id"]
     for field in required_fields:
         if field not in student_course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-    student_course = student_course.objects.create(
-        name=student_course_data["name"], 
+    student_course = StudentCourse.objects.create(
+        name=student_course_data["name"],
         student_id=student_course_data["student_id"],
-        course_id =student_course_data["course_id"] 
+        course_id=student_course_data["course_id"]
     )
-
     serializer = StudentCourseSerializer(student_course)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
 
 @api_view(['POST'])
 def add_professor_course(request):
-    """Method to Add Profssor to Course"""
+    """
+    Add a new professor-course entry to associate a professor with a course.
+    Expected JSON fields: name, professor_id, course_id.
+    """
     professor_course_data = request.data
-
-    required_fields = ["name", "professor_course", "course_id"]
+    required_fields = ["name", "professor_id", "course_id"]
     for field in required_fields:
         if field not in professor_course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-
-    professor_course = professor_course.objects.create(
-        name=professor_course_data["name"], 
-        professor_course=professor_course_data["professor_course"],
-        course_id =professor_course_data["course_id"] 
+    professor_course = ProfessorCourse.objects.create(
+        name=professor_course_data["name"],
+        professor_id=professor_course_data["professor_id"],
+        course_id=professor_course_data["course_id"]
     )
-
     serializer = ProfessorCourseSerializer(professor_course)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
 
 @api_view(['POST'])
 def add_course_for_student(request, student_id):
     """
-    Method to Add Existing or New Course for a Specific Student.
-    If the course already exists, it only links the course with the student in StudentCourse.
+    Link an existing or new course to a specific student.
+    Expected JSON fields: name, school_id, sds_coordinator_id.
     """
     course_data = request.data
-
     required_fields = ["name", "school_id", "sds_coordinator_id"]
     for field in required_fields:
         if field not in course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
-
     try:
         student = Student.objects.get(id=student_id)
     except Student.DoesNotExist:
         return Response({"error": "Student does not exist"}, status=status.HTTP_404_NOT_FOUND)
-
     course, created_course = Course.objects.get_or_create(
         name=course_data["name"],
         school_id=course_data["school_id"],
         sds_coordinator_id=course_data["sds_coordinator_id"]
     )
-
     if StudentCourse.objects.filter(student=student, course=course).exists():
         return Response({"error": "Student is already enrolled in this course"}, status=status.HTTP_400_BAD_REQUEST)
-
-    # Link the course with the student in StudentCourse
     student_course = StudentCourse.objects.create(student=student, course=course)
-
-    course_serializer = CourseSerializer(course)
-    student_course_serializer = StudentCourseSerializer(student_course)
-
     return Response({
-        "course": course_serializer.data,
-        "student_course": student_course_serializer.data
+        "course": CourseSerializer(course).data,
+        "student_course": StudentCourseSerializer(student_course).data
     }, status=status.HTTP_201_CREATED)

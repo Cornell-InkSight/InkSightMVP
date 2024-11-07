@@ -17,15 +17,26 @@ GET (User) Methods
 """
 @api_view(['GET'])
 def get_students(request):
-    """Method to Fetch Student Objects"""
+    """
+    Retrieve all student records.
+    Fetches all student entries available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all student entries.
+    """
+
     students = Student.objects.all()
     serializer = StudentSerializer(students, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_student(request, student_id):
-    """Method to Fetch Student"""
-    
+    """
+    Retrieve a specific student by ID.
+    Args:
+        student_id (int): The ID of the student to retrieve.
+    Returns:
+        JSON response containing student data if found; otherwise, a 404 error.
+    """
     try:
         student = Student.objects.get(id=student_id)
         serializer = StudentSerializer(student)
@@ -36,14 +47,27 @@ def get_student(request, student_id):
 
 @api_view(['GET'])
 def get_sdscoordinators(request):
-    """Method to Fetch SDS Coordinators"""
+    """
+    Retrieve all SDS Coordinator records.
+    Fetches all SDS Coordinator entries available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all SDS Coordinator entries.
+    """
+
     sdscoordinators = SDSCoordinator.objects.all()
     serializer = SDSCoordinatorSerializer(sdscoordinators, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_sdscoordinator(request, sds_coordinator_id):
-    """Method to Fetch SDS Coordinator"""
+    """
+    Retrieve a specific SDS Coordinator by ID.
+    Args:
+        sds_coordinator_id (int): The ID of the SDS Coordinator to retrieve.
+    Returns:
+        JSON response containing SDS Coordinator data if found; otherwise, a 404 error.
+    """
+
     try:
         sdscoordinator = SDSCoordinator.objects.get(id=sds_coordinator_id)
         serializer = SDSCoordinatorSerializer(sdscoordinator)
@@ -53,14 +77,27 @@ def get_sdscoordinator(request, sds_coordinator_id):
 
 @api_view(['GET'])
 def get_professors(request):
-    """Method to Fetch Professors"""
+    """
+    Retrieve all professor records.
+    Fetches all professor entries available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all professor entries.
+    """
+
     professors = Professor.objects.all()
     serializer = ProfessorSerializer(professors, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_professor(request, professor_id):
-    """Method to Fetch Professor"""
+    """
+    Retrieve a specific professor by ID.
+    Args:
+        professor_id (int): The ID of the professor to retrieve.
+    Returns:
+        JSON response containing professor data if found; otherwise, a 404 error.
+    """
+
     try:
         professor = Professor.objects.get(id=professor_id)
         serializer = ProfessorSerializer(professor)
@@ -70,14 +107,27 @@ def get_professor(request, professor_id):
 
 @api_view(['GET'])
 def get_tas(request):
-    """Method to Fetch TAs"""
+    """
+    Retrieve all teaching assistant records.
+    Fetches all teaching assistant entries available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all teaching assistant entries.
+    """
+
     teacherassistants = TeacherAssistant.objects.all()
     serializer = TeacherAssistantSerializer(teacherassistants, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_ta(request, ta_id):
-    """Method to Fetch TA"""
+    """
+    Retrieve a specific teaching assistant by ID.
+    Args:
+        ta_id (int): The ID of the teaching assistant to retrieve.
+    Returns:
+        JSON response containing teaching assistant data if found; otherwise, a 404 error.
+    """
+
     try:
         teacherassistant = TeacherAssistant.objects.get(id=ta_id)
         serializer = TeacherAssistantSerializer(teacherassistant)
@@ -94,7 +144,15 @@ POST (User) Methods
 """
 @api_view(['POST'])
 def add_student(request):
-    """Method to Add New Student"""
+    """
+    Add a new student entry to the database.
+    Expected JSON fields: name, school_id, year, disability.
+    Args:
+        request (Request): The HTTP request containing student data in JSON format.
+    Returns:
+        JSON response containing the created student data, or an error if validation fails.
+    """
+
     student_data = request.data
 
     required_fields = ["name", "school_id", "year", "disability"]
@@ -115,7 +173,15 @@ def add_student(request):
 
 @api_view(['POST'])
 def add_professor(request):
-    """Method to Add New Professor"""
+    """
+    Add a new professor entry to the database.
+    Expected JSON fields: name, school_id (optional: title with default "Dr.").
+    Args:
+        request (Request): The HTTP request containing professor data in JSON format.
+    Returns:
+        JSON response containing the created professor data, or an error if validation fails.
+    """
+
     professor_data = request.data
 
     required_fields = ["name", "school_id"]
@@ -135,7 +201,15 @@ def add_professor(request):
 
 @api_view(['POST'])
 def add_ta(request):
-    """Method to Add New TA"""
+    """
+    Add a new teaching assistant (TA) entry to the database.
+    Expected JSON fields: name, school_id, professor_id.
+    Args:
+        request (Request): The HTTP request containing TA data in JSON format.
+    Returns:
+        JSON response containing the created TA data, or an error if validation fails.
+    """
+
     ta_data = request.data
 
     required_fields = ["name", "school_id", "professor_id"]

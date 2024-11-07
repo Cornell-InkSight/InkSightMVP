@@ -4,56 +4,76 @@ from rest_framework import status
 from .models import NotesPacket
 from .serializers import NotesPacketSerializer
 
-
 """
-GET (Note Packets Management) Methods
-1. Uses ORMs to query database, translating SQL to Python
-2. Serializes data to turn into native Python data type (dictionary in this case), for conversion to JSON
-3. Returns the data as an HttpResponse object, in the format of JSON
-4. For specific users (fetched using id), use try/catch to check if that specific id exists
+GET (Notes Packet Management) Methods
+Provides methods to retrieve Notes Packets data. Each method:
+1. Uses Django ORM to query the database.
+2. Serializes the data into a native Python type (dictionary) for JSON conversion.
+3. Returns the data as an HTTP response in JSON format.
+4. Uses try-except blocks to handle cases where specific entries are not found.
 """
 
 @api_view(['GET'])
 def get_notes_packets(request):
-    """Method to Get Notes Packets"""
+    """
+    Retrieve all notes packets.
+    Fetches all notes packets available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all notes packets.
+    """
     notes_packets = NotesPacket.objects.all()
     serializer = NotesPacketSerializer(notes_packets, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_note_packet(request, note_packet_id):
-    """Method to Get Notes Packet ID"""
+    """
+    Retrieve a specific notes packet by ID.
+    Args:
+        note_packet_id (int): The ID of the notes packet to retrieve.
+    Returns:
+        JSON response containing notes packet data if found; otherwise, a 404 error.
+    """
     try:
         notes_packet = NotesPacket.objects.get(id=note_packet_id)
         serializer = NotesPacketSerializer(notes_packet)
         return Response(serializer.data)
     except NotesPacket.DoesNotExist:
-        return Response({"error": "Notes Packet Note in Database"}, 404)
-    
+        return Response({"error": "Notes Packet not found in database"}, status=404)
 
 """
 POST (Notes Packet) Methods
-1. Get the request data from the server (JSON)
-2. List required fields and make sure the request has all necessary data, if not redo
-3. create a new Object with all the fields, serialize and return
+Handles the creation of new Notes Packets. Each function:
+1. Retrieves JSON data from the request.
+2. Validates that all required fields are provided.
+3. Creates the object, serializes it, and returns the created data in the response.
 """
+
 @api_view(['POST'])
 def add_notes_packet(request):
-    """Method to Add New Notes Packet"""
+    """
+    Add a new notes packet to the database.
+    Expected JSON fields: note, student_course_id, professor_id, teacher_assistant_id.
+    Args:
+        request (Request): The HTTP request containing notes packet data in JSON format.
+    Returns:
+        JSON response containing the created notes packet data, or an error if validation fails.
+    """
     notes_packet_data = request.data
-
     required_fields = ["note", "student_course_id", "professor_id", "teacher_assistant_id"]
+
+    # Validate required fields
     for field in required_fields:
         if field not in notes_packet_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-
+    # Create a new NotesPacket object
     notes_packet = NotesPacket.objects.create(
-        note=notes_packet_data["note"], 
-        student_course_id=notes_packet_data["student_course_id"], 
-        professor_id = notes_packet_data["professor_id"],
-        teacher_assistant_id = notes_packet_data["teacher_assistant_id"]
+        note=notes_packet_data["note"],
+        student_course_id=notes_packet_data["student_course_id"],
+        professor_id=notes_packet_data["professor_id"],
+        teacher_assistant_id=notes_packet_data["teacher_assistant_id"]
     )
 
     serializer = NotesPacketSerializer(notes_packet)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)

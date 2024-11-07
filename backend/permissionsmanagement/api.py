@@ -15,13 +15,24 @@ GET (Permissions) Methods
 
 @api_view(['GET'])
 def get_permissions(request):
-    """Method to Get Notes Packets"""
+    """
+    Retrieve all permissions.
+    Fetches all permission entries available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all permissions.
+    """
     permissions = Permissions.objects.all()
     serializer = PermissionsSerializer(permissions, many=True)
     return Response(serializer.data)
 
 def get_note_packet(request, permission_id):
-    """Method to Get Notes Packet ID"""
+    """
+    Retrieve a specific permission entry by ID.
+    Args:
+        permission_id (int): The ID of the permission entry to retrieve.
+    Returns:
+        JSON response containing permission data if found; otherwise, a 404 error.
+    """
     try:
         permission = Permissions.objects.get(id=permission_id)
         serializer = PermissionsSerializer(permission)
@@ -37,7 +48,14 @@ POST (Permssions) Methods
 """
 @api_view(['POST'])
 def add_permissions(request):
-    """Method to Add New Notes Packet"""
+    """
+    Add a new permission entry to the database.
+    Expected JSON fields: request, student_course_id, sdscoordinator_id.
+    Args:
+        request (Request): The HTTP request containing permission data in JSON format.
+    Returns:
+        JSON response containing the created permission data, or an error if validation fails.
+    """
     permissions_data = request.data
 
     required_fields = ["request", "student_course_id", "sdscoordinator_id"]
@@ -62,7 +80,11 @@ POST (Permissions) Methods specialized
 def assign_student_permissions(student_instance, **kwargs):
     """
     Assign permissions to a Student instance.
+    Args:
+        student_instance (Student): The student instance to which permissions are assigned.
+        kwargs: Additional permission attributes as keyword arguments.
     """
+
     student_content_type = ContentType.objects.get_for_model(Student)
     Permissions.objects.create(
         user_content_type=student_content_type,
@@ -79,7 +101,11 @@ def assign_student_permissions(student_instance, **kwargs):
 def assign_professor_permissions(professor_instance, **kwargs):
     """
     Assign permissions to a Professor instance.
+    Args:
+        professor_instance (Professor): The professor instance to which permissions are assigned.
+        kwargs: Additional permission attributes as keyword arguments.
     """
+
     professor_content_type = ContentType.objects.get_for_model(Professor)
     Permissions.objects.create(
         user_content_type=professor_content_type,
@@ -98,7 +124,11 @@ def assign_professor_permissions(professor_instance, **kwargs):
 def assign_teacher_assistant_permissions(ta_instance, **kwargs):
     """
     Assign permissions to a Teacher Assistant instance.
+    Args:
+        ta_instance (TeacherAssistant): The teacher assistant instance to which permissions are assigned.
+        kwargs: Additional permission attributes as keyword arguments.
     """
+
     ta_content_type = ContentType.objects.get_for_model(TeacherAssistant)
     Permissions.objects.create(
         user_content_type=ta_content_type,
@@ -113,7 +143,11 @@ def assign_teacher_assistant_permissions(ta_instance, **kwargs):
 def assign_sds_coordinator_permissions(sdscoordinator_instance, **kwargs):
     """
     Assign permissions to an SDS Coordinator instance.
+    Args:
+        sdscoordinator_instance (SDSCoordinator): The SDS Coordinator instance to which permissions are assigned.
+        kwargs: Additional permission attributes as keyword arguments.
     """
+
     sds_content_type = ContentType.objects.get_for_model(SDSCoordinator)
     Permissions.objects.create(
         user_content_type=sds_content_type,
@@ -127,7 +161,12 @@ def assign_sds_coordinator_permissions(sdscoordinator_instance, **kwargs):
 
 
 def assign_all_permissions():
-    """Assigns default permissions for every user in the database."""
+    """
+    Assigns default permissions for every user in the database.
+    Loops through all instances of Student, Professor, Teacher Assistant, and SDS Coordinator models,
+    assigning the default permissions to each based on their role.
+    """
+
     for student in Student.objects.all():
         assign_student_permissions(student)
 

@@ -16,14 +16,26 @@ GET (School Management) Methods
 
 @api_view(['GET'])
 def get_schools(request):
-    """Method to School Packets"""
+    """
+    Retrieve all schools.
+    Fetches all school entries available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all school entries.
+    """
     schools = School.objects.all()
     serializer = SchoolSerializer(schools, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
 def get_school(request, school_id):
-    """Method to Get School ID"""
+    """
+    Retrieve a specific school by ID.
+    Args:
+        school_id (int): The ID of the school to retrieve.
+    Returns:
+        JSON response containing school data if found; otherwise, a 404 error.
+    """
+
     try:
         school = School.objects.get(id=school_id)
         serializer = SchoolSerializer(school)
@@ -33,6 +45,14 @@ def get_school(request, school_id):
     
 @api_view(['GET'])
 def get_professors_in_school(request, school_id):
+    """
+    Retrieve all professors associated with a specific school by school ID.
+    Args:
+        school_id (int): The ID of the school whose professors are to be retrieved.
+    Returns:
+        JSON response containing professor data if the school is found; otherwise, a 404 error.
+    """
+
     try:
         school = School.objects.get(id=school_id)
         professor = Professor.objects.filter(school_id__in=school)
@@ -49,7 +69,15 @@ POST (School) Methods
 """
 @api_view(['POST'])
 def add_school(request):
-    """Method to Add New School Packet"""
+    """
+    Add a new school entry to the database.
+    Expected JSON fields: name.
+    Args:
+        request (Request): The HTTP request containing school data in JSON format.
+    Returns:
+        JSON response containing the created school data, or an error if validation fails.
+    """
+
     school_data = request.data
 
     required_fields = ["name"]

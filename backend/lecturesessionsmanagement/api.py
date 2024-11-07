@@ -2,94 +2,136 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import LectureSession, RecordingSession
 from .serializers import LectureSessionSerializer, RecordingSessionSerializer
-from django.shortcuts import render
+from rest_framework import status
 
 """
 GET (LectureSession Management) Methods
-1. Uses ORMs to query database, translating SQL to Python
-2. Serializes data to turn into native Python data type (dictionary in this case), for conversion to JSON
-3. Returns the data as an HttpResponse object, in the format of JSON
-4. For specific users (fetched using id), use try/catch to check if that specific id exists
+Provides methods for retrieving lecture sessions and recording sessions. Each method:
+1. Uses Django ORM to query the database.
+2. Serializes the data into a native Python data type (dictionary) for JSON conversion.
+3. Returns the data as an HTTP response in JSON format.
+4. Uses try-except blocks for fetching specific records by ID, returning a 404 error if not found.
 """
+
 @api_view(["GET"])
 def get_lecture_sessions(request):
-    """Method to Fetch Courses"""
+    """
+    Retrieve all lecture sessions.
+    Fetches all lecture sessions available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all lecture sessions.
+    """
     lecture_sessions = LectureSession.objects.all()
     serializer = LectureSessionSerializer(lecture_sessions, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
 def get_lecture_session(request, lecture_session_id):
-    """Method to Fetch Course"""
+    """
+    Retrieve a specific lecture session by ID.
+    Args:
+        lecture_session_id (int): The ID of the lecture session to retrieve.
+    Returns:
+        JSON response containing lecture session data if found; otherwise, a 404 error.
+    """
     try:
         lecture_session = LectureSession.objects.get(id=lecture_session_id)
         serializer = LectureSessionSerializer(lecture_session)
         return Response(serializer.data)
     except LectureSession.DoesNotExist:
-        return Response({"error": "Lecture Session Does Not Exist in Database"}, 404)
+        return Response({"error": "Lecture Session does not exist in the database"}, status=404)
 
 @api_view(["GET"])
 def get_recording_sessions(request):
-    """Method to Fetch Courses"""
+    """
+    Retrieve all recording sessions.
+    Fetches all recording sessions available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all recording sessions.
+    """
     recording_sessions = RecordingSession.objects.all()
     serializer = RecordingSessionSerializer(recording_sessions, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
 def get_recording_session(request, recording_session_id):
-    """Method to Fetch Course"""
+    """
+    Retrieve a specific recording session by ID.
+    Args:
+        recording_session_id (int): The ID of the recording session to retrieve.
+    Returns:
+        JSON response containing recording session data if found; otherwise, a 404 error.
+    """
     try:
         recording_session = RecordingSession.objects.get(id=recording_session_id)
         serializer = RecordingSessionSerializer(recording_session)
         return Response(serializer.data)
     except RecordingSession.DoesNotExist:
-        return Response({"error": "Recording Session Does Not Exist in Database"}, 404)
-    
+        return Response({"error": "Recording Session does not exist in the database"}, status=404)
 
 """
-POST (Lecture Sessions) Methods
-1. Get the request data from the server (JSON)
-2. List required fields and make sure the request has all necessary data, if not redo
-3. create a new Object with all the fields, serialize and return
+POST (Lecture Session and Recording Session) Methods
+Handles the creation of new lecture sessions and recording sessions.
+Each function:
+1. Retrieves JSON data from the request.
+2. Validates required fields to ensure all necessary data is present.
+3. Creates the object, serializes it, and returns the created data in the response.
 """
+
 @api_view(['POST'])
 def add_lecture_session(request):
-    """Method to Add New Lecture Session"""
+    """
+    Add a new lecture session to the database.
+    Expected JSON fields: date, course_id, notepacket, status.
+    Args:
+        request (Request): The HTTP request containing lecture session data in JSON format.
+    Returns:
+        JSON response containing the created lecture session data, or an error if validation fails.
+    """
     lecture_session_data = request.data
-
     required_fields = ["date", "course_id", "notepacket", "status"]
+
+    # Validate required fields
     for field in required_fields:
         if field not in lecture_session_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-
+    # Create a new LectureSession object
     lecture_session = LectureSession.objects.create(
-        date=lecture_session_data["date"], 
-        course_id=lecture_session_data["course_id"], 
-        notepacket = lecture_session_data["notepacket"],
-        status = lecture_session_data["status"]
+        date=lecture_session_data["date"],
+        course_id=lecture_session_data["course_id"],
+        notepacket=lecture_session_data["notepacket"],
+        status=lecture_session_data["status"]
     )
 
     serializer = LectureSessionSerializer(lecture_session)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
 
 @api_view(['POST'])
 def add_recording_session(request):
-    """Method to Add New Recording Session"""
+    """
+    Add a new recording session linked to a lecture session.
+    Expected JSON fields: lecture_session_id, recording_type, file_path, created_at.
+    Args:
+        request (Request): The HTTP request containing recording session data in JSON format.
+    Returns:
+        JSON response containing the created recording session data, or an error if validation fails.
+    """
     recording_session_data = request.data
-
     required_fields = ["lecture_session_id", "recording_type", "file_path", "created_at"]
+
+    # Validate required fields
     for field in required_fields:
         if field not in recording_session_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-
+    # Create a new RecordingSession object
     recording_session = RecordingSession.objects.create(
-        lecture_session_id=recording_session_data["lecture_session_id"], 
-        recording_type=recording_session_data["recording_type"], 
-        file_path = recording_session_data["file_path"],
-        created_at = recording_session_data["created_at"]
+        lecture_session_id=recording_session_data["lecture_session_id"],
+        recording_type=recording_session_data["recording_type"],
+        file_path=recording_session_data["file_path"],
+        created_at=recording_session_data["created_at"]
     )
 
     serializer = RecordingSessionSerializer(recording_session)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
