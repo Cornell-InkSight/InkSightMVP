@@ -11,8 +11,14 @@ const routes = [
         path: "/professors/:professorId", component: () => import("@/components/ProfessorPortal/ProfessorPortal.vue"),
     },
     {
-        path: "/sdscoordinators/:sdscoordinatorId", component: () => import("@/components/SDSPortal/SDSPortal.vue"),
-    }
+        path: "/sdscoordinators/:sdscoordinatorId", component: () => import("@/components/SDSPortal/SDSStudentsPortal.vue"),
+    },
+    {
+        path: "/sdscoordinators/:sdscoordinatorId/courses", component: () => import("@/components/SDSPortal/SDSCoursesPortal.vue"),
+    },
+    {
+        path: "/sdscoordinators/:sdscoordinatorId/professors", component: () => import("@/components/SDSPortal/SDSProfessorsPortal.vue"),
+    },
 ];
 
 const router = createRouter({

@@ -140,3 +140,65 @@ export const fetchCourses = async (studentId: string): Promise<{ data: Course[] 
     return { data: null, error: "Failed to load courses" };
   }
 };
+
+/**
+ * Fetches courses for a specific school.
+ * @param {string} schoolid - The ID of the school.
+ * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ */
+export const fetchCoursesForSchools = async (schoolid: string): Promise<{ data: Course[] | null; error: string | null }> => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/schoolmanagement/schools/${schoolid}/courses`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load courses" };
+  }
+};
+
+
+/**
+ * Fetches courses for a specific school.
+ * @param {string} schoolid - The ID of the school.
+ * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ */
+export const fetchProfessorsForSchools = async (schoolid: string): Promise<{ data: Professor[] | null; error: string | null }> => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/schoolmanagement/schools/${schoolid}/professors`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load professors" };
+  }
+};
+
+
+/**
+ * Fetches courses for a specific professor.
+ * @param {string} professorid - The ID of the professor.
+ * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ */
+export const fetchCoursesForProfessors = async (professorid: string): Promise<{ data: Course[] | null; error: string | null }> => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/professors/${professorid}/courses`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load courses" };
+  }
+};
+
+
+
+/**
+ * Fetches professors for a specific course.
+ * @param {string} courseid - The ID of the course.
+ * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ */
+export const fetchProfessorsForCourses = async (courseid: string): Promise<{ data: Course[] | null; error: string | null }> => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/courses/${courseid}/professors`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load courses" };
+  }
+};
+
+

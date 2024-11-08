@@ -13,7 +13,9 @@ urlpatterns = [
     # Specific User-Course Relations GET methods
     path("students/<int:student_id>/courses/", get_all_courses_for_student, name="get_all_courses_for_student"),
     path("professors/<int:professor_id>/students/", get_all_students_for_professor, name="get_all_students_for_professor"),
+    path("professors/<int:professor_id>/courses/", get_all_courses_for_professor, name="get_all_courses_for_professor"),
     path("sdscoordinators/<int:sds_coordinator_id>/students/", get_all_students_for_sds_coordinator, name="get_all_students_for_sds_coordinator"),
+    path("courses/<int:course_id>/professors/", get_all_professors_for_courses, name="get_all_professors_for_courses"),
     
     # Course POST methods
     path("courses/add/", add_course, name="add_course"),

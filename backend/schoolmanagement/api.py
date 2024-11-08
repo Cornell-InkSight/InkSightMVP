@@ -2,6 +2,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import School
 from usermanagement.models import Professor
+from coursemanagement.models import Course
+from coursemanagement.serializers import CourseSerializer
 from usermanagement.serializers import ProfessorSerializer
 from .serializers import SchoolSerializer
 
@@ -54,12 +56,24 @@ def get_professors_in_school(request, school_id):
     """
 
     try:
-        school = School.objects.get(id=school_id)
-        professor = Professor.objects.filter(school_id__in=school)
-        serializer = ProfessorSerializer(professor)
+        professor = Professor.objects.filter(school_id=school_id)
+        serializer = ProfessorSerializer(professor, many=True)
         return Response(serializer.data)
     except School.DoesNotExist:
         return Response({"error": "School Not in Database"}, 404)
+    
+@api_view(["GET"])
+def get_all_courses_for_school(request, school_id):
+    """
+    Retrieve all courses associated with a specific school.
+    Args:
+        school_id (int): The ID of the school.
+    Returns:
+        JSON response containing courses associated with the school, or an error message.
+    """
+    courses = Course.objects.filter(school_id=school_id)
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
 
 """
 POST (School) Methods

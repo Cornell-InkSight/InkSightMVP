@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from .models import Course, StudentCourse, ProfessorCourse
 from .serializers import CourseSerializer, StudentCourseSerializer, ProfessorCourseSerializer
 from usermanagement.models import Professor, Student
-from usermanagement.serializers import StudentSerializer
+from usermanagement.serializers import StudentSerializer, ProfessorSerializer
 from django.shortcuts import render
 from rest_framework import status
 
@@ -106,6 +106,36 @@ def get_all_courses_for_student(request, student_id):
     course_ids = student_courses.values_list("course_id", flat=True).distinct()
     courses = Course.objects.filter(id__in=course_ids)
     serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def get_all_courses_for_professor(request, professor_id):
+    """
+    Retrieve all courses associated with a specific student.
+    Args:
+        professor_id (int): The ID of the student.
+    Returns:
+        JSON response containing courses associated with the student, or an error message.
+    """
+    professor_courses = ProfessorCourse.objects.filter(professor_id=professor_id)
+    course_ids = professor_courses.values_list("course_id", flat=True).distinct()
+    courses = Course.objects.filter(id__in=course_ids)
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def get_all_professors_for_courses(request, course_id):
+    """
+    Retrieve all professors associated with a specific course.
+    Args:
+        course_id (int): The ID of the course.
+    Returns:
+        JSON response containing professors associated with the course, or an error message.
+    """
+    professor_courses = ProfessorCourse.objects.filter(course_id=course_id)
+    professor_ids = professor_courses.values_list("course_id", flat=True).distinct()
+    professors = Professor.objects.filter(id__in=professor_ids)
+    serializer = ProfessorSerializer(professors, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
