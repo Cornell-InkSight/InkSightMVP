@@ -15,7 +15,7 @@ Provides methods to retrieve note-taking requests data. Each method:
 """
 
 @api_view(['GET'])
-def get_notes_packets(request):
+def get_note_taking_requests(request):
     """
     Retrieve all note-taking requests.
     Fetches all note-taking requests available in the database and returns them in JSON format.
@@ -27,23 +27,23 @@ def get_notes_packets(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_note_packet(request, note_packet_id):
+def get_note_taking_request(request, note_taking_request_id):
     """
     Retrieve a specific note-taking request by ID.
     Args:
-        note_packet_id (int): The ID of the note-taking request to retrieve.
+        note_taking_request_id (int): The ID of the note-taking request to retrieve.
     Returns:
         JSON response containing note-taking request data if found; otherwise, a 404 error.
     """
     try:
-        notes_packet = NoteTakingRequest.objects.get(id=note_packet_id)
+        notes_packet = NoteTakingRequest.objects.get(id=note_taking_request_id)
         serializer = NoteTakingRequestSerializer(notes_packet)
         return Response(serializer.data)
     except NoteTakingRequest.DoesNotExist:
         return Response({"error": "Note-taking request not found in database"}, status=404)
     
 @api_view(['GET'])
-def get_note_packet_request_for_course(request, course_id):
+def get_note_taking_request_request_for_course(request, course_id):
     """
     Retrieve the note-taking packets for specific course id
     Args:
@@ -95,3 +95,22 @@ def add_note_taking_request(request):
     serializer = NoteTakingRequestSerializer(note_taking_request)
     return Response(serializer.data, status=201)
 
+"""
+PUT (Note Taking Request Methods)
+"""
+@api_view(['PUT'])
+def approve_notetaking_request(request, notetaking_request_id):
+    """
+    Approve note taking request by updating 'approved' to true
+    Args:
+        notetaking_request_id (int): the ID of the notetaking request to be approved
+    """
+    try:
+        notetaking_request = NoteTakingRequest.objects.get(id=notetaking_request_id)
+        notetaking_request.approved = True
+        notetaking_request.save()
+        return Response({"message": "Note-taking request approved successfully."}, status=status.HTTP_200_OK)
+    except NoteTakingRequest.DoesNotExist:
+        return Response({"error": "Note-taking request not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        

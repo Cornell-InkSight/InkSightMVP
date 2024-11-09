@@ -156,7 +156,6 @@ const assignNotetakingRequests = async (): Promise<void> => {
  * @returns {boolean} - Returns true if the student-course has an active request, false otherwise.
  */
 const hasActiveNoteTakingRequest = (student_course_id: string): boolean => {
-  console.log(noteTakingRequests.value)
   return !!noteTakingRequests.value[student_course_id];
 }
 

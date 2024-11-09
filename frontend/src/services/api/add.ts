@@ -67,7 +67,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
         };
 
         // Send the request to the server
-        const response = await axios.post("http://127.0.0.1:8000/notetakingrequestmanagement/notes-packets/add/", note_taking_request);
+        const response = await axios.post("http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/add/", note_taking_request);
         
         return response.data;
     } catch (error: any) {

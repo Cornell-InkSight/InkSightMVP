@@ -1,4 +1,5 @@
 <template>
+<StudentPortalNavbar />
 <div class="max-w-6xl mx-auto p-6 bg-gray-100 min-h-screen">
     <!-- Header with Title and Layout Options -->
     <div class="flex items-center justify-between mb-6">
@@ -22,7 +23,7 @@
         >
             <option value="" disabled>Select a course</option>
             <option v-for="course in courses" :key="course.id" :value="course.id">
-            {{ course.name }}
+                {{ course.name }}
             </option>
         </select>
         </div>
@@ -69,8 +70,6 @@
         class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
     >
         <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
-        <p class="text-gray-600">{{ course.description }}</p>
-        <p class="mt-2 text-sm text-gray-500">{{ course.instructor }}</p>
     </div>
     </div>
 </div>
@@ -79,8 +78,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchStudent, fetchCourses } from "@/services/api/fetch";
+import { fetchStudent, fetchCourses, fetchNotetakingRequestsForCourses } from "@/services/api/fetch";
+import * as interfaces from "@/services/api/interfaces";
 import { addNoteTakingRequest } from "@/services/api/add";
+import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue'
 
 const route = useRoute();
 const studentId = route.params.studentId as string;
@@ -119,6 +120,13 @@ const loadCourses = async () => {
 };
 
 /**
+ * Fetches data for the courses for the given student and assigns it to `courses`.
+ */
+ const loadNoteakingRequestsForCourses = async () => {
+    
+};
+
+/**
  * Submits the note-taking request for the selected course.
  */
 const submitNoteTakingRequest = async () => {
@@ -150,6 +158,7 @@ const submitNoteTakingRequest = async () => {
 onMounted(async () => {
     await loadStudent();
     await loadCourses();
+    await loadNoteakingRequestsForCourses();
     loading.value = false; 
 });
 </script>

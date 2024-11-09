@@ -127,8 +127,8 @@ const loadSDSCoordinator = async (sdscoordinatorId: string) => {
  * Fetches the Professors Data for the given course id, used in loop
  * Logs error, if the request fails
  */
- const loadProfessorsForCourses = async (professorId: string) => {
-    const { data, error } = await fetchProfessorsForCourses(professorId);
+ const loadProfessorsForCourses = async (courseId: string) => {
+    const { data, error } = await fetchProfessorsForCourses(courseId);
     if(error) {
         console.error(error);
         return;

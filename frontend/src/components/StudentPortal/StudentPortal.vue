@@ -1,4 +1,5 @@
 <template>
+  <StudentPortalNavbar />
   <div class="max-w-6xl mx-auto p-6 bg-gray-100 min-h-screen">
     <!-- Header with Title and Layout Options -->
     <div class="flex items-center justify-between mb-6">
@@ -36,7 +37,18 @@
         class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
       >
         <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
-        <p class="text-gray-600">{{ course.description }}</p>
+        <div v-if="course.professors && course.professors.length > 0" class="mt-2">
+                <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
+                <ul class="mt-1 space-y-1">
+                    <li
+                    v-for="professor in course.professors"
+                    :key="professor.id"
+                    class="text-sm text-gray-600 bg-gray-100 rounded-md p-2"
+                    >
+                    {{ professor.name }}
+                    </li>
+                </ul>
+            </div>
         <p class="mt-2 text-sm text-gray-500">{{ course.instructor }}</p>
       </div>
     </div>
@@ -47,7 +59,9 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useRoute } from 'vue-router'
-import { fetchStudent, fetchCourses } from "@/services/api/fetch"
+import { fetchStudent, fetchCourses, fetchProfessorsForCourses, fetchNotetakingRequestsForCourses } from "@/services/api/fetch"
+import * as interfaces from "@/services/api/interfaces"
+import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue'
 
 const route = useRoute()
 const courses = ref<any[]>([]) // Holds data for students courses, initially empty
@@ -73,7 +87,7 @@ const loadStudent = async (studentId: string) => {
 
 /**
  * Fetches data for the courses for the given student and assigns it to `courses`
- * Logs error message if request fails
+ * Logs error message if request fails. Also fetches the professor for each course.
  * @param studentId // the id of the given student, from route params
  * @returns {Promise<Void>} // A Promise that resolves when the data is fetched and assigned
  */
@@ -82,9 +96,30 @@ const loadCourses = async (studentId: string) => {
   if (coursesError) {
     error.value = coursesError;
   } else {
-    courses.value = data;
+    const coursePromises = data.map(async (course: interfaces.Course) => {
+      const professors = await loadProfessorsForCourses(course.id);
+      
+      return {
+        ...course,
+        professors
+      }
+    })
+    courses.value = await Promise.all(coursePromises); 
   }
 };
+
+/**
+ * Fetches the Professors Data for the given course id, used in loop
+ * Logs error, if the request fails
+ */
+ const loadProfessorsForCourses = async (courseId: string) => {
+    const { data, error } = await fetchProfessorsForCourses(courseId);
+    if(error) {
+        console.error(error);
+        return;
+    }
+    return data;
+}
 
 /**
  * Lifecycle hook called when the component is mounted.

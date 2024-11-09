@@ -8,6 +8,7 @@ class NoteTakingRequest(models.Model):
     request = models.TextField()
     student_course = models.ForeignKey(StudentCourse, on_delete=models.CASCADE)
     sdscoordinator = models.ForeignKey(SDSCoordinator, on_delete=models.CASCADE)
+    approved = models.BooleanField()
 
     def __str__(self):
         return f"Request {self.id} for Course {self.course.name}"
