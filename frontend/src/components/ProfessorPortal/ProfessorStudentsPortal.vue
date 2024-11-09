@@ -57,18 +57,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse } from '@/services/api/fetch';
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
+import { fetchStudentCourses } from '../../services/api/fetch';
 
 const route = useRoute();
 const professor = ref<any | null>(null);  // Holds professor data, initially null
-const students = ref<any[]>([]);   // Holds list of courses+students associated with professor
+const students = ref<any[]>([]);          // Holds list of courses+students associated with professor
 const loading = ref<boolean>(true);       // Loading state indicator
 const error = ref<string | null>(null);   // Error message, if any
 const noteTakingRequests = ref<Record<string, boolean>>({}); // Tracks active note-taking requests by student ID
-const courseNames = ref<Record<string, string>>({});  // Dictionary to store course names by ID
+const courseNames = ref<Record<string, string>>({});         // Dictionary to store course names by ID
 
 /**
  * Fetches students and courses for a specific professor by ID and assigns them to `studentscourses`.
@@ -119,16 +120,15 @@ const loadCourseNames = async (): Promise<void> => {
   }
 }
 
-
 /**
  * Loads note-taking requests for each course and populates `noteTakingRequests`.
  */
- const loadStudentCourses = async (): Promise<void> => {
+const assignNotetakingRequests = async (): Promise<void> => {
   for (const courseId of Object.keys(students.value)) {
     const { data, error: fetchError } = await fetchNotetakingRequestsForCourses(courseId);
     if (!fetchError && data) {
       data.forEach((request: any) => {
-        noteTakingRequests.value[request.student_id] = true;
+        noteTakingRequests.value[request.student_course_id] = true;
       });
     } else {
       console.error(`Failed to fetch note-taking requests for course ID ${courseId}:`, fetchError);
@@ -137,21 +137,28 @@ const loadCourseNames = async (): Promise<void> => {
 }
 
 /**
- * Checks if a student has an active note-taking request.
- *
- * @param {string} studentId - The ID of the student to check.
- * @returns {boolean} - Returns true if the student has an active request, false otherwise.
+ * Load Student-Courses
  */
-const hasActiveNoteTakingRequest = (studentId: string): boolean => {
-  return !!noteTakingRequests.value[studentId];
+ const loadStudentCourses = async (professorId: string) => {
+  const { data, error: fetchError } = await fetchStudentCourses(professorId);
+  if (fetchError) {
+    console.error(fetchError);
+    error.value = fetchError;
+    return;
+  }
+  return data;
 }
 
 /**
- * Watch noteTakingRequests to update highlighting
+ * Checks if a student has an active note-taking request.
+ *
+ * @param {string} student_course_id - The ID of the student-course to check.
+ * @returns {boolean} - Returns true if the student-course has an active request, false otherwise.
  */
-watch(noteTakingRequests, () => {
-
-})
+const hasActiveNoteTakingRequest = (student_course_id: string): boolean => {
+  console.log(noteTakingRequests.value)
+  return !!noteTakingRequests.value[student_course_id];
+}
 
 /**
  * Lifecycle hook called when the component is mounted.
@@ -161,8 +168,8 @@ onMounted(async () => {
   const professorId = route.params.professorId as string;
   await loadProfessor(professorId);
   await loadStudents(professorId);
-  await loadStudentCourses()
-  loading.value = false;
+  await assignNotetakingRequests(); 
+  loading.value = false;    
 });
 </script>
 
