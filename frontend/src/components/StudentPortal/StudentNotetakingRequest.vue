@@ -69,13 +69,11 @@
           class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
         >
           <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
-          <p class="text-gray-600">{{ course.description }}</p>
-          <p class="mt-2 text-sm text-gray-500">{{ course.instructor }}</p>
-  
+
           <!-- Display Note Taking Request if Exists for this Course -->
-          <div v-if="noteTakingRequests[`${studentId}-${course.id}`]" class="mt-4 p-2 border-t border-gray-300">
+          <div v-if="noteTakingRequests[`${String(studentId)}-${String(course.id)}`]" class="mt-4 p-2 border-t border-gray-300">
             <h3 class="text-md font-semibold text-gray-700">Note-Taking Request:</h3>
-            <p class="text-sm text-gray-600">{{ noteTakingRequests[`${studentId}-${course.id}`] }}</p>
+            <p class="text-sm text-gray-600">{{ noteTakingRequests[`${String(studentId)}-${String(course.id)}`] }}</p>
           </div>
         </div>
       </div>
@@ -140,9 +138,9 @@
         error.value = requestsError;
       } else {
         data.forEach(async (request: any) => {
-          let studentcourse = await fetchStudentCourses(request.id);
+          let studentcourse = await fetchStudentCourses(request.student_course_id);
           const key = `${studentcourse.data.student_id}-${studentcourse.data.course_id}`;
-          noteTakingRequests.value[key] = request.details;
+          noteTakingRequests.value[key] = request.request;
         });
       }
     })
@@ -160,13 +158,14 @@
         submitErrorMessage.value = "Please select a course and enter request details.";
         return;
       }
-  
+      console.log(studentId, selectedCourseId.value, noteTakingRequest.value)
       await addNoteTakingRequest(studentId, selectedCourseId.value, noteTakingRequest.value);
+      
       submitSuccessMessage.value = "Note-taking request added successfully!";
       
       selectedCourseId.value = "";
       noteTakingRequest.value = "";
-  
+      console.log(noteTakingRequest.value)
       // Reload note-taking requests after adding a new one
       await loadNoteakingRequestsForCourses();
     } catch (error) {

@@ -43,7 +43,6 @@ export const addLectureSession = async (lectureSession: interfaces.LectureSessio
     }
 };
 
-import axios from 'axios';
 
 /**
  * Adds a Note-taking request by calling the API.
@@ -65,7 +64,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
             course_id,
             sdscoordinator_id: sdsCoordinator.id
         };
-
+        console.log(note_taking_request)
         // Send the request to the server
         const response = await axios.post("http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/add/", note_taking_request);
         
@@ -83,3 +82,23 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
     }
 };
 
+/**
+ * Approves note-taking request by calling API
+ * @param notetakingrequest_id - the ID of the notetaking request to approve
+ */
+export const approveNoteTakingRequest = async (notetakingrequest_id: string) => {
+    try {
+        const response = await axios.put(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${notetakingrequest_id}/approve`)
+        return response.data;
+    } catch (error: any) {
+        // Enhanced error logging
+        if (error.response) {
+            console.error("Server responded with an error:", error.response.data);
+            throw new Error(`Failed to add note-taking request: ${error.response.data.error || "Unknown server error"}`);
+        } else {
+            console.error("Failed to add note-taking request:", error.message);
+            throw new Error("Failed to add note-taking request. Please check the provided data and try again.");
+    
+        }
+    }
+}

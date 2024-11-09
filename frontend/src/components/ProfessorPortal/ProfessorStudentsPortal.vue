@@ -37,18 +37,32 @@
           class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
       >
         <!-- Course Header -->
-        <h2 class="text-xl font-bold text-gray-800">{{ courseNames[courseId] || "Loading..." }}</h2>
+        <h2 class="text-xl font-bold text-gray-800">{{ courses[courseId] || "Loading..." }}</h2>
 
         <!-- List of Students for Each Course -->
         <ul class="mt-2 space-y-1">
           <li 
               v-for="student in students" 
               :key="student.id" 
-              :class="{'bg-yellow-100 border-l-4 border-yellow-500': hasActiveNoteTakingRequest(student.id)}"
-              class="text-sm text-gray-600 rounded-md p-2"
+              :class="{
+                'bg-green-100 border-l-4 border-green-500': isApprovedNoteTakingRequest(student.id, courseId),
+                'bg-yellow-100 border-l-4 border-yellow-500': hasActiveNoteTakingRequest(student.id, courseId) && !isApprovedNoteTakingRequest(student.id, courseId)
+              }"
+              class="text-sm text-gray-600 rounded-md p-2 flex items-center justify-between"
           >
-            <p class="font-semibold">{{ student.name }}</p>
-            <p class="text-xs">{{ student.disability }}</p>
+            <div>
+              <p class="font-semibold">{{ student.name }}</p>
+              <p class="text-xs">{{ student.disability }}</p>
+            </div>
+            <div v-if="hasActiveNoteTakingRequest(student.id, courseId) && !isApprovedNoteTakingRequest(student.id, courseId)">
+              <!-- Approve Button -->
+              <button 
+                @click="approveRequest(student.id, courseId)" 
+                class="text-green-600 hover:text-green-800"
+              >
+                ✔️
+              </button>
+            </div>
           </li>
         </ul>
       </div>
@@ -59,24 +73,20 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse } from '@/services/api/fetch';
+import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse, fetchStudentCourses } from '@/services/api/fetch';
+import { approveNoteTakingRequest } from "@/services/api/add"
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
-import { fetchStudentCourses } from '../../services/api/fetch';
 
 const route = useRoute();
 const professor = ref<any | null>(null);  // Holds professor data, initially null
 const students = ref<any[]>([]);          // Holds list of courses+students associated with professor
 const loading = ref<boolean>(true);       // Loading state indicator
 const error = ref<string | null>(null);   // Error message, if any
-const noteTakingRequests = ref<Record<string, boolean>>({}); // Tracks active note-taking requests by student ID
-const courseNames = ref<Record<string, string>>({});         // Dictionary to store course names by ID
+const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
+const courses = ref<Record<string, string>>({});         // Dictionary to store course names by ID
 
 /**
  * Fetches students and courses for a specific professor by ID and assigns them to `studentscourses`.
- * Logs an error message if the request fails.
- *
- * @param {string} professorId - The ID of the professor whose courses+students are being fetched.
- * @returns {Promise<void>} - A Promise that resolves when the data is fetched and assigned.
  */
 const loadStudents = async (professorId: string): Promise<void> => {
   const { data, error: fetchError } = await fetchStudentsForProfessors(professorId);
@@ -86,15 +96,11 @@ const loadStudents = async (professorId: string): Promise<void> => {
     return;
   }
   students.value = data;
-  await loadCourseNames();
+  await loadCourses();
 }
 
 /**
  * Fetches data for a specific professor by ID and assigns it to `professor`.
- * Logs an error message if the request fails.
- *
- * @param {string} professorId - The ID of the professor to fetch.
- * @returns {Promise<void>} - A Promise that resolves when the data is fetched and assigned.
  */
 const loadProfessor = async (professorId: string): Promise<void> => {
   const { data, error: fetchError } = await fetchProfessor(professorId);
@@ -109,11 +115,11 @@ const loadProfessor = async (professorId: string): Promise<void> => {
 /**
  * Loads course names for each course ID in `studentscourses`.
  */
-const loadCourseNames = async (): Promise<void> => {
+const loadCourses = async (): Promise<void> => {
   for (const courseId of Object.keys(students.value)) {
     const { data, error: fetchError } = await fetchCourse(courseId);
     if (!fetchError && data) {
-      courseNames.value[courseId] = data.name;
+      courses.value[courseId] = data.name;
     } else {
       console.error(`Failed to fetch course name for course ID ${courseId}:`, fetchError);
     }
@@ -123,40 +129,53 @@ const loadCourseNames = async (): Promise<void> => {
 /**
  * Loads note-taking requests for each course and populates `noteTakingRequests`.
  */
-const assignNotetakingRequests = async (): Promise<void> => {
-  for (const courseId of Object.keys(students.value)) {
-    const { data, error: fetchError } = await fetchNotetakingRequestsForCourses(courseId);
-    if (!fetchError && data) {
-      data.forEach((request: any) => {
-        noteTakingRequests.value[request.student_course_id] = true;
-      });
+const loadNoteakingRequestsForCourses = async () => {
+  for (const courseId of Object.keys(courses.value)) {
+    const { data, error: requestsError } = await fetchNotetakingRequestsForCourses(courseId);
+    if (requestsError) {
+      console.error(requestsError);
+      error.value = requestsError;
     } else {
-      console.error(`Failed to fetch note-taking requests for course ID ${courseId}:`, fetchError);
+      for (const request of data) {
+        const studentCourse = await fetchStudentCourses(request.student_course_id);
+        const key = `${studentCourse.data.student_id}-${studentCourse.data.course_id}`;
+        noteTakingRequests.value[key] = { approved: request.approved, requestId: request.id };
+      }
     }
   }
-}
+};
 
 /**
- * Load Student-Courses
+ * Approves a note-taking request.
  */
- const loadStudentCourses = async (professorId: string) => {
-  const { data, error: fetchError } = await fetchStudentCourses(professorId);
-  if (fetchError) {
-    console.error(fetchError);
-    error.value = fetchError;
-    return;
+const approveRequest = async (studentId: string, courseId: string) => {
+  const key = `${studentId}-${courseId}`;
+  const request = noteTakingRequests.value[key];
+  
+  if (request && !request.approved) {
+    const { data, error } = await approveNoteTakingRequest(request.requestId);
+    if (error) {
+      console.error("Failed to approve request:", error);
+      return;
+    }
+    request.approved = true;
   }
-  return data;
+};
+
+/**
+ * Checks if a student has an active note-taking request for a specific course.
+ */
+const hasActiveNoteTakingRequest = (studentId: string, courseId: string): boolean => {
+  const key = `${studentId}-${courseId}`;
+  return !!noteTakingRequests.value[key];
 }
 
 /**
- * Checks if a student has an active note-taking request.
- *
- * @param {string} student_course_id - The ID of the student-course to check.
- * @returns {boolean} - Returns true if the student-course has an active request, false otherwise.
+ * Checks if a note-taking request for a specific student and course is approved.
  */
-const hasActiveNoteTakingRequest = (student_course_id: string): boolean => {
-  return !!noteTakingRequests.value[student_course_id];
+const isApprovedNoteTakingRequest = (studentId: string, courseId: string): boolean => {
+  const key = `${studentId}-${courseId}`;
+  return noteTakingRequests.value[key]?.approved || false;
 }
 
 /**
@@ -167,7 +186,7 @@ onMounted(async () => {
   const professorId = route.params.professorId as string;
   await loadProfessor(professorId);
   await loadStudents(professorId);
-  await assignNotetakingRequests(); 
+  await loadNoteakingRequestsForCourses(); 
   loading.value = false;    
 });
 </script>
@@ -177,10 +196,13 @@ onMounted(async () => {
 .bg-yellow-100 {
   background-color: #fef3c7;
 }
-.border-l-4 {
-  border-left-width: 4px;
-}
 .border-yellow-500 {
   border-color: #d97706;
+}
+.bg-green-100 {
+  background-color: #d1fae5;
+}
+.border-green-500 {
+  border-color: #10b981;
 }
 </style>

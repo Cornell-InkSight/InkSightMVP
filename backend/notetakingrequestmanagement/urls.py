@@ -6,5 +6,5 @@ urlpatterns = [
     path("notetaking-request/<int:note_taking_request_id>/", get_note_taking_request, name="get_note_packet"),
     path("notetaking-request/add/", add_note_taking_request, name="add_note_taking_request"),
     path("courses/<int:course_id>/note-packets", get_note_taking_request_request_for_course, name="get_note_taking_request_request_for_course"),
-    path("notetaking-request/<int:note_taking_request_id>/approve", approve_notetaking_request, name="approve_notetaking_request")
+    path("notetaking-request/<int:notetaking_request_id>/approve", approve_notetaking_request, name="approve_notetaking_request")
 ]
