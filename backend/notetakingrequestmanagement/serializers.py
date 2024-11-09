@@ -5,4 +5,4 @@ class NoteTakingRequestSerializer(serializers.ModelSerializer):
     """Serializer For NoteTakingRequest"""
     class Meta:
         model = NoteTakingRequest
-        fields = ['id', 'request', 'student_course_id', 'sds_coordinator_id']
+        fields = ['id', 'request', 'student_course_id', 'sdscoordinator_id']

@@ -126,6 +126,7 @@ const loadCoursesForProfessor = async (professorId: string) => {
     return data;
 }
 
+
 /**
  * Fetches professors and loads their courses.
  * Logs error, if the request fails

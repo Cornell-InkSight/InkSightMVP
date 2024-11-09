@@ -8,7 +8,16 @@ const routes = [
         path: "/students/:studentId", component: () => import("@/components/StudentPortal/StudentPortal.vue"),
     },
     {
-        path: "/professors/:professorId", component: () => import("@/components/ProfessorPortal/ProfessorPortal.vue"),
+        path: "/students/:studentId/request", component: () => import("@/components/StudentPortal/StudentNotetakingRequest.vue"),
+    },
+    {
+        path: "/professors/:professorId", component: () => import("@/components/ProfessorPortal/ProfessorStudentsPortal.vue"),
+    },
+    {
+        path: "/professors/:professorId/courses", component: () => import("@/components/ProfessorPortal/ProfessorCoursePortal.vue"),
+    },
+    {
+        path: "/professors/:professorId/lectures", component: () => import("@/components/ProfessorPortal/ProfessorPublishingPortal.vue"),
     },
     {
         path: "/sdscoordinators/:sdscoordinatorId", component: () => import("@/components/SDSPortal/SDSStudentsPortal.vue"),

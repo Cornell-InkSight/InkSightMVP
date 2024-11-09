@@ -2,8 +2,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Course, StudentCourse, ProfessorCourse
 from .serializers import CourseSerializer, StudentCourseSerializer, ProfessorCourseSerializer
-from usermanagement.models import Professor, Student
-from usermanagement.serializers import StudentSerializer, ProfessorSerializer
+from usermanagement.models import Professor, Student, SDSCoordinator
+from usermanagement.serializers import StudentSerializer, ProfessorSerializer, SDSCoordinatorSerializer
 from django.shortcuts import render
 from rest_framework import status
 
@@ -63,6 +63,20 @@ def get_student_course(request, student_id, course_id):
     """
     try:
         student_course = StudentCourse.objects.get(student_id=student_id, course_id=course_id)
+        serializer = StudentCourseSerializer(student_course)
+        return Response(serializer.data)
+    except StudentCourse.DoesNotExist:
+        return Response({"error": "Student-Course entry does not exist"}, status=404)
+
+@api_view(["GET"])
+def get_student_course_with_id(request, studentcourse_id):
+    """
+    Retrieve a specific student-course relationship by Student-Course ID.
+    Args:
+        studentcourse_id (int): The ID of the student-course.
+    """
+    try:
+        student_course = StudentCourse.objects.get(id=studentcourse_id)
         serializer = StudentCourseSerializer(student_course)
         return Response(serializer.data)
     except StudentCourse.DoesNotExist:
@@ -145,15 +159,23 @@ def get_all_students_for_professor(request, professor_id):
     Args:
         professor_id (int): The ID of the professor.
     Returns:
-        JSON response containing student data or an error if no students found.
+        JSON response containing a dictionary with course names as keys and lists of students as values.
     """
     professor_courses = ProfessorCourse.objects.filter(professor_id=professor_id)
     course_ids = professor_courses.values_list("course_id", flat=True).distinct()
-    student_courses = StudentCourse.objects.filter(course_id__in=course_ids)
-    student_ids = student_courses.values_list("student_id", flat=True).distinct()
-    students = Student.objects.filter(id__in=student_ids)
-    serializer = StudentSerializer(students, many=True)
-    return Response(serializer.data)
+    courses = Course.objects.filter(id__in=course_ids)
+
+    course_students_dict = {}
+
+    for course in courses:
+        student_courses = StudentCourse.objects.filter(course_id = course.id)
+        student_ids = student_courses.values_list("student_id", flat=True).distinct()
+        students = Student.objects.filter(id__in = student_ids)
+
+        serializer = StudentSerializer(students, many=True)
+        course_students_dict[course.id] = serializer.data
+    
+    return Response(course_students_dict)
 
 @api_view(["GET"])
 def get_all_students_for_sds_coordinator(request, sds_coordinator_id):
@@ -169,6 +191,20 @@ def get_all_students_for_sds_coordinator(request, sds_coordinator_id):
     student_ids = student_courses.values_list("student_id", flat=True).distinct()
     students = Student.objects.filter(id__in=student_ids)
     serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def get_sds_coordinator_course(request, course_id):
+    """
+    Retrieve the respective SDS Coordinator associated with the courses overseen
+    Args:
+        course_id (int): the ID of the course
+    Returns
+        JSON response with the SDS coordinator data or 404 error if not found
+    """
+    course = Course.objects.get(id=course_id)
+    sds_coordinator = SDSCoordinator.objects.get(id=course.sds_coordinator_id)
+    serializer = SDSCoordinatorSerializer(sds_coordinator)
     return Response(serializer.data)
 
 """

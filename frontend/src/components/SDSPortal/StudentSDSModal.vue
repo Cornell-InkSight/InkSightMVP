@@ -124,7 +124,7 @@ const addCourse = async () => {
     const { name, school_id, sds_coordinator_id } = newCourse.value;
 
     if (!name || !school_id || !sds_coordinator_id) {
-        addCourseError.value = "All fields are required.";
+        addCourseError.value = "All fields are required."; 
         return;
     }
 
@@ -148,16 +148,16 @@ const addCourse = async () => {
  * Watch for changes in `id` prop to reload profile if `id` changes.
  */
 watch(() => props.id, async () => {
-loading.value = true;
-await loadStudentProfile();
-await loadStudentCourses();
-loading.value = false;
+    loading.value = true;
+    await loadStudentProfile();
+    await loadStudentCourses();
+    loading.value = false;
 });
 
 onMounted(async () => {
-await loadStudentProfile();
-await loadStudentCourses();
-loading.value = false;
+    await loadStudentProfile();
+    await loadStudentCourses();
+    loading.value = false;
 });
 </script>
   
