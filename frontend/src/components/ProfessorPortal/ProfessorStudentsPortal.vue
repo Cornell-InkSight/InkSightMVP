@@ -32,9 +32,9 @@
     </div>
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div 
-          v-for="(students, courseId) in students" 
-          :key="courseId" 
-          class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
+        v-for="(students, courseId) in students" 
+        :key="courseId" 
+        class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
       >
         <!-- Course Header -->
         <h2 class="text-xl font-bold text-gray-800">{{ courses[courseId] || "Loading..." }}</h2>
@@ -42,26 +42,31 @@
         <!-- List of Students for Each Course -->
         <ul class="mt-2 space-y-1">
           <li 
-              v-for="student in students" 
-              :key="student.id" 
-              :class="{
-                'bg-green-100 border-l-4 border-green-500': isApprovedNoteTakingRequest(student.id, courseId),
-                'bg-yellow-100 border-l-4 border-yellow-500': hasActiveNoteTakingRequest(student.id, courseId) && !isApprovedNoteTakingRequest(student.id, courseId)
-              }"
-              class="text-sm text-gray-600 rounded-md p-2 flex items-center justify-between"
+            v-for="student in students" 
+            :key="student.id" 
+            :class="{
+              'bg-green-100 border-l-4 border-green-500': isApprovedNoteTakingRequest(student.id, courseId),
+              'bg-yellow-100 border-l-4 border-yellow-500': hasActiveNoteTakingRequest(student.id, courseId) && !isApprovedNoteTakingRequest(student.id, courseId)
+            }"
+            class="text-sm text-gray-600 rounded-md p-2 flex items-center justify-between relative"
           >
-            <div>
-              <tippy 
-                  v-if="hasActiveNoteTakingRequest(student.id, courseId)"
-                  :content="getRequestTooltip(student.id, courseId)"
-                >
-                <span class="font-semibold">{{ student.name }}</span>
-              </tippy>
-              <tippy v-else>
-                <p class="font-semibold">{{ student.name }}</p>
-              </tippy>
-              <p class="text-xs">{{ student.disability }}</p>
+            <div @click="toggleDropdown(student.id, courseId)" class="cursor-pointer">
+              <p class="font-semibold text-gray-800">{{ student.name }}</p>
+              <p class="text-xs text-gray-500">{{ student.disability }}</p>
             </div>
+
+            <!-- Dropdown with Request Details -->
+            <div
+              v-if="isDropdownOpen(student.id, courseId)"
+              class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-10 text-gray-700"
+            >
+              <p v-if="hasActiveNoteTakingRequest(student.id, courseId)">
+                <strong>Status:</strong>
+                {{ isApprovedNoteTakingRequest(student.id, courseId) ? 'Approved' : 'Pending approval' }}
+              </p>
+              <p ><strong>Request Details:</strong> {{ getRequestTooltip(student.id, courseId) }}</p>
+            </div>
+
             <div v-if="hasActiveNoteTakingRequest(student.id, courseId) && !isApprovedNoteTakingRequest(student.id, courseId)">
               <!-- Approve Button -->
               <button 
@@ -81,8 +86,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse, fetchStudentCourses, fetchNoteTakingRequestStudentForCourse} from '@/services/api/fetch';
-import { approveNoteTakingRequest } from "@/services/api/add"
+import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse, fetchStudentCourses, fetchNoteTakingRequestStudentForCourse } from '@/services/api/fetch';
+import { approveNoteTakingRequest } from "@/services/api/add";
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
 import Swal from 'sweetalert2';
 
@@ -91,8 +96,12 @@ const professor = ref<any | null>(null);  // Holds professor data, initially nul
 const students = ref<any[]>([]);          // Holds list of courses+students associated with professor
 const loading = ref<boolean>(true);       // Loading state indicator
 const error = ref<string | null>(null);   // Error message, if any
-const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string, tooltip: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
+const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
 const courses = ref<Record<string, string>>({});         // Dictionary to store course names by ID
+  const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for each student
+
+// Store tooltip content to avoid async issues
+const tooltipContentCache = ref<Record<string, string>>({});
 
 /**
  * Fetches students and courses for a specific professor by ID and assigns them to `studentscourses`.
@@ -106,7 +115,7 @@ const loadStudents = async (professorId: string): Promise<void> => {
   }
   students.value = data;
   await loadCourses();
-}
+};
 
 /**
  * Fetches data for a specific professor by ID and assigns it to `professor`.
@@ -119,7 +128,7 @@ const loadProfessor = async (professorId: string): Promise<void> => {
     return;
   }
   professor.value = data;
-}
+};
 
 /**
  * Loads course names for each course ID in `studentscourses`.
@@ -133,12 +142,12 @@ const loadCourses = async (): Promise<void> => {
       console.error(`Failed to fetch course name for course ID ${courseId}:`, fetchError);
     }
   }
-}
+};
 
 /**
  * Loads note-taking requests for each course and populates `noteTakingRequests`.
  */
-const loadNoteakingRequestsForCourses = async () => {
+const loadNoteTakingRequestsForCourses = async () => {
   for (const courseId of Object.keys(courses.value)) {
     const { data, error: requestsError } = await fetchNotetakingRequestsForCourses(courseId);
     if (requestsError) {
@@ -148,12 +157,19 @@ const loadNoteakingRequestsForCourses = async () => {
       for (const request of data) {
         const studentCourse = await fetchStudentCourses(request.student_course_id);
         const key = `${studentCourse.data.student_id}-${studentCourse.data.course_id}`;
-        const tooltipText = await getRequestTooltip(studentCourse.data.student_id, studentCourse.data.course_id) as string
-        noteTakingRequests.value[key] = { approved: request.approved, requestId: request.id, tooltip: tooltipText };
+        noteTakingRequests.value[key] = { approved: request.approved, requestId: request.id };
       }
     }
   }
 };
+
+/**
+ * Gets request tooltip content for a specific student and course.
+ */
+ const getRequestTooltip = (studentId: string, courseId: string): string => {
+  return tooltipContent(studentId, courseId);
+};
+
 
 /**
  * Approves a note-taking request.
@@ -170,11 +186,10 @@ const approveRequest = async (studentId: string, courseId: string) => {
     }
     Swal.fire({
       title: 'Request Approved',
-      text: `The request for ${studentId} has been approved.`,
+      text: `The request has been approved.`,
       icon: 'success',
       confirmButtonText: 'OK'
     });
-
     request.approved = true;
   }
 };
@@ -182,25 +197,24 @@ const approveRequest = async (studentId: string, courseId: string) => {
 /**
  * Returns a tooltip message for a student's note-taking request.
  */
- const getRequestTooltip = async (studentId: string, courseId: string): Promise<string> => {
-  try {
-    const data = await loadNoteTakingRequestStudentForCourse(studentId, courseId);
-    console.log(data)
-    if (data && data.request) {
-      const studentRequestData = data.request;
-      console.log(studentRequestData)
-      return isApprovedNoteTakingRequest(studentId, courseId) 
-        ? `Approved request: ${studentRequestData}`
-        : `Pending request. Click to approve: ${studentRequestData}`;
-    } else {
-      return "No request data available.";
-    }
-  } catch (error) {
-    console.error("Failed to load note-taking request:", error);
-    return "Error loading request data.";
-  }
-};
+const tooltipContent = (studentId: string, courseId: string) => {
+  const key = `${studentId}-${courseId}`;
 
+  // If already cached, return it
+  if (tooltipContentCache.value[key]) return tooltipContentCache.value[key];
+
+  // Otherwise, load and cache
+  loadNoteTakingRequestStudentForCourse(studentId, courseId).then(data => {
+    tooltipContentCache.value[key] = data?.request
+      ? isApprovedNoteTakingRequest(studentId, courseId)
+        ? `Approved request: ${data.request}`
+        : `Click to approve: ${data.request}`
+      : "No request data available. Please notify student to send request.";
+  });
+
+  // Return a loading message until resolved
+  return "Loading request data...";
+};
 
 /**
  * Checks if a student has an active note-taking request for a specific course.
@@ -208,7 +222,7 @@ const approveRequest = async (studentId: string, courseId: string) => {
 const hasActiveNoteTakingRequest = (studentId: string, courseId: string): boolean => {
   const key = `${studentId}-${courseId}`;
   return !!noteTakingRequests.value[key];
-}
+};
 
 /**
  * Checks if a note-taking request for a specific student and course is approved.
@@ -216,21 +230,36 @@ const hasActiveNoteTakingRequest = (studentId: string, courseId: string): boolea
 const isApprovedNoteTakingRequest = (studentId: string, courseId: string): boolean => {
   const key = `${studentId}-${courseId}`;
   return noteTakingRequests.value[key]?.approved || false;
-}
+};
 
 /**
  * Fetches the Student Course Notetaking Request
  */
- const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId: string) => {
+const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId: string) => {
   const { data, error: fetchError } = await fetchNoteTakingRequestStudentForCourse(studentId, courseId);
   if (fetchError) {
     console.error(fetchError);
     error.value = fetchError;
-    return;
+    return null;
   }
   return data;
-}
+};
 
+/**
+ * Toggles dropdown for the selected student.
+ */
+ const toggleDropdown = (studentId: string, courseId: string) => {
+  const dropdownKey = `${studentId}-${courseId}`;
+  openDropdownId.value = openDropdownId.value === dropdownKey ? null : dropdownKey;
+};
+
+
+/**
+ * Checks if the dropdown for a specific student is open.
+ */
+ const isDropdownOpen = (studentId: string, courseId: string) => {
+  return openDropdownId.value === `${studentId}-${courseId}`;
+};
 
 /**
  * Lifecycle hook called when the component is mounted.
@@ -240,7 +269,7 @@ onMounted(async () => {
   const professorId = route.params.professorId as string;
   await loadProfessor(professorId);
   await loadStudents(professorId);
-  await loadNoteakingRequestsForCourses(); 
+  await loadNoteTakingRequestsForCourses(); 
   loading.value = false;    
 });
 </script>
@@ -258,5 +287,21 @@ onMounted(async () => {
 }
 .border-green-500 {
   border-color: #10b981;
+}
+
+.tippy-box[data-theme~='light-border'] {
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #4b5563;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tippy-box[data-theme~='light-border'] .tippy-content {
+  font-size: 0.875rem; /* Small font for readability */
+  line-height: 1.25;
+}
+
+.tippy-box[data-theme~='light-border'] .tippy-arrow {
+  color: #ffffff;
 }
 </style>
