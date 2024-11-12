@@ -4,8 +4,8 @@
         <h1 class="text-2xl font-bold mb-4">Courses</h1>
 
         <!-- Error Message -->
-        <div v-if="addLectureSessionError" class="text-red-500 mb-4">
-            {{ addLectureSessionError }}
+        <div v-if="addNotesPacketsError" class="text-red-500 mb-4">
+            {{ addNotesPacketsError }}
         </div>
 
         <!-- Courses Grid -->
@@ -14,57 +14,53 @@
                 <h2 class="text-lg font-semibold">{{ course.name }}</h2>
                 <p class="text-sm text-gray-600">{{ course.description }}</p>
                 
-                <!-- Add Button to Open Lecture Form -->
+                <!-- Add Button to Open Notes Packet Form -->
                 <button 
-                    @click="toggleLectureForm(course.id)" 
+                    @click="toggleNotesPacketForm(course.id)" 
                     class="mt-4 bg-gray-300 text-gray-700 py-2 px-4 rounded-full hover:bg-gray-400"
                 >
                     + Publish Notes
                 </button>
 
-                <!-- Lecture Session Form (Visible only for the selected course) -->
-                <div v-if="showAddLectureSessionForm && selectedCourseId === course.id" class="mt-4 border-t pt-4">
-                    <h3 class="text-lg font-semibold mb-2">Add Lecture Session</h3>
-                    <form @submit.prevent="loadAddLectureSession(professorId)">
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700" for="date">Date</label>
-                            <input 
-                                v-model="newLectureSession.date" 
-                                type="date" 
-                                id="date" 
-                                class="mt-1 p-2 block w-full border rounded-md"
-                                required
-                            />
-                        </div>
+                <!-- Notes Packet Session Form (Visible only for the selected course) -->
+                <div v-if="showAddNotesPacketForm && selectedCourseId === course.id" class="mt-4 border-t pt-4">
+                    <h3 class="text-lg font-semibold mb-2">Publish Notes</h3>
+                    <form @submit.prevent="submitNotesPacketForm">
+                        
+                        <!-- Notes Packet Dropdown -->
                         <div class="mb-4">
                             <label class="block text-sm font-medium text-gray-700" for="notepacket">Notes Packet</label>
-                            <input 
-                                v-model="newLectureSession.notepacket" 
-                                type="text" 
+                            <select 
+                                v-model="newNotesSession.lecture_session_id" 
                                 id="notepacket" 
-                                placeholder="Enter notes packet"
                                 class="mt-1 p-2 block w-full border rounded-md"
                                 required
-                            />
+                            >
+                                <option v-if="!notePackets" disabled>Loading...</option>
+                                <option v-for="packet in notePackets[course.id]" :key="packet.id" :value="packet.id">
+                                    Packet from Lecture Session {{ packet.lecture_session_id }}
+                                </option>
+                            </select>
                         </div>
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700" for="status">Status</label>
-                            <input 
-                                v-model="newLectureSession.status" 
-                                type="text" 
-                                id="status" 
-                                placeholder="Enter status"
-                                class="mt-1 p-2 block w-full border rounded-md"
-                                required
-                            />
-                        </div>
+
                         <button 
                             type="submit" 
                             class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
                         >
-                            Add Lecture Session
+                            Publish Notes
                         </button>
                     </form>
+
+                    <!-- Approved Students List -->
+                    <div class="mt-6">
+                        <h4 class="text-md font-semibold text-gray-700">Approved Students for Note Packets</h4>
+                        <ul v-if="approvedStudents[course.id]" class="mt-2 space-y-1">
+                            <li v-for="student in approvedStudents[course.id]" :key="student.id" class="text-gray-600">
+                                <span class="text-sm">{{ student.name }}</span>
+                            </li>
+                        </ul>
+                        <p v-else class="text-sm text-gray-500">No approved students for this course.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -73,80 +69,96 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { addLectureSession } from '@/services/api/add';
-import { fetchCoursesForProfessors } from '@/services/api/fetch';
+import { updateStatusOfNotePacket } from '@/services/api/add';
+import { fetchCoursesForProfessors, fetchApprovedStudentsForCourse, fetchUnpublishedNotePacketsForCourse } from '@/services/api/fetch';
 import { useRoute } from 'vue-router';
 import * as interfaces from "@/services/api/interfaces";
-import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
+import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
 
 const courses = ref<interfaces.Course[]>([]);
-const addLectureSessionError = ref<string>("");
-const newLectureSession = ref<interfaces.LectureSession>({
-    date: '',
+const addNotesPacketsError = ref<string>("");
+const newNotesSession = ref({
+    lecture_session_id: "",
     course_id: 0,
-    notepacket: "",
-    status: ""
+    notes: "",
+    status: "draft",
 });
+const approvedStudents = ref<Record<number, interfaces.Student[]>>({});
+const notePackets = ref<Record<number, interfaces.NotesPacket[]>>({});
+
 const route = useRoute();
 const professorId = route.params.professorId as string;
 
-const showAddLectureSessionForm = ref(false);
-const selectedCourseId = ref<number | null>(null); // Track which course form to show
+const showAddNotesPacketForm = ref(false);
+const selectedCourseId = ref<number | null>(null);
 
-/**
- * Toggles the lecture session form for the selected course.
- * @param {number} courseId - The ID of the selected course.
- */
-const toggleLectureForm = (courseId: number) => {
+const toggleNotesPacketForm = async (courseId: number) => {
     if (selectedCourseId.value === courseId) {
-        // If the form is already open for this course, close it
-        showAddLectureSessionForm.value = false;
+        showAddNotesPacketForm.value = false;
         selectedCourseId.value = null;
     } else {
-        // Open the form for the selected course
-        showAddLectureSessionForm.value = true;
+        showAddNotesPacketForm.value = true;
         selectedCourseId.value = courseId;
-        newLectureSession.value.course_id = courseId; // Set the course_id in the lecture session
+        newNotesSession.value.course_id = courseId;
+
+        const students = await loadApprovedStudentsForCourse(courseId);
+        if (students) {
+            approvedStudents.value[courseId] = students;
+        }
+
+        const packets = await loadNotesPacketsForCourse(courseId);
+        if (packets) {
+            notePackets.value[courseId] = packets;
+        }
     }
 };
 
-/**
- * Loads and adds a lecture session for the selected course.
- * Ensures all fields are filled and refreshes course list.
- */
-const loadAddLectureSession = async (professorId: string) => {
-    const { date, course_id, notepacket, status } = newLectureSession.value;
-
-    if (!date || !course_id || !notepacket || !status) {
-        addLectureSessionError.value = "All fields are required.";
-        return;
-    }
-
-    const lecturesession = { date, course_id, notepacket, status } as interfaces.LectureSession;
-    const { error: addError } = await addLectureSession(lecturesession);
-
-    if (addError) {
-        addLectureSessionError.value = addError;
-    } else {
-        addLectureSessionError.value = "";
-        showAddLectureSessionForm.value = false;
-        newLectureSession.value = { date: '', course_id: 0, notepacket: "", status: "" };
-        selectedCourseId.value = null; // Reset selected course
-        loadCoursesForProfessor(professorId); // Refresh the course list
-    }
-};
-
-/**
- * Fetches the courses for a specific professor.
- */
 const loadCoursesForProfessor = async (professorId: string) => {
     const { data, error } = await fetchCoursesForProfessors(professorId);
     if (error) {
         console.error(error);
-        addLectureSessionError.value = "Failed to load courses.";
+        addNotesPacketsError.value = "Failed to load courses.";
         return;
     }
     courses.value = data;
+};
+
+const loadNotesPacketsForCourse = async (courseId: number) => {
+    const { data, error } = await fetchUnpublishedNotePacketsForCourse(courseId);
+    if (error) {
+        console.error(error);
+        addNotesPacketsError.value = "Failed to load note packets";
+        return [];
+    }
+
+    return data;
+};
+
+// Load approved students for course
+const loadApprovedStudentsForCourse = async (courseId: number) => {
+    const { data, error } = await fetchApprovedStudentsForCourse(courseId);
+    if (error) {
+        console.error(error);
+        return [];
+    }
+    return data;
+};
+
+const submitNotesPacketForm = async () => {
+    if (!newNotesSession.value.lecture_session_id) {
+        addNotesPacketsError.value = "Please select a notes packet.";
+        return;
+    }
+
+    const { error } = await updateStatusOfNotePacket(newNotesSession.value.lecture_session_id, "published");
+    if (error) {
+        console.error(error);
+        addNotesPacketsError.value = "Failed to publish notes packet.";
+    } else {
+        addNotesPacketsError.value = "";
+        showAddNotesPacketForm.value = false;
+        selectedCourseId.value = null; 
+    }
 };
 
 onMounted(async () => {

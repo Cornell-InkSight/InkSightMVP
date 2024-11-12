@@ -3,6 +3,8 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from .models import NoteTakingRequest
 from coursemanagement.models import StudentCourse
+from usermanagement.models import Student
+from usermanagement.serializers import StudentSerializer
 from .serializers import NoteTakingRequestSerializer
 
 """
@@ -58,6 +60,76 @@ def get_note_taking_request_request_for_course(request, course_id):
     except NoteTakingRequest.DoesNotExist:
         return Response({"error": "Note-taking request not found in database"}, status=404)
     
+@api_view(['GET'])
+def get_approved_students_for_notetaking_packets_for_course(request, course_id):
+    """
+    Retrieve all approved students who can receive note packets for a specific course.
+    Args:
+        course_id (int): The ID of the course to retrieve note-taking packets.
+    Returns:
+        JSON response containing student data for approved note-taking requests in the course if found; otherwise, a 404 error.
+    """
+    try:
+        student_courses = StudentCourse.objects.filter(course_id=course_id)
+        approved_requests = NoteTakingRequest.objects.filter(student_course__in=student_courses, approved=True)
+
+        approved_student_ids = approved_requests.values_list('student_course__student_id', flat=True).distinct()
+        approved_students = Student.objects.filter(id__in=approved_student_ids)
+        serializer = StudentSerializer(approved_students, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({"error": str(e)}, status=404)
+    
+@api_view(['GET'])
+def get_student_notetaking_request_for_course(request, student_id, course_id):
+    """
+    Retrieve whether the student is approved for a specific course by ID
+    Args:
+        student_id (int): The ID of the student to retrieve note packets for.
+        course_id (int): The ID of the course to retrieve note packets for.
+    Returns:
+        Boolean response if the student is approved or a message indicating no requests found.
+    """
+    try:
+        student_course = StudentCourse.objects.get(course_id=course_id, student_id=student_id)
+        
+        note_taking_request = NoteTakingRequest.objects.filter(student_course_id=student_course).first()
+        
+        # Check if an approval request exists
+        if note_taking_request:
+            serializer = NoteTakingRequestSerializer(note_taking_request)
+            return Response(serializer.data)
+        else:
+            return Response({ "error": "This student-course does not have an approval request."})
+            
+    except StudentCourse.DoesNotExist:
+        return Response({"error": "Student is not enrolled in this course."}, status=404)
+
+@api_view(['GET'])
+def get_is_student_approved_for_course(request, student_id, course_id):
+    """
+    Retrieve whether the student is approved for a specific course by ID
+    Args:
+        student_id (int): The ID of the student to retrieve note packets for.
+        course_id (int): The ID of the course to retrieve note packets for.
+    Returns:
+        Boolean response if the student is approved or a message indicating no requests found.
+    """
+    try:
+        student_course = StudentCourse.objects.get(course_id=course_id, student_id=student_id)
+        
+        note_taking_request = NoteTakingRequest.objects.filter(student_course_id=student_course).first()
+        
+        # Check if an approval request exists
+        if note_taking_request:
+            return Response({"approved": note_taking_request.approved, "message": "Note-taking request succesfully returned."})
+        else:
+            return Response({"approved": False, "message": "This student-course does not have an approval request."})
+            
+    except StudentCourse.DoesNotExist:
+        return Response({"error": "Student is not enrolled in this course."}, status=404)
+    
+
 """
 POST (Note Taking Request) Methods
 Handles the creation of new note-taking requests. Each function:
@@ -94,6 +166,7 @@ def add_note_taking_request(request):
 
     serializer = NoteTakingRequestSerializer(note_taking_request)
     return Response(serializer.data, status=201)
+    
 
 """
 PUT (Note Taking Request Methods)
@@ -113,4 +186,6 @@ def approve_notetaking_request(request, notetaking_request_id):
     except NoteTakingRequest.DoesNotExist:
         return Response({"error": "Note-taking request not found."}, status=status.HTTP_404_NOT_FOUND)
 
-        
+
+
+    

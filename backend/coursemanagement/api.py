@@ -147,7 +147,7 @@ def get_all_professors_for_courses(request, course_id):
         JSON response containing professors associated with the course, or an error message.
     """
     professor_courses = ProfessorCourse.objects.filter(course_id=course_id)
-    professor_ids = professor_courses.values_list("course_id", flat=True).distinct()
+    professor_ids = professor_courses.values_list("professor_id", flat=True).distinct()
     professors = Professor.objects.filter(id__in=professor_ids)
     serializer = ProfessorSerializer(professors, many=True)
     return Response(serializer.data)

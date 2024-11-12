@@ -1,13 +1,11 @@
 from django.db import models
 from coursemanagement.models import Course
-from notepacketsmanagement.models import NotesPacket
 
 class LectureSession(models.Model):
     id = models.AutoField(primary_key=True)
     date = models.DateTimeField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    notepacket = models.ForeignKey(NotesPacket, on_delete=models.CASCADE)
-    status = models.TextField()
+    status = models.TextField(default="recording")
 
 class RecordingSession(models.Model):
     id = models.AutoField(primary_key=True)

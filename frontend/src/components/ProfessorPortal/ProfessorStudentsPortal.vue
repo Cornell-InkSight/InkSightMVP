@@ -51,7 +51,15 @@
               class="text-sm text-gray-600 rounded-md p-2 flex items-center justify-between"
           >
             <div>
-              <p class="font-semibold">{{ student.name }}</p>
+              <tippy 
+                  v-if="hasActiveNoteTakingRequest(student.id, courseId)"
+                  :content="getRequestTooltip(student.id, courseId)"
+                >
+                <span class="font-semibold">{{ student.name }}</span>
+              </tippy>
+              <tippy v-else>
+                <p class="font-semibold">{{ student.name }}</p>
+              </tippy>
               <p class="text-xs">{{ student.disability }}</p>
             </div>
             <div v-if="hasActiveNoteTakingRequest(student.id, courseId) && !isApprovedNoteTakingRequest(student.id, courseId)">
@@ -73,16 +81,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse, fetchStudentCourses } from '@/services/api/fetch';
+import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse, fetchStudentCourses, fetchNoteTakingRequestStudentForCourse} from '@/services/api/fetch';
 import { approveNoteTakingRequest } from "@/services/api/add"
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
+import Swal from 'sweetalert2';
 
 const route = useRoute();
 const professor = ref<any | null>(null);  // Holds professor data, initially null
 const students = ref<any[]>([]);          // Holds list of courses+students associated with professor
 const loading = ref<boolean>(true);       // Loading state indicator
 const error = ref<string | null>(null);   // Error message, if any
-const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
+const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string, tooltip: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
 const courses = ref<Record<string, string>>({});         // Dictionary to store course names by ID
 
 /**
@@ -139,7 +148,8 @@ const loadNoteakingRequestsForCourses = async () => {
       for (const request of data) {
         const studentCourse = await fetchStudentCourses(request.student_course_id);
         const key = `${studentCourse.data.student_id}-${studentCourse.data.course_id}`;
-        noteTakingRequests.value[key] = { approved: request.approved, requestId: request.id };
+        const tooltipText = await getRequestTooltip(studentCourse.data.student_id, studentCourse.data.course_id) as string
+        noteTakingRequests.value[key] = { approved: request.approved, requestId: request.id, tooltip: tooltipText };
       }
     }
   }
@@ -158,9 +168,39 @@ const approveRequest = async (studentId: string, courseId: string) => {
       console.error("Failed to approve request:", error);
       return;
     }
+    Swal.fire({
+      title: 'Request Approved',
+      text: `The request for ${studentId} has been approved.`,
+      icon: 'success',
+      confirmButtonText: 'OK'
+    });
+
     request.approved = true;
   }
 };
+
+/**
+ * Returns a tooltip message for a student's note-taking request.
+ */
+ const getRequestTooltip = async (studentId: string, courseId: string): Promise<string> => {
+  try {
+    const data = await loadNoteTakingRequestStudentForCourse(studentId, courseId);
+    console.log(data)
+    if (data && data.request) {
+      const studentRequestData = data.request;
+      console.log(studentRequestData)
+      return isApprovedNoteTakingRequest(studentId, courseId) 
+        ? `Approved request: ${studentRequestData}`
+        : `Pending request. Click to approve: ${studentRequestData}`;
+    } else {
+      return "No request data available.";
+    }
+  } catch (error) {
+    console.error("Failed to load note-taking request:", error);
+    return "Error loading request data.";
+  }
+};
+
 
 /**
  * Checks if a student has an active note-taking request for a specific course.
@@ -177,6 +217,20 @@ const isApprovedNoteTakingRequest = (studentId: string, courseId: string): boole
   const key = `${studentId}-${courseId}`;
   return noteTakingRequests.value[key]?.approved || false;
 }
+
+/**
+ * Fetches the Student Course Notetaking Request
+ */
+ const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId: string) => {
+  const { data, error: fetchError } = await fetchNoteTakingRequestStudentForCourse(studentId, courseId);
+  if (fetchError) {
+    console.error(fetchError);
+    error.value = fetchError;
+    return;
+  }
+  return data;
+}
+
 
 /**
  * Lifecycle hook called when the component is mounted.

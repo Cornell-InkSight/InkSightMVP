@@ -5,4 +5,4 @@ class NotesPacketSerializer(serializers.ModelSerializer):
     """Serializer For NotesPacket"""
     class Meta:
         model = NotesPacket
-        fields = ['id', 'notes', 'student_course_id', 'professor_id', 'teacher_assistant_id']
+        fields = ['id', 'notes', 'course_id', 'lecture_session_id', 'status']

@@ -102,3 +102,93 @@ export const approveNoteTakingRequest = async (notetakingrequest_id: string) => 
         }
     }
 }
+
+/**
+ * Adds a new lecture session by calling API
+ * @param lectureSession - the LectureSession Object to be inputted into database
+ */
+export const addNewLectureSession = async(lectureSession: interfaces.LectureSession) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession)
+        return response.data;
+    } catch (error: any) {
+        // Enhanced error logging
+        if (error.response) {
+            console.error("Server responded with an error:", error.response.data);
+            throw new Error(`Failed to add status of lecture session request: ${error.response.data.error || "Unknown server error"}`);
+        } else {
+            console.error("Failed to add status of lecture session request:", error.message);
+            throw new Error("Failed to add status of lecture session request. Please check the provided data and try again.");
+    
+        }
+    }
+}
+
+/**
+ * Set Status of lecture session by calling API
+ * @param status - Status can be either "recording", "editing", "published"
+ */
+/**
+ * Approves status of lecture session request by calling API
+ * @param notetakingrequest_id - the ID of the notetaking request to approve
+ */
+export const updateStatusOfLecture = async (lecturesession_id: string, status: string) => {
+    try {
+        const response = await axios.put(`http://127.0.0.1:8000/lecturesessionsmanagement/lecture-sessions/${lecturesession_id}/update`, { "status": status })
+        return response.data;
+    } catch (error: any) {
+        // Enhanced error logging
+        if (error.response) {
+            console.error("Server responded with an error:", error.response.data);
+            throw new Error(`Failed to add status of lecture session request: ${error.response.data.error || "Unknown server error"}`);
+        } else {
+            console.error("Failed to add status of lecture session request:", error.message);
+            throw new Error("Failed to add status of lecture session request. Please check the provided data and try again.");
+    
+        }
+    }
+}
+/**
+ * Adds new note-taking packet by calling the API
+ * @param {NotesPacket} notespacket - the notepacket to be added to the API
+ */
+export const addNewNotesPacket = async(notepacket: interfaces.NotesPacket) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/notepacketsmanagement/notes-packets/add/`, notepacket)
+        return response.data;
+    } catch (error: any) {
+        if (error.response) {
+            console.error("Server responded with an error:", error.response.data);
+            throw new Error(`Failed to add status of lecture session request: ${error.response.data.error || "Unknown server error"}`);
+        } else {
+            console.error("Failed to add status of lecture session request:", error.message);
+            throw new Error("Failed to add status of lecture session request. Please check the provided data and try again.");
+    
+        }
+    }
+}
+
+/**
+ * Set Status of note packet by calling API
+ * @param status - Status can be either "recording", "editing", "published"
+ */
+/**
+ * Approves status of note packet request by calling API
+ * @param notetakingrequest_id - the ID of the notetaking request to approve
+ */
+export const updateStatusOfNotePacket = async (notepacket_id: string, status: string) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/notepacketsmanagement/notes-packet/${notepacket_id}/update`, { "status": status })
+        return response.data;
+    } catch (error: any) {
+        // Enhanced error logging
+        if (error.response) {
+            console.error("Server responded with an error:", error.response.data);
+            throw new Error(`Failed to add status of note packet request: ${error.response.data.error || "Unknown server error"}`);
+        } else {
+            console.error("Failed to add status of note packet request:", error.message);
+            throw new Error("Failed to add status of note packet request. Please check the provided data and try again.");
+    
+        }
+    }
+}

@@ -4,7 +4,7 @@ from .models import LectureSession, RecordingSession
 class LectureSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = LectureSession
-        fields = ['id', 'date', 'course', 'notepacket', 'status']
+        fields = ['id', 'date', 'course', 'status']
 
 class RecordingSessionSerializer(serializers.ModelSerializer):
     class Meta:

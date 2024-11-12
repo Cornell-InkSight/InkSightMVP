@@ -82,14 +82,14 @@ Each function:
 def add_lecture_session(request):
     """
     Add a new lecture session to the database.
-    Expected JSON fields: date, course_id, notepacket, status.
+    Expected JSON fields: date, course_id, status.
     Args:
         request (Request): The HTTP request containing lecture session data in JSON format.
     Returns:
         JSON response containing the created lecture session data, or an error if validation fails.
     """
     lecture_session_data = request.data
-    required_fields = ["date", "course_id", "notepacket", "status"]
+    required_fields = ["date", "course_id", "status"]
 
     # Validate required fields
     for field in required_fields:
@@ -100,7 +100,6 @@ def add_lecture_session(request):
     lecture_session = LectureSession.objects.create(
         date=lecture_session_data["date"],
         course_id=lecture_session_data["course_id"],
-        notepacket=lecture_session_data["notepacket"],
         status=lecture_session_data["status"]
     )
 
@@ -135,3 +134,22 @@ def add_recording_session(request):
 
     serializer = RecordingSessionSerializer(recording_session)
     return Response(serializer.data, status=201)
+
+@api_view(['PUT'])
+def update_lecture_session_status(request, lecture_session_id):
+    """
+    Updates the status of the lecture session
+    Args:
+        lecture_session_id (int): The ID of the lecture session
+        status (string): The status message to be updated
+    """
+    
+    try:
+        lecture_session = LectureSession.objects.get(id=lecture_session_id)
+        lecture_status = request.data.get('status')
+        lecture_session.status = lecture_status
+        lecture_session.save()
+        return Response({"message": "Lecture Session updated successfully."}, status=status.HTTP_200_OK)
+    except LectureSession.DoesNotExist:
+        return Response({"error": "Lecture Session not found."}, status=status.HTTP_404_NOT_FOUND)
+        

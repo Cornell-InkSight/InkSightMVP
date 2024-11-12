@@ -37,45 +37,68 @@
         class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
       >
         <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
-        <div v-if="course.professors && course.professors.length > 0" class="mt-2">
-                <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
-                <ul class="mt-1 space-y-1">
-                    <li
-                    v-for="professor in course.professors"
-                    :key="professor.id"
-                    class="text-sm text-gray-600 bg-gray-100 rounded-md p-2"
-                    >
-                    {{ professor.name }}
-                    </li>
-                </ul>
-            </div>
-        <p class="mt-2 text-sm text-gray-500">{{ course.instructor }}</p>
+
+        <!-- Approval Check -->
+        <div v-if="course.isApprovedForCourse">
+          <!-- Professors Section -->
+          <div v-if="course.professors && course.professors.length > 0" class="mt-2">
+            <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
+            <ul class="mt-1 space-y-1">
+              <li v-for="professor in course.professors" :key="professor.id" class="text-sm text-gray-600 bg-gray-100 rounded-md p-2">
+                {{ professor.name }}
+              </li>
+            </ul>
+          </div>
+
+          <!-- Most Recent Notes Packets -->
+          <div v-if="course.notesPackets && course.notesPackets.length > 0" class="mt-4">
+            <h4 class="text-sm font-semibold text-gray-700">Recent Notes Packets:</h4>
+            <ul class="mt-1 space-y-1">
+              <li 
+                v-for="packet in course.notesPackets" 
+                :key="packet.id" 
+                class="text-sm text-gray-500 bg-gray-50 rounded-md p-2 hover:bg-gray-100"
+              >
+                <div class="text-blue-500 hover:underline">
+                  <router-link :to="`/notepackets/${packet.id}/`" target='_blank'>
+                    Packet from Lecture Session {{ packet.lecture_session_id }}
+                  </router-link>
+                </div>
+              </li>
+            </ul>
+          </div>
+          <p v-else class="text-sm text-gray-500">No recent notes packets available.</p>
+        </div>
+
+        <!-- Not Approved Message -->
+        <div v-else class="text-sm text-red-500 mt-4">
+          You are not approved for this course. Please request access in the Requests tab.
+        </div>
       </div>
     </div>
-  </div>
+  </div>  
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-import { useRoute } from 'vue-router'
-import { fetchStudent, fetchCourses, fetchProfessorsForCourses, fetchNotetakingRequestsForCourses } from "@/services/api/fetch"
-import * as interfaces from "@/services/api/interfaces"
-import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue'
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+import { useRoute } from 'vue-router';
+import { 
+  fetchStudent, 
+  fetchCourses, 
+  fetchProfessorsForCourses, 
+  fetchPublishedNotePacketsForCourse, 
+  fetchIsApprovedStudentForCourse 
+} from "@/services/api/fetch";
+import * as interfaces from "@/services/api/interfaces";
+import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue';
 
-const route = useRoute()
-const courses = ref<any[]>([]) // Holds data for students courses, initially empty
-const student = ref(null) // Holds data for student, initially null
-const loading = ref<boolean>(true) // Loading state indicator
-const error = ref<string | null>(null) // Error message, if any
+const route = useRoute();
+const courses = ref<any[]>([]);
+const student = ref(null);
+const loading = ref<boolean>(true);
+const error = ref<string | null>(null);
 
-/**
- * Fetches data for the given student and assigns it to `student`
- * Logs error message if request fails
- * 
- * @param studentId // The id of the given student, from route params
- * @returns {Promise<Void>} // A Promise that resolves when the data is fetched and assigned
- */
 const loadStudent = async (studentId: string) => {
   const { data, error: studentError } = await fetchStudent(studentId);
   if (studentError) {
@@ -85,12 +108,6 @@ const loadStudent = async (studentId: string) => {
   student.value = data;
 };
 
-/**
- * Fetches data for the courses for the given student and assigns it to `courses`
- * Logs error message if request fails. Also fetches the professor for each course.
- * @param studentId // the id of the given student, from route params
- * @returns {Promise<Void>} // A Promise that resolves when the data is fetched and assigned
- */
 const loadCourses = async (studentId: string) => {
   const { data, error: coursesError } = await fetchCourses(studentId);
   if (coursesError) {
@@ -98,37 +115,53 @@ const loadCourses = async (studentId: string) => {
   } else {
     const coursePromises = data.map(async (course: interfaces.Course) => {
       const professors = await loadProfessorsForCourses(course.id);
+      const notesPackets = await loadNotesPacketsForCourse(course.id);
+      const isApprovedForCourse = await loadIsStudentApprovedForCourse(studentId, course.id);
       
+      const recentNotesPackets = notesPackets.slice(0, 5);  
+
       return {
         ...course,
-        professors
-      }
-    })
+        professors,
+        notesPackets: recentNotesPackets,
+        isApprovedForCourse,
+      };
+    });
     courses.value = await Promise.all(coursePromises); 
   }
 };
 
-/**
- * Fetches the Professors Data for the given course id, used in loop
- * Logs error, if the request fails
- */
- const loadProfessorsForCourses = async (courseId: string) => {
-    const { data, error } = await fetchProfessorsForCourses(courseId);
-    if(error) {
-        console.error(error);
-        return;
-    }
-    return data;
-}
+const loadProfessorsForCourses = async (courseId: string) => {
+  const { data, error } = await fetchProfessorsForCourses(courseId);
+  if (error) {
+    console.error(error);
+    return;
+  }
+  return data;
+};
 
-/**
- * Lifecycle hook called when the component is mounted.
- * Fetches and sets data for both the professor and their students.
- */
+const loadNotesPacketsForCourse = async (courseId: number) => {
+  const { data, error } = await fetchPublishedNotePacketsForCourse(courseId);
+  if (error) {
+    console.error(error);
+    return [];
+  }
+  return data;
+};
+
+const loadIsStudentApprovedForCourse = async (studentId: string, courseId: string) => {
+  const { data, error } = await fetchIsApprovedStudentForCourse(studentId, courseId);
+  if (error) {
+    console.error(error);
+    return false;
+  }
+  return data;
+};
+
 onMounted(async () => {
-  const studentId = route.params.studentId as string
+  const studentId = route.params.studentId as string;
   await loadStudent(studentId);
   await loadCourses(studentId);
   loading.value = false; 
-})
+});
 </script>

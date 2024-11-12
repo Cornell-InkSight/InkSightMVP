@@ -28,6 +28,9 @@ const routes = [
     {
         path: "/sdscoordinators/:sdscoordinatorId/professors", component: () => import("@/components/SDSPortal/SDSProfessorsPortal.vue"),
     },
+    {
+        path: "/notepackets/:notepacketId/", component: () => import("@/components/NotePackets/NotePacketView.vue")
+    }
 ];
 
 const router = createRouter({

@@ -4,6 +4,23 @@
     
     <h1 class="text-3xl font-bold mb-4">{{ courseName }}</h1>
     
+    <div class="flex gap-4 mb-4">
+        <button
+            v-if="!isRecording"
+            @click="startRecording"
+            class="px-4 py-2 bg-blue-500 text-white rounded-lg"
+        >
+            Start Recording
+        </button>
+        <button
+            v-if="isRecording"
+            @click="stopRecording"
+            class="px-4 py-2 bg-red-500 text-white rounded-lg"
+        > 
+            Stop Recording
+        </button>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
     <!-- Live Camera View -->
     <div class="col-span-2">
@@ -17,7 +34,7 @@
     <div>
         <h2 class="text-xl font-semibold mb-2">Image to text notes:</h2>
         <div class="bg-white p-4 rounded-lg shadow-md">
-        <p class="text-gray-700 mb-2">Problem 1: A 10m ladder is leaning against a wall. It starts with the top 1m up from ground but starts sliding down...</p>
+        <p id="notes-text" class="text-gray-700 mb-2">{{ fakeNote }}</p>
         <img src="https://via.placeholder.com/300x150" alt="Converted notes" class="rounded-lg mt-2" />
         </div>
     </div>
@@ -34,10 +51,84 @@
     </div>
 </div>
 </template>
-  
+    
 <script setup lang="ts">
+import { ref, onMounted } from 'vue';
 import { defineProps, defineEmits } from 'vue';
+import { faker } from '@faker-js/faker';
+import { fetchCourse } from "@/services/api/fetch"
+import { addNewLectureSession, addNewNotesPacket } from "@/services/api/add"
+import { updateStatusOfLecture } from "@/services/api/add"
 
-const props = defineProps<{ courseName: string }>();  // Accepts course name as a prop
-const emit = defineEmits(['closePortal']);  // Emits an event to close the portal
+const props = defineProps<{ courseId: string }>();  
+const emit = defineEmits(['closePortal']);  
+const courseName = ref<String>();
+
+const isRecording = ref(false); 
+const lectureSessionId = ref<string | null>(null);
+const fakeNote = ref<string>(faker.lorem.paragraph(2)); // Generate a fake note using faker
+
+/**
+ * Starts the recording, creates new lecture in the API and calls the POST API
+ */
+const startRecording = async () => {
+    try {
+        const lectureSessionData = {
+            date: new Date(),
+            course_id: props.courseId,
+            status: "recording",
+            url: "https://example.com/stream-url" 
+        };
+        
+        const response = await addNewLectureSession(lectureSessionData);
+        
+        lectureSessionId.value = response.id;
+        isRecording.value = true;
+        console.log("Lecture session started:", response);
+    } catch (error) {
+        console.error("Failed to start recording:", error);
+    }
+}
+
+/**
+ * Loads course names for each course ID in `studentscourses`.
+ */ 
+const loadCourseName = async (courseId: string): Promise<void> => {
+    const { data, error: fetchError } = await fetchCourse(courseId);
+    if (!fetchError && data) {
+        courseName.value = data.name;
+    } else {
+        console.error(`Failed to fetch course name for course ID ${courseId}:`, fetchError);
+    }
+}
+
+/**
+ * Ends recording, uploads new notes packet to the API
+ */
+const stopRecording = async () => {
+    if (!lectureSessionId.value) return; 
+    const notes_packet_data = {
+        "lecture_session_id": lectureSessionId.value,
+        "course_id": props.courseId,
+        "notes": fakeNote.value, // Use the generated fake note
+        "status": "draft",
+    }
+    addNewNotesPacket(notes_packet_data)
+    try {
+        const response = await updateStatusOfLecture(lectureSessionId.value, "done");
+        isRecording.value = false;
+        console.log("Lecture session stopped:", response);
+    } catch (error) {
+        console.error("Failed to stop recording:", error);
+    }
+}
+
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for both the professor and their students.
+ */
+onMounted(async () => {
+    loadCourseName(props.courseId);
+})
 </script>
+    

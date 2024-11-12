@@ -11,7 +11,7 @@
         
         <!-- Start Recording Button -->
         <button 
-        @click="startRecording(course.name)" 
+        @click="startRecording(String(course.id))" 
         class="mt-4 bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600"
         >
         Start Recording
@@ -22,7 +22,7 @@
     <!-- Recording Portal -->
     <RecordingPortal 
     v-if="showRecordingPortal" 
-    :courseName="selectedCourseName" 
+    :courseId="selectedcourseId" 
     @closePortal="closeRecordingPortal" 
     />
 </div>
@@ -38,7 +38,7 @@
 
   const courses = ref<interfaces.Course[]>([]);
   const showRecordingPortal = ref(false);
-  const selectedCourseName = ref<string>("");
+  const selectedcourseId = ref<string>("");
   
   const route = useRoute();
   const professorId = route.params.professorId as string;
@@ -57,10 +57,10 @@
   
   /**
    * Opens the recording portal for the selected course.
-   * @param {string} courseName - The name of the course to display in the recording portal.
+   * @param {string} courseId - The name of the course to display in the recording portal.
    */
-  const startRecording = (courseName: string) => {
-      selectedCourseName.value = courseName;
+  const startRecording = (courseId: string) => {
+      selectedcourseId.value = courseId;
       showRecordingPortal.value = true;
   };
   
@@ -69,7 +69,7 @@
    */
   const closeRecordingPortal = () => {
       showRecordingPortal.value = false;
-      selectedCourseName.value = "";
+      selectedcourseId.value = "";
   };
   
   onMounted(async () => {

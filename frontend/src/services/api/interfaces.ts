@@ -54,9 +54,8 @@ export interface newCourse {
  * Represents a lecture session
  */
 export interface LectureSession {
-    date: string,
+    date: Date,
     course_id: Number,
-    notespacket: URL,
     status: string
 }
 
@@ -64,8 +63,10 @@ export interface LectureSession {
  * Represents a notes packet
  */
 export interface NotesPacket {
-    lecture_session_id: Number,
-    
+    lecture_session_id: String,
+    course_id: String,
+    notes: Text,
+    status: String,
 }
 
 /**
