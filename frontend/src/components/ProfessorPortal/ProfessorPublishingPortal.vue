@@ -1,70 +1,82 @@
 <template>
-    <ProfessorPortalNavbar />
-    <div class="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
-        <h1 class="text-2xl font-bold mb-4">Courses</h1>
+<ProfessorPortalNavbar />
+<div class="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
+    <h1 class="text-2xl font-bold mb-4">Courses</h1>
 
-        <!-- Error Message -->
-        <div v-if="addNotesPacketsError" class="text-red-500 mb-4">
-            {{ addNotesPacketsError }}
+    <!-- Error Message -->
+    <div v-if="addNotesPacketsError" class="text-red-500 mb-4">
+    {{ addNotesPacketsError }}
+    </div>
+
+    <!-- Courses Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div v-for="course in courses" :key="course.id" class="p-4 bg-white rounded-lg shadow-md border border-gray-200">
+        <h2 class="text-lg font-semibold">{{ course.name }}</h2>
+        <p class="text-sm text-gray-600">{{ course.description }}</p>
+        
+        <!-- Add Button to Open Notes Packet Form -->
+        <button 
+        @click="toggleNotesPacketForm(course.id)" 
+        class="mt-4 bg-gray-300 text-gray-700 py-2 px-4 rounded-full hover:bg-gray-400"
+        >
+        + Notes
+        </button>
+
+        <!-- Notes Packet Section -->
+        <div v-if="notePackets[course.id]" class="mt-6">
+        <h3 class="text-lg font-semibold mb-2">Edit New Notes Packets</h3>
+        <ul class="space-y-2">
+            <li v-for="(packet, index) in notePackets[course.id].slice(0, 5)" :key="packet.id">
+            <router-link :to="`/notepackets/${packet.id}/edit`" target="_blank" class="text-blue-500 hover:underline">
+                Lecture Session {{ packet.lecture_session_id }}
+            </router-link>
+            </li>
+        </ul>
         </div>
 
-        <!-- Courses Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div v-for="course in courses" :key="course.id" class="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-                <h2 class="text-lg font-semibold">{{ course.name }}</h2>
-                <p class="text-sm text-gray-600">{{ course.description }}</p>
-                
-                <!-- Add Button to Open Notes Packet Form -->
-                <button 
-                    @click="toggleNotesPacketForm(course.id)" 
-                    class="mt-4 bg-gray-300 text-gray-700 py-2 px-4 rounded-full hover:bg-gray-400"
-                >
-                    + Publish Notes
-                </button>
-
-                <!-- Notes Packet Session Form (Visible only for the selected course) -->
-                <div v-if="showAddNotesPacketForm && selectedCourseId === course.id" class="mt-4 border-t pt-4">
-                    <h3 class="text-lg font-semibold mb-2">Publish Notes</h3>
-                    <form @submit.prevent="submitNotesPacketForm">
-                        
-                        <!-- Notes Packet Dropdown -->
-                        <div class="mb-4">
-                            <label class="block text-sm font-medium text-gray-700" for="notepacket">Notes Packet</label>
-                            <select 
-                                v-model="newNotesSession.lecture_session_id" 
-                                id="notepacket" 
-                                class="mt-1 p-2 block w-full border rounded-md"
-                                required
-                            >
-                                <option v-if="!notePackets" disabled>Loading...</option>
-                                <option v-for="packet in notePackets[course.id]" :key="packet.id" :value="packet.id">
-                                    Packet from Lecture Session {{ packet.lecture_session_id }}
-                                </option>
-                            </select>
-                        </div>
-
-                        <button 
-                            type="submit" 
-                            class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                        >
-                            Publish Notes
-                        </button>
-                    </form>
-
-                    <!-- Approved Students List -->
-                    <div class="mt-6">
-                        <h4 class="text-md font-semibold text-gray-700">Approved Students for Note Packets</h4>
-                        <ul v-if="approvedStudents[course.id]" class="mt-2 space-y-1">
-                            <li v-for="student in approvedStudents[course.id]" :key="student.id" class="text-gray-600">
-                                <span class="text-sm">{{ student.name }}</span>
-                            </li>
-                        </ul>
-                        <p v-else class="text-sm text-gray-500">No approved students for this course.</p>
-                    </div>
-                </div>
+        <!-- Notes Packet Form (Visible only for the selected course) -->
+        <div v-if="showAddNotesPacketForm && selectedCourseId === course.id" class="mt-4 border-t pt-4">
+        <h3 class="text-lg font-semibold mb-2">Publish Notes</h3>
+        <form @submit.prevent="submitNotesPacketForm">
+            
+            <!-- Notes Packet Dropdown -->
+            <div class="mb-4">
+            <label class="block text-sm font-medium text-gray-700" for="notepacket">Notes Packet</label>
+            <select 
+                v-model="newNotesSession.lecture_session_id" 
+                id="notepacket" 
+                class="mt-1 p-2 block w-full border rounded-md"
+                required
+            >
+                <option v-if="!notePackets[course.id]" disabled>Loading...</option>
+                <option v-for="packet in notePackets[course.id]" :key="packet.id" :value="packet.id">
+                Packet from Lecture Session {{ packet.lecture_session_id }}
+                </option>
+            </select>
             </div>
+
+            <button 
+            type="submit" 
+            class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+            >
+            Publish Notes
+            </button>
+        </form>
+
+        <!-- Approved Students List -->
+        <div class="mt-6">
+            <h4 class="text-md font-semibold text-gray-700">Approved Students for Note Packets</h4>
+            <ul v-if="approvedStudents[course.id]" class="mt-2 space-y-1">
+            <li v-for="student in approvedStudents[course.id]" :key="student.id" class="text-gray-600">
+                <span class="text-sm">{{ student.name }}</span>
+            </li>
+            </ul>
+            <p v-else class="text-sm text-gray-500">No approved students for this course.</p>
+        </div>
         </div>
     </div>
+    </div>
+</div>
 </template>
 
 <script setup lang="ts">
@@ -108,6 +120,7 @@ const toggleNotesPacketForm = async (courseId: number) => {
 
         const packets = await loadNotesPacketsForCourse(courseId);
         if (packets) {
+            console.log(packets)
             notePackets.value[courseId] = packets;
         }
     }
@@ -130,7 +143,6 @@ const loadNotesPacketsForCourse = async (courseId: number) => {
         addNotesPacketsError.value = "Failed to load note packets";
         return [];
     }
-
     return data;
 };
 
@@ -165,3 +177,4 @@ onMounted(async () => {
     await loadCoursesForProfessor(professorId);
 });
 </script>
+  
