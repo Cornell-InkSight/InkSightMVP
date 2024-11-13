@@ -192,3 +192,50 @@ export const updateStatusOfNotePacket = async (notepacket_id: string, status: st
         }
     }
 }
+
+/**
+ * Update text of note packet by calling API
+ * @param text - New text
+ */
+/**
+ * Approves status of note packet request by calling API
+ * @param notetakingrequest_id - the ID of the notetaking request to approve
+ */
+export const updateTextOfNotePacket = async (notepacket_id: string, text: string) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/notepacketsmanagement/notes-packet/${notepacket_id}/edit`, { "text": text })
+        return response.data;
+    } catch (error: any) {
+        // Enhanced error logging
+        if (error.response) {
+            console.error("Server responded with an error:", error.response.data);
+            throw new Error(`Failed to add text of note packet request: ${error.response.data.error || "Unknown server error"}`);
+        } else {
+            console.error("Failed to add text of note packet request:", error.message);
+            throw new Error("Failed to add text of note packet request. Please check the provided data and try again.");
+    
+        }
+    }
+}
+
+/**
+ * Add New professor-course relation
+ * @param 
+ * @param notetakingrequest_id - the ID of the notetaking request to approve
+ */
+export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/coursemanagement/professor-courses/add/`, data)
+        return response.data;
+    } catch (error: any) {
+        // Enhanced error logging
+        if (error.response) {
+            console.error("Server responded with an error:", error.response.data);
+            throw new Error(`Failed to add status of lecture session request: ${error.response.data.error || "Unknown server error"}`);
+        } else {
+            console.error("Failed to add status of lecture session request:", error.message);
+            throw new Error("Failed to add status of lecture session request. Please check the provided data and try again.");
+    
+        }
+    }
+}

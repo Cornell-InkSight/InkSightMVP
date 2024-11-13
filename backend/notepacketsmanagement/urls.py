@@ -9,4 +9,5 @@ urlpatterns = [
     path('courses/<int:course_id>/notes-packets-published', get_published_note_packets_for_course, name="get_published_note_packets_for_course"),
     path('courses/<int:course_id>/notes-packets-unpublished', get_unpublished_note_packets_for_course, name="get_unpublished_note_packets_for_course"),
     path('notes-packet/<int:note_packet_id>/update', update_notes_packet_status, name="update_notes_packet_status"),
+    path('notes-packet/<int:note_packet_id>/edit', update_notes_packet_text, name="update_notes_packet_text"),
 ]

@@ -19,9 +19,12 @@ urlpatterns = [
     name="get_all_students_for_sds_coordinator"),
     path("courses/<int:course_id>/professors/", get_all_professors_for_courses, name="get_all_professors_for_courses"),
     path("courses/<int:course_id>/sdscoordinator", get_sds_coordinator_course, name="get_sds_coordinator_course"),
+    path("tas/courses/<int:ta_id>", get_all_courses_for_ta, name="get_all_courses_for_ta"),
+    path("courses/<int:course_id>/tas/", get_all_tas_for_courses, name="get_all_tas_for_courses"),
     
     # Course POST methods
     path("courses/add/", add_course, name="add_course"),
     path("student-courses/add/", add_student_course, name="add_student_course"),
     path("students/<int:student_id>/courses/add/", add_course_for_student, name="add_course_for_student"),
+    path("professor-courses/add/", add_professor_course, name="add_professor_course"),
 ]

@@ -86,6 +86,20 @@ export const fetchStudent = async (studentId: string): Promise<{ data: interface
 };
 
 /**
+ * Fetches details for a specific student.
+ * @param {string} taId - The ID of the TA.
+ * @returns {Promise<{ data: Student | null; error: string | null }>} - A Promise that resolves to an object containing either a TA or an error message.
+ */
+export const fetchTA = async (taId: string): Promise<{ data: interfaces.TA | null; error: string | null }> => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/usermanagement/tas/${taId}`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load TA" };
+  }
+};
+
+/**
  * Fetches courses for a specific student.
  * @param {string} studentId - The ID of the student.
  * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
@@ -149,6 +163,7 @@ export const fetchCoursesForSchools = async (schoolid: string): Promise<{ data: 
  */
 export const fetchProfessorsForSchools = async (schoolid: string): Promise<{ data: interfaces.Professor[] | null; error: string | null }> => {
   try {
+    console.log(schoolid)
     const response = await axios.get(`http://127.0.0.1:8000/schoolmanagement/schools/${schoolid}/professors`);
     return { data: response.data, error: null };
   } catch (err) {

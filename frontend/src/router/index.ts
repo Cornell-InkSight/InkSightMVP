@@ -29,7 +29,13 @@ const routes = [
         path: "/sdscoordinators/:sdscoordinatorId/professors", component: () => import("@/components/SDSPortal/SDSProfessorsPortal.vue"),
     },
     {
+        path: "/tas/:taId", component: () => import("@/components/TAPortal/TAPortal.vue")
+    },
+    {
         path: "/notepackets/:notepacketId/", component: () => import("@/components/NotePackets/NotePacketView.vue")
+    },
+    {
+        path: "/notepackets/:notepacketId/edit", component: () => import("@/components/NotePackets/NotePacketEditView.vue")
     }
 ];
 

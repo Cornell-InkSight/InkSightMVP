@@ -16,7 +16,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         self.create_fake_data()
 
-    def create_fake_school(self, num_schools=5):
+    def create_fake_school(self, num_schools=1):
         """Create fake schools."""
         schools = []
         for _ in range(num_schools):
@@ -63,7 +63,7 @@ class Command(BaseCommand):
             tas.append(ta)
         return tas
 
-    def create_fake_students(self, schools, num_students=50):
+    def create_fake_students(self, schools, sds_coordinators, num_students=50):
         """Create fake students associated with schools."""
         students = []
         for _ in range(num_students):
@@ -71,7 +71,8 @@ class Command(BaseCommand):
                 name=fake.name(),
                 school=random.choice(schools),
                 year=random.randint(1, 4),
-                disability=random.choice(["Hearing Impaired", "Vision Impaired", "Dyslexia"])
+                disability=random.choice(["Hearing Impaired", "Vision Impaired", "Dyslexia"]),
+                sds_coordinator = random.choice(sds_coordinators)
             )
             students.append(student)
         return students
@@ -96,7 +97,7 @@ class Command(BaseCommand):
         professors = self.create_fake_professors(schools)
         sds_coordinators = self.create_fake_sds_coordinators(schools)
         tas = self.create_fake_tas(schools, professors)
-        students = self.create_fake_students(schools)
+        students = self.create_fake_students(schools, sds_coordinators)
 
         # Create courses and associate with students
         courses = self.create_fake_courses(schools, sds_coordinators)

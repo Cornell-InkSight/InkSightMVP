@@ -35,20 +35,39 @@
 
             <!-- Professors List -->
             <div v-if="course.professors && course.professors.length > 0" class="mt-2">
-                <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
-                <ul class="mt-1 space-y-1">
-                    <li
-                    v-for="professor in course.professors"
-                    :key="professor.id"
-                    class="text-sm text-gray-600 bg-gray-100 rounded-md p-2"
-                    >
-                    {{ professor.name }}
-                    </li>
-                </ul>
+            <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
+            <ul class="mt-1 space-y-1">
+                <li
+                v-for="professor in course.professors"
+                :key="professor.id"
+                class="text-sm text-gray-600 bg-gray-100 rounded-md p-2"
+                >
+                {{ professor.name }}
+                </li>
+            </ul>
             </div>
 
             <!-- No Professors Message -->
             <p v-else class="text-sm text-gray-500">No professors assigned to this course.</p>
+
+            <!-- Add Professor Form -->
+            <form @submit.prevent="addNewProfessorToCourse(course.id)">
+            <label for="professorSelect" class="block mt-4 text-sm font-semibold text-gray-700">Add a Professor:</label>
+            <select
+                id="professorSelect"
+                v-model="selectedProfessor"
+                class="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                required
+            >
+                <option disabled value="">Select a professor</option>
+                <option v-for="professor in availableProfessors" :key="professor.id" :value="professor.id">
+                {{ professor.name }}
+                </option>
+            </select>
+            <button type="submit" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
+                Add Professor
+            </button>
+            </form>
         </div>
         </div>
 
@@ -59,117 +78,125 @@
     </div>
     </div>
 </div>
-  </template>
+</template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { fetchCoursesForSchools, fetchSDSCoordinator, fetchSchool, fetchProfessorsForCourses } from "@/services/api/fetch"
+import { ref, onMounted } from 'vue';
+import { fetchCoursesForSchools, fetchSDSCoordinator, fetchSchool, fetchProfessorsForCourses, fetchProfessorsForSchools } from "@/services/api/fetch";
+import { addNewProfessorCourse } from "@/services/api/add";
 import { useRoute } from 'vue-router';
-import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue"
+import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue";
 
-const route = useRoute()
-const courses = ref([]); // Holds courses for scohool
-const school = ref() // Holds school
-const sdscoordinator = ref() // Holds sds coordinator 
+const route = useRoute();
+const courses = ref([]); // Holds courses for the school
+const school = ref(); // Holds school
+const sdscoordinator = ref(); // Holds SDS coordinator
+const availableProfessors = ref([]); // Holds list of all available professors
+const selectedProfessor = ref(null); // Holds selected professor ID from form
 const error = ref<String>(); // Error message, if any exists
-const loading = ref<boolean>(true)  // Loading state indicator
+const loading = ref<boolean>(true); // Loading state indicator
 
 /**
- * Gets the courses for respective school given ID
- * Logs error if theres a request
- * 
- * @param schoolId // id of the given school to get courses
- * @returns {Promise<Void>} // Promise resolved when data is returned or error 
+ * Fetches all available professors.
  */
-const loadSchoolCourses = async(schoolId: string) => {
-    const { data, error: fetchError } = await fetchCoursesForSchools(schoolId);
-    if(fetchError) {
-        console.error(fetchError)
+const loadAllProfessors = async (schoolId: string) => {
+    const { data, error: fetchError } = await fetchProfessorsForSchools(schoolId);
+    if (fetchError) {
+        console.error(fetchError);
         error.value = fetchError;
-        return
+    } else {
+        availableProfessors.value = data;
     }
-    return data;
-}
-
-/**
- * Fetches the School data for the given School id and assigns to `schools`
- * Logs error message if request fails
- * @param sdscoordinatorId // the id of the given school from sdscoordinator-route params
- * @returns {Promise<void>} // A Promise that resolves when data is fetched and assigned
- */
-const loadSchool = async(schoolId: string) => {
-    const { data, error: fetchError } = await fetchSchool(schoolId);
-    if(fetchError) {
-        console.error(fetchError)
-        error.value = fetchError;
-        return
-    }
-    school.value = data;
 };
 
 /**
- * Fetches the SDS Coordinator data for the given SDS Coordinator id and assigns to `sdscoordinator`
- * Logs error message if request fails
- * @param sdscoordinatorId // the id of the given SDS Coordinator from route params
- * @returns {Promise<void>} // A Promise that resolves when data is fetched and assigned
+ * Fetches the courses for the respective school given ID.
+ */
+const loadSchoolCourses = async (schoolId: string) => {
+const { data, error: fetchError } = await fetchCoursesForSchools(schoolId);
+if (fetchError) {
+    console.error(fetchError);
+    error.value = fetchError;
+}
+return data;
+};
+
+/**
+ * Fetches the School data for the given School id.
+ */
+const loadSchool = async (schoolId: string) => {
+const { data, error: fetchError } = await fetchSchool(schoolId);
+if (fetchError) {
+    console.error(fetchError);
+    error.value = fetchError;
+}
+school.value = data;
+};
+
+/**
+ * Fetches the SDS Coordinator data for the given SDS Coordinator id.
  */
 const loadSDSCoordinator = async (sdscoordinatorId: string) => {
-    const { data, error } = await fetchSDSCoordinator(sdscoordinatorId);
-    if (error) {
-        console.error(error);
-        return;
-    }
-    sdscoordinator.value = data;
+const { data, error } = await fetchSDSCoordinator(sdscoordinatorId);
+if (error) {
+    console.error(error);
+    error.value = error;
+}
+sdscoordinator.value = data;
 };
 
-
 /**
- * Fetches the Professors Data for the given course id, used in loop
- * Logs error, if the request fails
+ * Fetches professors for courses and loads them.
  */
- const loadProfessorsForCourses = async (courseId: string) => {
-    const { data, error } = await fetchProfessorsForCourses(courseId);
-    if(error) {
-        console.error(error);
-        return;
+const loadCoursesWithProfessors = async (school_id: string) => {
+    let fetchedCourses = await loadSchoolCourses(school_id);
+    if (!Array.isArray(fetchedCourses)) {
+        console.error("Failed to fetch courses or invalid data format.");
+        fetchedCourses = [];
     }
-    return data;
-}
 
+    const coursesWithProfessors = await Promise.all(
+        fetchedCourses.map(async (course) => {
+        const professors = await fetchProfessorsForCourses(course.id);
+        return { ...course, professors };
+    })
+);
+
+courses.value = coursesWithProfessors;
+};
 
 /**
- * Fetches professors and loads their courses.
- * Logs error, if the request fails
- * @param school_id // the id of the school for requesting the professors
+ * Adds a new professor to a course.
  */
- const loadCoursesWithProfessors = async (school_id: string) => {
-  let fetchedCourses = await loadSchoolCourses(school_id);
-  if (!Array.isArray(fetchedCourses)) {
-    console.error("Failed to fetch professors or invalid data format.");
-    fetchedCourses = []; 
-  }
+const addNewProfessorToCourse = async (course_id: string) => {
+    if (!selectedProfessor.value) return;
 
-  const loadCoursesWithProfessors = await Promise.all(
-    fetchedCourses.map(async (course) => {
-      const professors = await loadProfessorsForCourses(course.id);
-      return { ...course, professors };
-    })
-  );
-
-  courses.value = loadCoursesWithProfessors;
+    const professor_course_data = {
+        course_id: course_id,
+        professor_id: selectedProfessor.value
+    };
+    try {
+        const response = await addNewProfessorCourse(professor_course_data);
+        console.log("Professor added:", response);
+        selectedProfessor.value = null; // Reset the selected professor after adding
+        // Reload the courses to show updated professor list
+        await loadCoursesWithProfessors(school.value.id);
+    } catch (error) {
+        console.error("Failed to add professor to course:", error);
+    }
 };
 
 onMounted(async () => {
-    let sds_coordinator_id = route.params.sdscoordinatorId as string;
+    const sds_coordinator_id = route.params.sdscoordinatorId as string;
     await loadSDSCoordinator(sds_coordinator_id);
-    if(sdscoordinator) {
-        let school_id = sdscoordinator.value.school;
-        await loadSchool(school_id)
-        await loadCoursesWithProfessors(school_id)
+    if (sdscoordinator.value) {
+        const school_id = sdscoordinator.value.school_id;
+        await loadSchool(school_id);
+        await loadCoursesWithProfessors(school_id);
+        await loadAllProfessors(school_id);
     }
-    loading.value = false;
     
-})
-
-
+    loading.value = false;
+});
 </script>
+  

@@ -156,7 +156,7 @@ onMounted(async () => {
     let sds_coordinator_id = route.params.sdscoordinatorId as string;
     await loadSDSCoordinator(sds_coordinator_id);
     if(sdscoordinator) {
-        let school_id = sdscoordinator.value.school;
+        let school_id = sdscoordinator.value.school_id;
         await loadSchool(school_id)
         await loadProfessorsWithCourses(school_id)
     }

@@ -138,3 +138,19 @@ def update_notes_packet_status(request, note_packet_id):
         return Response({"message": "notes packet Session updated successfully."}, status=status.HTTP_200_OK)
     except NotesPacket.DoesNotExist:
         return Response({"error": "notes packet Session not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+def update_notes_packet_text(request, note_packet_id):
+    """
+    Updates the text of the notes packet to the databse
+    Args:
+        text to be updated in Notes Packet
+    """    
+    try:
+        notes_packet_session = NotesPacket.objects.get(id=note_packet_id)
+        notes_packet_text = request.data.get('text')
+        notes_packet_session.notes = notes_packet_text
+        notes_packet_session.save()
+        return Response({"message": "notes packet Session updated successfully."}, status=status.HTTP_200_OK)
+    except NotesPacket.DoesNotExist:
+        return Response({"error": "notes packet Session not found."}, status=status.HTTP_404_NOT_FOUND)

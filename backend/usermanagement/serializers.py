@@ -7,20 +7,20 @@ class StudentSerializer(serializers.ModelSerializer):
     """Serializer For Student"""
     class Meta:
         model = Student
-        fields = ['id', 'name', 'school', 'year', 'disability']
+        fields = ['id', 'name', 'school_id', 'year', 'disability', 'sds_coordinator_id']
 
 class SDSCoordinatorSerializer(serializers.ModelSerializer):
     """Serializer for SDS Coordinator"""
     class Meta:
         model = SDSCoordinator
-        fields = ['id', 'name', 'school', 'position']
+        fields = ['id', 'name', 'school_id', 'position']
 
 class ProfessorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Professor
-        fields = ['id', 'name', 'school', 'title']
+        fields = ['id', 'name', 'school_id', 'title']
 
 class TeacherAssistantSerializer(serializers.ModelSerializer):
     class Meta:
         model = TeacherAssistant
-        fields = ['id', 'name', 'school', 'professor_id']
+        fields = ['id', 'name', 'school_id', 'professor_id']

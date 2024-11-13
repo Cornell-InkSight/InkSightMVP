@@ -38,18 +38,18 @@
       >
         <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
 
+        <!-- Professors Section -->
+        <div v-if="course.professors && course.professors.length > 0" class="mt-2">
+          <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
+          <ul class="mt-1 space-y-1">
+            <li v-for="professor in course.professors" :key="professor.id" class="text-sm text-gray-600 bg-gray-100 rounded-md p-2">
+              {{ professor.name }}
+            </li>
+          </ul>
+        </div>
+
         <!-- Approval Check -->
         <div v-if="course.isApprovedForCourse">
-          <!-- Professors Section -->
-          <div v-if="course.professors && course.professors.length > 0" class="mt-2">
-            <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
-            <ul class="mt-1 space-y-1">
-              <li v-for="professor in course.professors" :key="professor.id" class="text-sm text-gray-600 bg-gray-100 rounded-md p-2">
-                {{ professor.name }}
-              </li>
-            </ul>
-          </div>
-
           <!-- Most Recent Notes Packets -->
           <div v-if="course.notesPackets && course.notesPackets.length > 0" class="mt-4">
             <h4 class="text-sm font-semibold text-gray-700">Recent Notes Packets:</h4>
@@ -118,7 +118,7 @@ const loadCourses = async (studentId: string) => {
       const notesPackets = await loadNotesPacketsForCourse(course.id);
       const isApprovedForCourse = await loadIsStudentApprovedForCourse(studentId, course.id);
       
-      const recentNotesPackets = notesPackets.slice(0, 5);  
+      const recentNotesPackets = notesPackets.slice(0, 5).reverse();  
 
       return {
         ...course,

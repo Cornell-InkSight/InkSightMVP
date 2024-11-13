@@ -103,6 +103,7 @@ const loadSDSCoordinator = async (sdscoordinatorId: string) => {
  */
 const loadSchool = async (schoolId: string) => {
     const { data, error } = await fetchSchool(schoolId);
+    console.log(data)
     if (error) {
         console.error(error);
         return;
@@ -119,7 +120,8 @@ onMounted(async () => {
     const sdscoordinatorId = route.params.sdscoordinatorId as string;
     await loadSDSCoordinator(sdscoordinatorId);
     if (sdscoordinator.value) {
-        await loadSchool(sdscoordinator.value.school);
+        await loadSchool(sdscoordinator.value.school_id);
+        console.log(school.value)
         await loadStudents(sdscoordinatorId);
     }
     loading.value = false;

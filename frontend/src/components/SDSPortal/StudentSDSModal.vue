@@ -43,7 +43,7 @@
             placeholder="Course Name"
             class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
             />
-            <input
+            <!-- <input
             v-model="newCourse.school_id"
             type="number"
             placeholder="School ID"
@@ -54,7 +54,7 @@
             type="number"
             placeholder="SDS Coordinator ID"
             class="w-full px-4 py-2 border border-gray-300 rounded-md mb-4"
-            />
+            /> -->
             <button @click="addCourse" class="px-4 py-2 bg-blue-500 text-white rounded-md">
             Add Course
             </button>
@@ -73,7 +73,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { fetchStudent, fetchCourses } from '@/services/api/fetch';
+import { fetchStudent, fetchCourses, fetchSchool, fetchSDSCoordinator } from '@/services/api/fetch';
 import { addCourseForStudent } from "@/services/api/add"
 
 const props = defineProps<{ id: number }>();
@@ -85,12 +85,14 @@ const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 const showAddCourseForm = ref(false);
 const addCourseError = ref<string | null>(null);
+const school_id = ref();
+const sds_coordinator_id = ref();
 
 // New course data
 const newCourse = ref({
     name: '',
-    school_id: null,
-    sds_coordinator_id: null,
+    school_id: school_id,
+    sds_coordinator_id: sds_coordinator_id,
 });
 
 /**
@@ -145,6 +147,37 @@ const addCourse = async () => {
 };
 
 /**
+ * Fetches the School data for the given School id and assigns to `schools`
+ * Logs error message if request fails
+ * @param sdscoordinatorId // the id of the given school from sdscoordinator-route params
+ * @returns {Promise<void>} // A Promise that resolves when data is fetched and assigned
+ */
+ const loadSchool = async(schoolId: string) => {
+    const { data, error: fetchError } = await fetchSchool(schoolId);
+    if(fetchError) {
+        console.error(fetchError)
+        error.value = fetchError;
+        return
+    }
+    school_id.value = data.id;
+};
+
+/**
+ * Fetches the SDS Coordinator data for the given SDS Coordinator id and assigns to `sdscoordinator`
+ * Logs error message if request fails
+ * @param sdscoordinatorId // the id of the given SDS Coordinator from route params
+ * @returns {Promise<void>} // A Promise that resolves when data is fetched and assigned
+ */
+ const loadSDSCoordinator = async (sdscoordinatorId: string) => {
+    const { data, error } = await fetchSDSCoordinator(sdscoordinatorId);
+    if (error) {
+        console.error(error);
+        return;
+    }
+    sds_coordinator_id.value = data.id;
+};
+
+/**
  * Watch for changes in `id` prop to reload profile if `id` changes.
  */
 watch(() => props.id, async () => {
@@ -157,6 +190,11 @@ watch(() => props.id, async () => {
 onMounted(async () => {
     await loadStudentProfile();
     await loadStudentCourses();
+    if(student) {
+        console.log(student.value)
+        await loadSchool(student.value.school_id);
+        await loadSDSCoordinator(student.value.school_id);
+    }
     loading.value = false;
 });
 </script>

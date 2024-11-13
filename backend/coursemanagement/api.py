@@ -2,8 +2,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Course, StudentCourse, ProfessorCourse
 from .serializers import CourseSerializer, StudentCourseSerializer, ProfessorCourseSerializer
-from usermanagement.models import Professor, Student, SDSCoordinator
-from usermanagement.serializers import StudentSerializer, ProfessorSerializer, SDSCoordinatorSerializer
+from usermanagement.models import Professor, Student, SDSCoordinator, TeacherAssistant
+from usermanagement.serializers import StudentSerializer, ProfessorSerializer, SDSCoordinatorSerializer, TeacherAssistantSerializer
 from django.shortcuts import render
 from rest_framework import status
 
@@ -127,7 +127,7 @@ def get_all_courses_for_professor(request, professor_id):
     """
     Retrieve all courses associated with a specific student.
     Args:
-        professor_id (int): The ID of the student.
+        professor_id (int): The ID of the professor.
     Returns:
         JSON response containing courses associated with the student, or an error message.
     """
@@ -150,6 +150,38 @@ def get_all_professors_for_courses(request, course_id):
     professor_ids = professor_courses.values_list("professor_id", flat=True).distinct()
     professors = Professor.objects.filter(id__in=professor_ids)
     serializer = ProfessorSerializer(professors, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def get_all_courses_for_ta(request, ta_id):
+    """
+    Retrieve all courses associated with a specific ta.
+    Args:
+        ta_id (int): The ID of the ta.
+    Returns:
+        JSON response containing courses associated with the ta, or an error message.
+    """
+    ta = Professor.objects.get(id=ta_id)
+    professor = Professor.objects.get(id=ta.professor_id)
+    ta_courses = ProfessorCourse.objects.filter(professor_id=professor.id)
+    course_ids = ta_courses.values_list("course_id", flat=True).distinct()
+    courses = Course.objects.filter(id__in=course_ids)
+    serializer = CourseSerializer(courses, many=True)
+    return Response(serializer.data)
+
+@api_view(["GET"])
+def get_all_tas_for_courses(request, course_id):
+    """
+    Retrieve all professors associated with a specific course.
+    Args:
+        course_id (int): The ID of the course.
+    Returns:
+        JSON response containing tas associated with the course, or an error message.
+    """
+    professor_courses = ProfessorCourse.objects.filter(course_id=course_id)
+    professor_ids = professor_courses.values_list("professor_id", flat=True).distinct()
+    tas = TeacherAssistant.objects.filter(professor_id__in=professor_ids)
+    serializer = TeacherAssistantSerializer(tas, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
@@ -261,12 +293,11 @@ def add_professor_course(request):
     Expected JSON fields: name, professor_id, course_id.
     """
     professor_course_data = request.data
-    required_fields = ["name", "professor_id", "course_id"]
+    required_fields = ["professor_id", "course_id"]
     for field in required_fields:
         if field not in professor_course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
     professor_course = ProfessorCourse.objects.create(
-        name=professor_course_data["name"],
         professor_id=professor_course_data["professor_id"],
         course_id=professor_course_data["course_id"]
     )

@@ -5,6 +5,7 @@
 export interface Student {
     id: string;
     name: string;
+    sds_coordinator_id: string,
 }
 
 /**
@@ -25,12 +26,30 @@ export interface Professor {
 }
 
 /**
+ * Represents a TA
+ */
+export interface TA {
+    id: string,
+    name: string,
+    professor_id: string,
+}
+
+/**
  * Represents a school.
  */
 export interface School {
     id: string;
     name: string;
 }
+
+/**
+ * Represents a school.
+ */
+export interface ProfessorCourse {
+    professor_id: string;
+    course_id: string;
+}
+
 
 /**
  * Represents a course.
