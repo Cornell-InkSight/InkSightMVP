@@ -1,6 +1,6 @@
 <template>
 <ProfessorPortalNavbar />
-<div class="p-6 max-w-4xl mx-auto bg-white rounded-lg shadow-md">
+<div class="p-6 max-w-6xl mx-auto bg-white rounded-lg shadow-md">
     <h1 class="text-2xl font-bold mb-4">Courses</h1>
 
     <!-- Error Message -->
@@ -9,7 +9,7 @@
     </div>
 
     <!-- Courses Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
     <div v-for="course in courses" :key="course.id" class="p-4 bg-white rounded-lg shadow-md border border-gray-200">
         <h2 class="text-lg font-semibold">{{ course.name }}</h2>
         <p class="text-sm text-gray-600">{{ course.description }}</p>
@@ -23,10 +23,10 @@
         </button>
 
         <!-- Notes Packet Section -->
-        <div v-if="notePackets[course.id]" class="mt-6">
+        <div v-if="showAddNotesPacketForm && notePackets[course.id]" class="mt-6">
         <h3 class="text-lg font-semibold mb-2">Edit New Notes Packets</h3>
         <ul class="space-y-2">
-            <li v-for="(packet, index) in notePackets[course.id].slice(0, 5)" :key="packet.id">
+            <li v-for="(packet, index) in notePackets[course.id].reverse().slice(0, 5)" :key="packet.id">
             <router-link :to="`/notepackets/${packet.id}/edit`" target="_blank" class="text-blue-500 hover:underline">
                 Lecture Session {{ packet.lecture_session_id }}
             </router-link>
