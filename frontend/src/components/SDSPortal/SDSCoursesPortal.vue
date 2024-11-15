@@ -51,21 +51,21 @@
             <p v-else class="text-sm text-gray-500">No professors assigned to this course.</p>
 
             <!-- Add Professor Form -->
-            <form @submit.prevent="addNewProfessorToCourse(course.id)">
-            <label for="professorSelect" class="block mt-4 text-sm font-semibold text-gray-700">Add a Professor:</label>
-            <select
-                id="professorSelect"
-                v-model="selectedProfessor"
-                class="w-full mt-2 p-2 border border-gray-300 rounded-md"
-                required
-            >
-                <option disabled value="">Select a professor</option>
-                <option v-for="professor in availableProfessors" :key="professor.id" :value="professor.id">
-                {{ professor.name }}
-                </option>
-            </select>
-            <button type="submit" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
-                Add Professor
+            <form>
+                <label for="professorSelect" class="block mt-4 text-sm font-semibold text-gray-700">Add a Professor:</label>
+                <select
+                    id="professorSelect"
+                    v-model="course.selectedProfessor"
+                    class="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                    required
+                >
+                    <option disabled value="">Select a professor</option>
+                    <option v-for="professor in availableProfessors" :key="professor.id" :value="professor.id">
+                    {{ professor.name }}
+                    </option>
+                </select>
+                <button type="submit" @click="addNewProfessorToCourse(course.id, course.selectedProfessor)" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
+                    Add Professor
             </button>
             </form>
         </div>
@@ -113,24 +113,24 @@ const loadAllProfessors = async (schoolId: string) => {
  * Fetches the courses for the respective school given ID.
  */
 const loadSchoolCourses = async (schoolId: string) => {
-const { data, error: fetchError } = await fetchCoursesForSchools(schoolId);
-if (fetchError) {
-    console.error(fetchError);
-    error.value = fetchError;
-}
-return data;
+    const { data, error: fetchError } = await fetchCoursesForSchools(schoolId);
+    if (fetchError) {
+        console.error(fetchError);
+        error.value = fetchError;
+    }
+    return data;
 };
 
 /**
  * Fetches the School data for the given School id.
  */
 const loadSchool = async (schoolId: string) => {
-const { data, error: fetchError } = await fetchSchool(schoolId);
-if (fetchError) {
-    console.error(fetchError);
-    error.value = fetchError;
-}
-school.value = data;
+    const { data, error: fetchError } = await fetchSchool(schoolId);
+    if (fetchError) {
+        console.error(fetchError);
+        error.value = fetchError;
+    }
+    school.value = data;
 };
 
 /**
@@ -157,8 +157,9 @@ const loadCoursesWithProfessors = async (school_id: string) => {
 
     const coursesWithProfessors = await Promise.all(
         fetchedCourses.map(async (course) => {
-        const professors = await fetchProfessorsForCourses(course.id);
-        return { ...course, professors };
+        const { data: professors, error } = await fetchProfessorsForCourses(course.id);
+        const selectedProfessor = ref(null);
+        return { ...course, professors, selectedProfessor };
     })
 );
 
@@ -168,22 +169,23 @@ courses.value = coursesWithProfessors;
 /**
  * Adds a new professor to a course.
  */
-const addNewProfessorToCourse = async (course_id: string) => {
-    if (!selectedProfessor.value) return;
+const addNewProfessorToCourse = async (course_id: string, professor_id: string) => {
+    if (!professor_id) return;
 
     const professor_course_data = {
         course_id: course_id,
-        professor_id: selectedProfessor.value
+        professor_id: professor_id
     };
+
     try {
         const response = await addNewProfessorCourse(professor_course_data);
         console.log("Professor added:", response);
-        selectedProfessor.value = null; // Reset the selected professor after adding
+
         // Reload the courses to show updated professor list
         await loadCoursesWithProfessors(school.value.id);
     } catch (error) {
         console.error("Failed to add professor to course:", error);
-    }
+    }   
 };
 
 onMounted(async () => {

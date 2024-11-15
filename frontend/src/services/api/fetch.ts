@@ -163,7 +163,6 @@ export const fetchCoursesForSchools = async (schoolid: string): Promise<{ data: 
  */
 export const fetchProfessorsForSchools = async (schoolid: string): Promise<{ data: interfaces.Professor[] | null; error: string | null }> => {
   try {
-    console.log(schoolid)
     const response = await axios.get(`http://127.0.0.1:8000/schoolmanagement/schools/${schoolid}/professors`);
     return { data: response.data, error: null };
   } catch (err) {
@@ -193,7 +192,7 @@ export const fetchCoursesForProfessors = async (professorid: string): Promise<{ 
  * @param {string} courseid - The ID of the course.
  * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
-export const fetchProfessorsForCourses = async (courseid: string): Promise<{ data: interfaces.  Course[] | null; error: string | null }> => {
+export const fetchProfessorsForCourses = async (courseid: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/courses/${courseid}/professors`);
     return { data: response.data, error: null };
@@ -320,6 +319,21 @@ export const fetchIsApprovedStudentForCourse = async(student_id: string, course_
 }
 
 /**
+ * Fetches If Student Has Pending for Note Packets for Course
+ * @param {string} courseId - the id of the course
+ * @param {string} studentId - the id of the student
+ *  * @returns {Promise <data: interfaces.NotesPacket | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
+ */
+export const fetchIsPendingStudentForCourse = async(student_id: string, course_id: string) => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/pending`)
+    return { data: response.data.pending, error: null }
+  } catch(err) {
+    return [{ data: null, error: "Failed to load Approval" }]
+  }
+}
+
+/**
  * Fetches If Student Has Approval for Note Packets for Course
  * @param {string} courseId - the id of the course
  * @param {string} studentId - the id of the student
@@ -328,6 +342,20 @@ export const fetchIsApprovedStudentForCourse = async(student_id: string, course_
 export const fetchNoteTakingRequestStudentForCourse = async(student_id: string, course_id: string) => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/`)
+    return { data: response.data, error: null }
+  } catch(err) {
+    return [{ data: null, error: "Failed to load Approval" }]
+  }
+}
+
+/**
+ * Fetches If Current Lectyre Ongoing for Course
+ * @param {string} courseId - the id of the course
+ *  * @returns {Promise <data: interfaces.LectureSession | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
+ */
+export const fetchCurrentOngoingLectureSession = async(course_id: string) => {
+  try {
+    const response = await axios.get(`http://127.0.0.1:8000/lecturesessionsmanagement/${course_id}/current-lecture-session`)
     return { data: response.data, error: null }
   } catch(err) {
     return [{ data: null, error: "Failed to load Approval" }]

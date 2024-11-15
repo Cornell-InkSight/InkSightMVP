@@ -10,6 +10,6 @@ urlpatterns = [
     name="get_approved_students_for_notetaking_packets_for_course"),
     path("notetaking-request/<int:notetaking_request_id>/approve", approve_notetaking_request, name="approve_notetaking_request"),
     path("notetaking-request/<int:student_id>/<int:course_id>/", get_student_notetaking_request_for_course, name="get_student_notetaking_request_for_course"),
-    path("notetaking-request/<int:student_id>/<int:course_id>/approved", get_is_student_approved_for_course, name="get_is_student_approved_for_course")
-
+    path("notetaking-request/<int:student_id>/<int:course_id>/approved", get_is_student_approved_for_course, name="get_is_student_approved_for_course"),
+    path("notetaking-request/<int:student_id>/<int:course_id>/pending", get_student_has_pending_notetaking_request_for_course, name="get_student_has_pending_notetaking_request_for_course")
 ]

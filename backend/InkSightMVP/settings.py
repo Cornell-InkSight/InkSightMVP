@@ -14,12 +14,17 @@ from pathlib import Path
 import json 
 import os
 from django.core.exceptions import ImproperlyConfigured
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 with open(os.path.join(BASE_DIR, 'InkSightMVP', 'secrets.json')) as f:
     secrets = json.loads(f.read())
+
+
+env = environ.Env()
+environ.Env.read_env(os.path.join(BASE_DIR, '.env.local')) 
 
 def get_secret(setting, secrets=secrets):
     try:
@@ -33,7 +38,7 @@ def get_secret(setting, secrets=secrets):
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-xx+95-0ch!v8c&+2au!=$hyyls+pj^rt9u18&$=&r4tnvnr@6$'
+SECRET_KEY = env("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

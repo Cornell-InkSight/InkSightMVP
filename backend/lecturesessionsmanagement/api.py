@@ -69,6 +69,29 @@ def get_recording_session(request, recording_session_id):
     except RecordingSession.DoesNotExist:
         return Response({"error": "Recording Session does not exist in the database"}, status=404)
 
+@api_view(["GET"])
+def get_current_lecture_session_for_course(request, course_id):
+    """
+    Retrieve a specific lecture session by ID.
+    Args:
+        lecture_session_id (int): The ID of the lecture session to retrieve.
+    Returns:
+        JSON response containing lecture session data if found; otherwise, a 404 error.
+    """
+    try:
+        lecture_sessions = LectureSession.objects.filter(course_id=course_id, status="recording").order_by('-date')
+
+        if not lecture_sessions.exists():
+            return Response({"error": "No ongoing lecture session for this course"}, status=404)
+
+        latest_lecture_session = lecture_sessions.first()
+
+        serializer = LectureSessionSerializer(latest_lecture_session)
+        return Response(serializer.data)
+    except LectureSession.DoesNotExist:
+        return Response({"error": "Lecture Session does not exist in the database"}, status=404)
+
+
 """
 POST (Lecture Session and Recording Session) Methods
 Handles the creation of new lecture sessions and recording sessions.
@@ -77,7 +100,6 @@ Each function:
 2. Validates required fields to ensure all necessary data is present.
 3. Creates the object, serializes it, and returns the created data in the response.
 """
-
 @api_view(['POST'])
 def add_lecture_session(request):
     """

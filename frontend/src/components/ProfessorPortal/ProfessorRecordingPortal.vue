@@ -133,6 +133,36 @@ const startRecording = async () => {
     }
 };
 
+// const startRecording = async () => {
+//     try {
+//         // Capture the video stream
+//         stream = await getCameraStream("environment"); // Or "user" for front camera
+
+//         // Display the stream locally
+//         const videoElement = document.getElementById("live-camera-view");
+//         if (videoElement) {
+//             videoElement.srcObject = stream;
+//         }
+
+//         // Initialize WebRTC or RTMP stream to the server
+//         const serverURL = "rtmp://your.streaming.server/live/streamkey"; // Replace with your server details
+
+//         // Assuming you're using RecordRTC or another library to broadcast the stream
+//         recorder = new RecordRTCPromisesHandler(stream, {
+//             type: 'video',
+//             mimeType: 'video/webm', // Change this depending on your server
+//             videoBitsPerSecond: 128000 // Optional: adjust bitrate
+//         });
+
+//         await recorder.startRecording();
+//         isRecording.value = true;
+//         console.log("Recording started...");
+//     } catch (error) {
+//         console.error("Failed to start recording:", error);
+//     }
+// };
+
+
 
 
 

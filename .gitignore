@@ -1,2 +1,4 @@
 # .gitignore
 myenv/
+.env.local
+.env.*.local

@@ -11,6 +11,9 @@ const routes = [
         path: "/students/:studentId/request", component: () => import("@/components/StudentPortal/StudentNotetakingRequest.vue"),
     },
     {
+        path: "/students/:courseId/lecture", component: () => import("@/components/StudentPortal/StudentRecordingView.vue"),
+    },
+    {
         path: "/professors/:professorId", component: () => import("@/components/ProfessorPortal/ProfessorStudentsPortal.vue"),
     },
     {

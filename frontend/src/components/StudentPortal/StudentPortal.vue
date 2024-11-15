@@ -38,6 +38,12 @@
       >
         <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
 
+        <!-- Ongoing Lecture Alert -->
+        <div v-if="course.ongoingLectureSession" class="flex items-center text-blue-600 mt-2">
+          <i class="fas fa-broadcast-tower text-lg mr-2"></i>
+          <span>Ongoing Lecture Session</span>
+        </div>
+
         <!-- Professors Section -->
         <div v-if="course.professors && course.professors.length > 0" class="mt-2">
           <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
@@ -88,7 +94,8 @@ import {
   fetchCourses, 
   fetchProfessorsForCourses, 
   fetchPublishedNotePacketsForCourse, 
-  fetchIsApprovedStudentForCourse 
+  fetchIsApprovedStudentForCourse,
+  fetchCurrentOngoingLectureSession
 } from "@/services/api/fetch";
 import * as interfaces from "@/services/api/interfaces";
 import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue';
@@ -117,6 +124,10 @@ const loadCourses = async (studentId: string) => {
       const professors = await loadProfessorsForCourses(course.id);
       const notesPackets = await loadNotesPacketsForCourse(course.id);
       const isApprovedForCourse = await loadIsStudentApprovedForCourse(studentId, course.id);
+
+      const { data: ongoingLectureData, error: ongoingLectureError } = await fetchCurrentOngoingLectureSession(course.id);
+      const ongoingLectureSession = !ongoingLectureError && ongoingLectureData;
+
       
       const recentNotesPackets = notesPackets.slice(0, 5).reverse();  
 
@@ -125,6 +136,7 @@ const loadCourses = async (studentId: string) => {
         professors,
         notesPackets: recentNotesPackets,
         isApprovedForCourse,
+        ongoingLectureSession,
       };
     });
     courses.value = await Promise.all(coursePromises); 

@@ -22,7 +22,7 @@
             required
           >
             <option value="" disabled>Select a course</option>
-            <option v-for="course in courses" :key="course.id" :value="course.id">
+            <option v-for="course in dropdownCourses" :key="course.id" :value="course.id">
               {{ course.name }}
             </option>
           </select>
@@ -68,6 +68,7 @@
         v-for="course in courses" 
         :key="course.id" 
         class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
+        :class="{ 'border-l-4 border-green-500': isApprovedNoteTakingRequest(studentId, course.id), 'border-l-4 border-yellow-500': hasActiveNoteTakingRequest(studentId, course.id) && !isApprovedNoteTakingRequest(studentId, course.id) }"
       >
         <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
         
@@ -84,7 +85,7 @@
         <!-- Display Note Taking Request if Exists for this Course -->
         <div v-if="noteTakingRequests[`${String(studentId)}-${String(course.id)}`]" class="mt-4 p-2 border-t border-gray-300">
           <h3 class="text-md font-semibold text-gray-700">Note-Taking Request:</h3>
-          <p class="text-sm text-gray-600">{{ noteTakingRequests[`${String(studentId)}-${String(course.id)}`] }}</p>
+          <p class="text-sm text-gray-600">{{ noteTakingRequests[`${String(studentId)}-${String(course.id)}`].request }}</p>
         </div>
       </div>
     </div>
@@ -94,15 +95,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
-import { fetchStudent, fetchCourses, fetchNotetakingRequestsForCourses, fetchStudentCourses, fetchSDSCoordinator, fetchProfessorsForCourses } from "@/services/api/fetch";
+import { fetchStudent, fetchCourses, fetchNotetakingRequestsForCourses, fetchStudentCourses, fetchSDSCoordinator, fetchProfessorsForCourses, fetchIsPendingStudentForCourse } from "@/services/api/fetch";
 import * as interfaces from "@/services/api/interfaces";
 import { addNoteTakingRequest } from "@/services/api/add";
 import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue';
+import { fetchIsApprovedStudentForCourse } from '../../services/api/fetch';
 
 const route = useRoute();
 const studentId = route.params.studentId as string;
 
 const courses = ref<interfaces.Course[]>([]);
+const dropdownCourses = ref<interfaces.Course[]>([]);
 const student = ref<interfaces.Student | null>(null);
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
@@ -113,7 +116,7 @@ const submitSuccessMessage = ref<string | null>(null);
 const submitErrorMessage = ref<string | null>(null);
 
 // Dictionary to store note-taking requests by `studentId-courseId`
-const noteTakingRequests = ref<Record<string, string>>({});
+const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string, request: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
 
 /**
  * Fetches data for the given student and assigns it to `student`.
@@ -137,13 +140,17 @@ const loadStudent = async () => {
   } else {
     const coursePromises = data.map(async (course: interfaces.Course) => {
       const professors = await loadProfessorsForCourses(course.id);
-      
+      const { data: pendingData, error: pendingError } = await fetchIsPendingStudentForCourse(studentId, course.id);
+      const { data: isApprovedData, error: approvedError } = await fetchIsApprovedStudentForCourse(studentId, course.id);
+      const cannotRequest = pendingData || isApprovedData
       return {
         ...course,
         professors,
+        cannotRequest,
       };
     });
     courses.value = await Promise.all(coursePromises); 
+    dropdownCourses.value = courses.value.filter(course => !course.cannotRequest);
   }
 };
 
@@ -174,11 +181,28 @@ const loadNoteakingRequestsForCourses = async () => {
       data.forEach(async (request: any) => {
         let studentcourse = await fetchStudentCourses(request.student_course_id);
         const key = `${studentcourse.data.student_id}-${studentcourse.data.course_id}`;
-        noteTakingRequests.value[key] = request.request;
+        noteTakingRequests.value[key] = { approved: request.approved, requestId: request.id, request: request.request };
       });
     }
   })
 };
+
+/**
+ * Checks if a student has an active note-taking request for a specific course.
+ */
+ const hasActiveNoteTakingRequest = (studentId: string, courseId: string): boolean => {
+  const key = `${studentId}-${courseId}`;
+  return !!noteTakingRequests.value[key];
+};
+
+/**
+ * Checks if a note-taking request for a specific student and course is approved.
+ */
+const isApprovedNoteTakingRequest = (studentId: string, courseId: string): boolean => {
+  const key = `${studentId}-${courseId}`;
+  return noteTakingRequests.value[key]?.approved || false;
+};
+
 
 /**
  * Submits the note-taking request for the selected course.

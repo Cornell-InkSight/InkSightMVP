@@ -129,6 +129,30 @@ def get_is_student_approved_for_course(request, student_id, course_id):
     except StudentCourse.DoesNotExist:
         return Response({"error": "Student is not enrolled in this course."}, status=404)
     
+@api_view(['GET'])
+def get_student_has_pending_notetaking_request_for_course(request, student_id, course_id):
+    """
+    Retrieve whether the student has a pending notetaking request for a specific course by ID
+    Args:
+        student_id (int): The ID of the student to retrieve note packets for.
+        course_id (int): The ID of the course to retrieve note packets for.
+    Returns:
+        Boolean response if the student is approved or a message indicating no requests found.
+    """
+    try:
+        student_course = StudentCourse.objects.get(course_id=course_id, student_id=student_id)
+        
+        note_taking_request = NoteTakingRequest.objects.filter(student_course_id=student_course).first()
+        
+        # Check if an approval request exists
+        if note_taking_request:
+            return Response({"pending": not note_taking_request.approved, "message": "Note-taking request succesfully returned."})
+        else:
+            return Response({"pending": False, "message": "This student-course does not have an approval request."})
+            
+    except StudentCourse.DoesNotExist:
+        return Response({"error": "Student is not enrolled in this course."}, status=404)
+    
 
 """
 POST (Note Taking Request) Methods

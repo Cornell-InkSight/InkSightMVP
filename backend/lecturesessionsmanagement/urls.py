@@ -9,4 +9,5 @@ urlpatterns = [
     path("lecture-sessions/add/", add_lecture_session, name="add_lecture_session"),
     path("lecture-sessions/<int:lecture_session_id>/update", update_lecture_session_status, name="update_lecture_session_status"),
     path("recording-sessions/add/", add_recording_session, name="add_recording_session"),
+    path("<int:course_id>/current-lecture-session", get_current_lecture_session_for_course, name="get_current_lecture_session_for_course")
 ]
