@@ -312,21 +312,33 @@ def add_course_for_student(request, student_id):
     """
     course_data = request.data
     required_fields = ["name", "school_id", "sds_coordinator_id"]
+    
     for field in required_fields:
         if field not in course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
     try:
         student = Student.objects.get(id=student_id)
     except Student.DoesNotExist:
         return Response({"error": "Student does not exist"}, status=status.HTTP_404_NOT_FOUND)
-    course, created_course = Course.objects.get_or_create(
+
+    course = Course.objects.filter(
         name=course_data["name"],
-        school_id=course_data["school_id"],
-        sds_coordinator_id=course_data["sds_coordinator_id"]
-    )
+        school_id=course_data["school_id"]
+    ).first()
+
+    if not course:
+        course = Course.objects.create(
+            name=course_data["name"],
+            school_id=course_data["school_id"],
+            sds_coordinator_id=course_data["sds_coordinator_id"]
+        )
+
     if StudentCourse.objects.filter(student=student, course=course).exists():
         return Response({"error": "Student is already enrolled in this course"}, status=status.HTTP_400_BAD_REQUEST)
+
     student_course = StudentCourse.objects.create(student=student, course=course)
+
     return Response({
         "course": CourseSerializer(course).data,
         "student_course": StudentCourseSerializer(student_course).data

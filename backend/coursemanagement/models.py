@@ -5,7 +5,7 @@ from usermanagement.models import Student, SDSCoordinator, Professor
 class Course(models.Model):
     """Model for creating a course in a school"""
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=666)
+    name = models.CharField(max_length=666, unique=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     sds_coordinator = models.ForeignKey(SDSCoordinator, on_delete=models.CASCADE)
 
