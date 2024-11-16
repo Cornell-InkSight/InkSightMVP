@@ -106,6 +106,10 @@ const student = ref(null);
 const loading = ref<boolean>(true);
 const error = ref<string | null>(null);
 
+/**
+ * Loads the data for the student from the API
+ * @param studentId - ID of the student
+ */
 const loadStudent = async (studentId: string) => {
   const { data, error: studentError } = await fetchStudent(studentId);
   if (studentError) {
@@ -115,6 +119,12 @@ const loadStudent = async (studentId: string) => {
   student.value = data;
 };
 
+/**
+ * Loads the courses for respective student, returns dictionary object with extra info needed for each course
+ * Sets up Professors, top 5 most recent Notes Packets, and checks if student is approved for course by calling helper functions
+ * Checks if theirs an ongoing lecture 
+ * @param studentId - the ID of the student
+ */
 const loadCourses = async (studentId: string) => {
   const { data, error: coursesError } = await fetchCourses(studentId);
   if (coursesError) {
@@ -143,6 +153,10 @@ const loadCourses = async (studentId: string) => {
   }
 };
 
+/**
+ * Loads the professors for the course
+ * @param courseId - ID of the course
+ */
 const loadProfessorsForCourses = async (courseId: string) => {
   const { data, error } = await fetchProfessorsForCourses(courseId);
   if (error) {
@@ -152,6 +166,10 @@ const loadProfessorsForCourses = async (courseId: string) => {
   return data;
 };
 
+/**
+ * Loads the published note packets for the course
+ * @param courseId - ID of the course
+ */
 const loadNotesPacketsForCourse = async (courseId: number) => {
   const { data, error } = await fetchPublishedNotePacketsForCourse(courseId);
   if (error) {
@@ -161,6 +179,11 @@ const loadNotesPacketsForCourse = async (courseId: number) => {
   return data;
 };
 
+/**
+ * Loads whether the student is approved for the respective course by the professor(s)
+ * @param studentId - the ID of the student
+ * @param courseId - the ID of the course
+ */
 const loadIsStudentApprovedForCourse = async (studentId: string, courseId: string) => {
   const { data, error } = await fetchIsApprovedStudentForCourse(studentId, courseId);
   if (error) {
@@ -170,6 +193,10 @@ const loadIsStudentApprovedForCourse = async (studentId: string, courseId: strin
   return data;
 };
 
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for the student and their courses and additional data.
+ */
 onMounted(async () => {
   const studentId = route.params.studentId as string;
   await loadStudent(studentId);

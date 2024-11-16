@@ -188,6 +188,10 @@ const addNewProfessorToCourse = async (course_id: string, professor_id: string) 
     }   
 };
 
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for both the courses and their professors and students.
+ */
 onMounted(async () => {
     const sds_coordinator_id = route.params.sdscoordinatorId as string;
     await loadSDSCoordinator(sds_coordinator_id);

@@ -335,7 +335,7 @@ def add_course_for_student(request, student_id):
         )
 
     if StudentCourse.objects.filter(student=student, course=course).exists():
-        return Response({"error": "Student is already enrolled in this course"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Student is already enrolled in this course"}, status=status.HTTP_202_ACCEPTED)
 
     student_course = StudentCourse.objects.create(student=student, course=course)
 

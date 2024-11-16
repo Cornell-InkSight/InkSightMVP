@@ -249,6 +249,10 @@ watch(() => props.id, async () => {
     loading.value = false;
 });
 
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for student profile
+ */
 onMounted(async () => {
     await loadStudentProfile();
     await loadStudentCourses();

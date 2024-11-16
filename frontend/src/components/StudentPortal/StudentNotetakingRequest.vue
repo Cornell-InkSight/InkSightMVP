@@ -262,7 +262,7 @@ const loadSDSCoordinator = async (sdscoordinatorId: string) => {
 
 /**
  * Lifecycle hook called when the component is mounted.
- * Fetches and sets data for the student and their courses.
+ * Fetches and sets data for the student and their courses and their notetaking requests.
  */
 onMounted(async () => {
   const studentId = route.params.studentId as string;

@@ -38,8 +38,12 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const sds_coordinator_id = ref();
+const sds_coordinator_id = ref(); // the id of the SDS Coordinator for routes
 
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for SDS Coordinator ID.
+ */
 onMounted(() => {
     sds_coordinator_id.value = route.params.sdscoordinatorId as string
 })

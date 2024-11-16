@@ -26,54 +26,58 @@
     @closePortal="closeRecordingPortal" 
     />
 </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { ref, onMounted } from 'vue';
-  import RecordingPortal from '@/components/ProfessorPortal/ProfessorRecordingPortal.vue';
-  import { fetchCoursesForProfessors } from '@/services/api/fetch';
-  import { useRoute } from 'vue-router';
-  import * as interfaces from "@/services/api/interfaces";
-  import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
+</template>
 
-  const courses = ref<interfaces.Course[]>([]);
-  const showRecordingPortal = ref(false);
-  const selectedcourseId = ref<string>("");
-  
-  const route = useRoute();
-  const professorId = route.params.professorId as string;
-  
-  /**
-   * Fetches the courses for a specific professor
-   */
-  const loadCoursesForProfessor = async (professorId: string) => {
-      const { data, error } = await fetchCoursesForProfessors(professorId);
-      if (error) {
-          console.error(error);
-          return;
-      }
-      courses.value = data;
-  };
-  
-  /**
-   * Opens the recording portal for the selected course.
-   * @param {string} courseId - The name of the course to display in the recording portal.
-   */
-  const startRecording = (courseId: string) => {
-      selectedcourseId.value = courseId;
-      showRecordingPortal.value = true;
-  };
-  
-  /**
-   * Closes the recording portal and returns to the course list.
-   */
-  const closeRecordingPortal = () => {
-      showRecordingPortal.value = false;
-      selectedcourseId.value = "";
-  };
-  
-  onMounted(async () => {
-      await loadCoursesForProfessor(professorId);
-  });
-  </script>
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import RecordingPortal from '@/components/ProfessorPortal/ProfessorRecordingPortal.vue';
+import { fetchCoursesForProfessors } from '@/services/api/fetch';
+import { useRoute } from 'vue-router';
+import * as interfaces from "@/services/api/interfaces";
+import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
+
+const courses = ref<interfaces.Course[]>([]);
+const showRecordingPortal = ref(false);
+const selectedcourseId = ref<string>("");
+
+const route = useRoute();
+const professorId = route.params.professorId as string;
+
+/**
+ * Fetches the courses for a specific professor
+ */
+const loadCoursesForProfessor = async (professorId: string) => {
+    const { data, error } = await fetchCoursesForProfessors(professorId);
+    if (error) {
+        console.error(error);
+        return;
+    }
+    courses.value = data;
+};
+
+/**
+ * Opens the recording portal for the selected course.
+ * @param {string} courseId - The name of the course to display in the recording portal.
+ */
+const startRecording = (courseId: string) => {
+    selectedcourseId.value = courseId;
+    showRecordingPortal.value = true;
+};
+
+/**
+ * Closes the recording portal and returns to the course list.
+ */
+const closeRecordingPortal = () => {
+    showRecordingPortal.value = false;
+    selectedcourseId.value = "";
+};
+
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for both the professor and their students.
+ */
+onMounted(async () => {
+    await loadCoursesForProfessor(professorId);
+});
+</script>
   

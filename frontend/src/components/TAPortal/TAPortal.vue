@@ -87,51 +87,68 @@ fetchUnpublishedNotePacketsForCourse,
 import * as interfaces from "@/services/api/interfaces";
 import TAPortalNavbar from '@/components/TAPortal/TAPortalNavbar.vue';
 
-const route = useRoute();
-const courses = ref<any[]>([]);
-const ta = ref(null);
-const loading = ref<boolean>(true);
-const error = ref<string | null>(null);
+const route = useRoute(); 
+const courses = ref<any[]>([]); // the list of courses the TA has
+const ta = ref(null); // the object reference for the TA
+const loading = ref<boolean>(true); // checks loading state
+const error = ref<string | null>(null); // logs errors if any
 
+/**
+ * Loads data for the TA from the API
+ * @param taId - the ID of the TA
+ */
 const loadTA = async (taId: string) => {
-const { data, error: taError } = await fetchTA(taId);
-if (taError) {
-    error.value = taError;
-    return;
-} 
-ta.value = data;
+    const { data, error: taError } = await fetchTA(taId);
+    if (taError) {
+        error.value = taError;
+        return;
+    } 
+    ta.value = data;
 };
 
+/**
+ * Loads the courses for respective TA, returns dictionary object with extra info needed for each course
+ * Sets up Professors, top 5 most recent Notes packets
+ * @param taId - ID of the TA 
+ */
 const loadCourses = async (taId: string) => {
-const { data, error: coursesError } = await fetchCourses(taId);
-if (coursesError) {
-    error.value = coursesError;
-} else {
-    const coursePromises = data.map(async (course: interfaces.Course) => {
-    const professors = await loadProfessorsForCourses(course.id);
-    const notesPackets = await loadNotesPacketsForCourse(course.id);
-    
-    const recentNotesPackets = notesPackets.slice(0, 5).reverse();  
+    const { data, error: coursesError } = await fetchCourses(taId);
+    if (coursesError) {
+        error.value = coursesError;
+    } else {
+        const coursePromises = data.map(async (course: interfaces.Course) => {
+        const professors = await loadProfessorsForCourses(course.id);
+        const notesPackets = await loadNotesPacketsForCourse(course.id);
+        
+        const recentNotesPackets = notesPackets.slice(0, 5).reverse();  
 
-    return {
-        ...course,
-        professors,
-        notesPackets: recentNotesPackets,
-    };
-    });
-    courses.value = await Promise.all(coursePromises); 
-}
+        return {
+            ...course,
+            professors,
+            notesPackets: recentNotesPackets,
+        };
+        });
+        courses.value = await Promise.all(coursePromises); 
+    }
 };
 
+/**
+ * Loads the professors for the course
+ * @param courseId - ID of the course
+ */
 const loadProfessorsForCourses = async (courseId: string) => {
-const { data, error } = await fetchProfessorsForCourses(courseId);
-if (error) {
-    console.error(error);
-    return;
-}
-return data;
+    const { data, error } = await fetchProfessorsForCourses(courseId);
+    if (error) {
+        console.error(error);
+        return;
+    }
+    return data;
 };
 
+/**
+ * Loads the note packets data for the respective course
+ * @param courseId 
+ */
 const loadNotesPacketsForCourse = async (courseId: number) => {
     const { data, error } = await fetchUnpublishedNotePacketsForCourse(courseId);
     console.log(data)
@@ -142,11 +159,15 @@ const loadNotesPacketsForCourse = async (courseId: number) => {
     return data;
 };
 
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for the TA and their courses and additional data.
+ */
 onMounted(async () => {
-const taId = route.params.taId as string;
-await loadTA(taId);
-await loadCourses(taId);
-loading.value = false; 
+    const taId = route.params.taId as string;
+    await loadTA(taId);
+    await loadCourses(taId);
+    loading.value = false; 
 });
   </script>
   

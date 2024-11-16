@@ -151,7 +151,10 @@ const loadCoursesForProfessor = async (professorId: string) => {
 
 
 
-
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for both the professor and their SDS coordinaotrs.
+ */
 onMounted(async () => {
     let sds_coordinator_id = route.params.sdscoordinatorId as string;
     await loadSDSCoordinator(sds_coordinator_id);

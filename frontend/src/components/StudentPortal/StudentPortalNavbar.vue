@@ -30,8 +30,12 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const student_id = ref();
+const student_id = ref(); // The ID of the student for routes
 
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for the student through route
+ */
 onMounted(() => {
     student_id.value = route.params.studentId as string
 })

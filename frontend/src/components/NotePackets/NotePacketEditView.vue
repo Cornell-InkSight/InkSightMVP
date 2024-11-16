@@ -58,7 +58,7 @@ import { useRoute } from 'vue-router';
 
 const notePacket = ref<interfaces.NotesPacket | null>(null);
 const loading = ref(true); // Loading state
-const courseName = ref<String>("");
+const courseName = ref<String>(""); // the name of the course name for the note packet being edited
 const route = useRoute();
 
 // New reactive variables for updating
@@ -120,6 +120,7 @@ const statusClass = (status: string | undefined) => {
 
 /**
  * Loads course names for each course ID in `studentscourses`.
+ * @param courseId - the id of the course to load the name of
  */ 
 const loadCourseName = async (courseId: string): Promise<void> => {
     const { data, error: fetchError } = await fetchCourse(courseId);
