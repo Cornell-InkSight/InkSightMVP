@@ -8,6 +8,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      SECRET_KEY: ${{ secrets.SECRET_KEY }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      HOST: ${{ secrets.HOST }}
+      USER: ${{ secrets.USER }}
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
@@ -29,11 +35,6 @@ jobs:
       run: python backend/manage.py collectstatic --noinput
 
     - name: Deploy Backend
-      env:
-        SECRET_KEY: ${{ secrets.SECRET_KEY }}
-        SSH_KEY: ${{ secrets.SSH_KEY }}
-        HOST: ${{ secrets.HOST }}
-        USER: ${{ secrets.USER }}
       run: |
         scp -i "$SSH_KEY" -r backend/ $USER@$HOST:backend
         ssh -i "$SSH_KEY" $USER@$HOST 'cd backend && docker-compose up -d'
