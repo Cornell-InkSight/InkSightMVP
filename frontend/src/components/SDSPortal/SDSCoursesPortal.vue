@@ -1,6 +1,6 @@
 <template>
 <SDSPortalNavbar />
-<div class="p-6 max-w-6xl mx-auto bg-gray-100 min-h-screen">
+<div class="p-6 max-w-10xl mx-auto bg-gray-100 min-h-screen">
     <!-- Error message -->
     <div v-if="error" class="text-red-500 font-semibold mb-4">
     {{ error }}
@@ -19,11 +19,33 @@
         <p class="text-gray-700">SDS Coordinator: {{ sdscoordinator?.name }}</p>
     </div>
 
+    <!-- Add Course Section -->
+    <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-4">Add New Course</h2>
+            <form @submit.prevent="addNewCourse">
+                <label for="courseName" class="block text-sm font-semibold text-gray-700">Course Name:</label>
+                <input
+                    id="courseName"
+                    v-model="newCourseName"
+                    type="text"
+                    class="mt-2 w-full p-2 border border-gray-300 rounded-md"
+                    placeholder="Enter course name"
+                    required
+                />
+                <button
+                    type="submit"
+                    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+                >
+                    Add Course
+                </button>
+            </form>
+        </div>
+
     <!-- Courses Section -->
     <div class="mb-4">
         <h2 class="text-2xl font-bold mb-4">Courses Offered</h2>
 
-        <div v-if="courses && courses.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div v-if="courses && courses.length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
         <div
             v-for="course in courses"
             :key="course.id"
@@ -46,10 +68,10 @@
                 </li>
             </ul>
             </div>
-
             <!-- No Professors Message -->
             <p v-else class="text-sm text-gray-500">No professors assigned to this course.</p>
 
+           
             <!-- Add Professor Form -->
             <form>
                 <label for="professorSelect" class="block mt-4 text-sm font-semibold text-gray-700">Add a Professor:</label>
@@ -83,7 +105,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { fetchCoursesForSchools, fetchSDSCoordinator, fetchSchool, fetchProfessorsForCourses, fetchProfessorsForSchools } from "@/services/api/fetch";
-import { addNewProfessorCourse } from "@/services/api/add";
+import { addNewProfessorCourse, addCourse } from "@/services/api/add";
 import { useRoute } from 'vue-router';
 import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue";
 
@@ -95,6 +117,7 @@ const availableProfessors = ref([]); // Holds list of all available professors
 const selectedProfessor = ref(null); // Holds selected professor ID from form
 const error = ref<String>(); // Error message, if any exists
 const loading = ref<boolean>(true); // Loading state indicator
+const newCourseName = ref(""); // Holds the name of the new course
 
 /**
  * Fetches all available professors.
@@ -137,12 +160,12 @@ const loadSchool = async (schoolId: string) => {
  * Fetches the SDS Coordinator data for the given SDS Coordinator id.
  */
 const loadSDSCoordinator = async (sdscoordinatorId: string) => {
-const { data, error } = await fetchSDSCoordinator(sdscoordinatorId);
-if (error) {
-    console.error(error);
-    error.value = error;
-}
-sdscoordinator.value = data;
+    const { data, error } = await fetchSDSCoordinator(sdscoordinatorId);
+    if (error) {
+        console.error(error);
+        error.value = error;
+    }
+    sdscoordinator.value = data;
 };
 
 /**
@@ -187,6 +210,37 @@ const addNewProfessorToCourse = async (course_id: string, professor_id: string) 
         console.error("Failed to add professor to course:", error);
     }   
 };
+
+/**
+ * Adds a new course for the school.
+ */
+ const addNewCourse = async () => {
+    if (!newCourseName.value.trim()) {
+        error.value = "Course name cannot be empty.";
+        return;
+    }
+
+    const courseData = {
+        name: newCourseName.value,
+        school_id: sdscoordinator.value.school_id,
+        sds_coordinator_id: sdscoordinator.value.id,
+    };
+
+    try {
+        const response = await addCourse(courseData);
+        console.log("Course added:", response);
+
+        // Reload courses after adding a new course
+        await loadCoursesWithProfessors(sdscoordinator.value.school_id);
+
+        // Clear the input field
+        newCourseName.value = "";
+    } catch (err) {
+        console.error("Failed to add course:", err);
+        error.value = "Failed to add course. Please try again.";
+    }
+};
+
 
 /**
  * Lifecycle hook called when the component is mounted.

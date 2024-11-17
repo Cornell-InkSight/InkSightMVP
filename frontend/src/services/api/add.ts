@@ -302,3 +302,18 @@ export const addTA = async (newTA: interfaces.TA) => {
         throw new Error("Failed to add TA. Please check the provided data and try again.");
     }
 }
+
+/**
+ * Add New sds coordinator 
+ * @param newCourse - the data containing info of the new Course
+ */
+export const addCourse = async (newCourse: interfaces.Course) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/coursemanagement/courses/add/`, newCourse);
+        return response.data;
+    } 
+    catch(error) {
+        console.error("Failed to add course", error);
+        throw new Error("Failed to add course. Please check the provided data and try again.");
+    }
+}

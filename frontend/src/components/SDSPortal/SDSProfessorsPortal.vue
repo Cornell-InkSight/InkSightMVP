@@ -19,6 +19,58 @@
             <p class="text-gray-700">Location: {{ school?.location }}</p>
             <p class="text-gray-700">SDS Coordinator: {{ sdscoordinator?.name }}</p>
         </div>
+
+        <!-- Add New Student Button -->
+        <div class="mb-6">
+            <button 
+            @click="showAddProfessorModal = true" 
+            class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
+            >
+            + Add New Professor
+            </button>
+        </div>
+
+        <!-- Add Student Modal -->
+        <div 
+            v-if="showAddProfessorModal" 
+            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+        >
+            <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+            <h2 class="text-xl font-bold mb-4">Add New Professor</h2>
+            <form @submit.prevent="handleAddProfessor">
+                <label class="block mb-2">
+                Professor Name
+                </label>
+                <input 
+                    v-model="newProfessorName" 
+                    type="text" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
+                    placeholder="Enter professor name"
+                />
+                <input 
+                    v-model="newProfessorTitle" 
+                    type="text" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
+                    placeholder="Enter professor title (Dr, Professor, etc.)"
+                />
+                <div class="flex items-center justify-end mt-4">
+                <button 
+                    @click="showAddProfessorModal = false" 
+                    type="button" 
+                    class="px-4 py-2 bg-gray-500 text-white rounded-md shadow hover:bg-gray-600 mr-2"
+                >
+                    Cancel
+                </button>
+                <button 
+                    type="submit" 
+                    class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
+                >
+                    Add Professor
+                </button>
+                </div>
+            </form>
+            </div>
+        </div>
     
         <!-- professors Section -->
         <div class="mb-4">
@@ -40,8 +92,34 @@
                         {{ course.name }}
                         </li>
                     </ul>
+                     <!-- Add Existing Course to Professor -->
+                    <form @submit.prevent="handleAddCourseToProfessor(professor.id, professor.selectedCourse)">
+                        <label class="block mt-4 text-sm font-semibold text-gray-700">Add Existing Course:</label>
+                        <select 
+                            v-model="professor.selectedCourse"
+                            class="w-full mt-2 p-2 border border-gray-300 rounded-md"
+                            required
+                        >
+                            <option value="" disabled>Select a course</option>
+                            <option
+                                v-for="course in availableCourses.filter(c => !professor.courses.some(pc => pc.id === c.id))"
+                                :key="course.id"
+                                :value="course.id"
+                            >
+                                {{ course.name }}
+                            </option>
+                        </select>
+                        <button 
+                            type="submit" 
+                            class="mt-2 px-4 py-2 bg-green-500 text-white rounded-md"
+                        >
+                            Add Course
+                        </button>
+                    </form>
                 </div>
             </div>
+           
+
     
             <!-- No professors Message -->
             <div v-else class="text-gray-500">
@@ -54,9 +132,10 @@
     
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { fetchProfessorsForSchools, fetchSDSCoordinator, fetchSchool, fetchCoursesForProfessors } from "@/services/api/fetch"
+import { fetchProfessorsForSchools, fetchSDSCoordinator, fetchSchool, fetchCoursesForProfessors, fetchCoursesForSchools} from "@/services/api/fetch"
 import { useRoute } from 'vue-router';
 import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue"
+import { addProfessor, addNewProfessorCourse } from '@/services/api/add';
     
 const route = useRoute()
 const professors = ref([]); // Holds professors for scohool
@@ -64,6 +143,13 @@ const school = ref() // Holds school
 const sdscoordinator = ref() // Holds sds coordinator 
 const error = ref<String>(); // Error message, if any exists
 const loading = ref<boolean>(true)  // Loading state indicator
+
+const showAddProfessorModal = ref(false); // Controls visibility of the modal
+const newProfessorName = ref(''); // Holds the name of the new professor
+const newProfessorTitle = ref(''); // Holds the title of the new professor
+
+const availableCourses = ref([]); // List of all available courses
+const selectedCourse = ref<string>(""); // Selected course for the dropdown
 
 /**
  * Gets the professors for respective school given ID
@@ -141,14 +227,93 @@ const loadCoursesForProfessor = async (professorId: string) => {
 
   const professorsWithCourses = await Promise.all(
     fetchedProfessors.map(async (prof) => {
+      const selectedProfessor = ref(null);
       const courses = await loadCoursesForProfessor(prof.id);
-      return { ...prof, courses };
+      return { ...prof, courses, selectedProfessor };
     })
   );
 
   professors.value = professorsWithCourses;
 };
 
+/**
+ * Handles adding a new student.
+ */
+ const handleAddProfessor = async () => {
+  if (!newProfessorName.value.trim()) {
+    alert('Professor name is required.');
+    return;
+  }
+  if (!newProfessorTitle.value.trim()) {
+    alert('Professor title is required.');
+    return;
+  }
+  
+
+  try {
+    const newProfessor = {
+      name: newProfessorName.value,
+      title: newProfessorTitle.value,
+      school_id: sdscoordinator.value.school_id,
+    };
+
+    const addProfessors = await addProfessor(newProfessor);
+
+    professors.value.push(addProfessors);
+
+    newProfessorName.value = '';
+    newProfessorTitle.value = '';
+    showAddProfessorModal.value = false;
+  } catch (error) {
+    console.error('Failed to add professor:', error);
+    alert('Failed to add professor. Please try again.');
+  }
+};
+
+/**
+ * Fetches all available courses for the school.
+ */
+ const loadAvailableCourses = async (schoolId: string) => {
+    const { data, error: fetchError } = await fetchCoursesForSchools(schoolId);
+    if (fetchError) {
+        console.error(fetchError);
+        error.value = fetchError;
+        return;
+    }
+    availableCourses.value = data || [];
+};
+
+
+/**
+ * Handles adding a new course to a professor.
+ */
+ /**
+ * Handles adding an existing course to a professor.
+ */
+const handleAddCourseToProfessor = async (professorId: string, course_id: string) => {
+    if (!course_id) {
+        alert('Please select a course.');
+        return;
+    }
+
+    const courseData = {
+        course_id: course_id,
+        professor_id: professorId,
+    };
+
+    try {
+        const response = await addNewProfessorCourse(courseData);
+        console.log("Course added to professor:", response);
+
+        // Reload professors and their courses
+        await loadProfessorsWithCourses(school.value.id);
+
+        selectedCourse.value = ''; // Clear the dropdown
+    } catch (err) {
+        console.error("Failed to add course to professor:", err);
+        alert("Failed to add course. Please try again.");
+    }
+};
 
 
 /**
@@ -162,6 +327,7 @@ onMounted(async () => {
         let school_id = sdscoordinator.value.school_id;
         await loadSchool(school_id)
         await loadProfessorsWithCourses(school_id)
+        await loadAvailableCourses(school_id)
     }
     loading.value = false;
     
