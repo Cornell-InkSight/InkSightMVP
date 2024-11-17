@@ -3,16 +3,16 @@
  * Represents a student.
  */
 export interface Student {
-    id: string;
     name: string;
     sds_coordinator_id: string,
+    school_id: string,
+    disability: string
 }
 
 /**
  * Represents an SDS Coordinator.
  */
 export interface SDSCoordinator {
-    id: string;
     name: string;
 }
 
@@ -20,7 +20,6 @@ export interface SDSCoordinator {
  * Represents a professor.
  */
 export interface Professor {
-    id: string;
     name: string;
     title: string;
 }
@@ -29,7 +28,6 @@ export interface Professor {
  * Represents a TA
  */
 export interface TA {
-    id: string,
     name: string,
     professor_id: string,
 }
@@ -38,7 +36,6 @@ export interface TA {
  * Represents a school.
  */
 export interface School {
-    id: string;
     name: string;
 }
 

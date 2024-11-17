@@ -24,6 +24,64 @@
     </div>
   </div>
 
+  <!-- Add New Student Button -->
+  <div class="mb-6" v-if="!selectedStudentId" >
+    <button 
+      @click="showAddStudentModal = true" 
+      class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
+    >
+      + Add New Student
+    </button>
+  </div>
+
+  <!-- Add Student Modal -->
+  <div 
+    v-if="showAddStudentModal" 
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+  >
+    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+      <h2 class="text-xl font-bold mb-4">Add New Student</h2>
+      <form @submit.prevent="handleAddStudent">
+        <label class="block mb-2">
+          Student Name
+          <input 
+            v-model="newStudentName" 
+            type="text" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
+            placeholder="Enter student name"
+          />
+          <input 
+            v-model="newStudentDisability" 
+            type="text" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
+            placeholder="Enter student disability"
+          />
+          <input 
+            v-model="newStudentYear" 
+            type="text" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
+            placeholder="Enter student year"
+          />
+        </label>
+        <div class="flex items-center justify-end mt-4">
+          <button 
+            @click="showAddStudentModal = false" 
+            type="button" 
+            class="px-4 py-2 bg-gray-500 text-white rounded-md shadow hover:bg-gray-600 mr-2"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit" 
+            class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
+          >
+            Add Student
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Transition for Profile View -->
   <transition name="fade" mode="out-in">
     <StudentSDSModal 
@@ -49,10 +107,12 @@
   </transition>
 </div>
 </template>
+
   
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { fetchStudentsForSDSCoordinators, fetchSDSCoordinator, fetchSchool } from '@/services/api/fetch';
+import { addStudent } from '@/services/api/add';
 import { useRoute } from 'vue-router'
 import StudentSDSModal from '@/components/SDSPortal/StudentSDSModal.vue';
 import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue"
@@ -64,6 +124,11 @@ const school = ref<any | null>(null); // Holds SDS Coordinator's School data, in
 const loading = ref<boolean>(true); // Loading State indicator
 const error = ref<string | null>(null); // Error message
 const selectedStudentId = ref<number | null>(null) // Holds selected student id
+
+const showAddStudentModal = ref(false); // Controls visibility of the modal
+const newStudentName = ref(''); // Holds the name of the new student
+const newStudentDisability = ref(''); // Holds the disability of the new student
+const newStudentYear = ref(''); // Holds the year of the new student
 
 /**
  * Fetches the students for the specific SDS Coordinator and assigns them to `students`
@@ -110,6 +175,44 @@ const loadSchool = async (schoolId: string) => {
     }
     school.value = data;
 };
+
+/**
+ * Handles adding a new student.
+ */
+ const handleAddStudent = async () => {
+  if (!newStudentName.value.trim()) {
+    alert('Student name is required.');
+    return;
+  }
+  if (!newStudentDisability.value.trim()) {
+    alert('Student name is required.');
+    return;
+  }
+  
+
+  try {
+    const newStudent = {
+      name: newStudentName.value,
+      sds_coordinator_id: sdscoordinator.value?.id,
+      school_id: sdscoordinator.value.school_id,
+      disability: newStudentDisability.value,
+      year: newStudentYear.value,
+    };
+
+    const addedStudent = await addStudent(newStudent);
+
+    students.value.push(addedStudent);
+
+    newStudentName.value = '';
+    newStudentDisability.value = '';
+    newStudentYear.value = '';
+    showAddStudentModal.value = false;
+  } catch (error) {
+    console.error('Failed to add student:', error);
+    alert('Failed to add student. Please try again.');
+  }
+};
+
 
 
 /**

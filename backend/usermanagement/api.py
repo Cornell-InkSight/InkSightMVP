@@ -155,18 +155,20 @@ def add_student(request):
 
     student_data = request.data
 
-    required_fields = ["name", "school_id", "year", "disability"]
+    required_fields = ["name", "school_id", "year", "disability", "sds_coordinator_id"]
     for field in required_fields:
         if field not in student_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-
+    
     student = Student.objects.create(
         name=student_data["name"], 
         school_id=student_data["school_id"], 
         year=student_data["year"], 
-        disability=student_data["disability"]
+        disability=student_data["disability"],
+        sds_coordinator_id = student_data["sds_coordinator_id"],
     )
+    print(student)
 
     serializer = StudentSerializer(student)
     return Response(serializer.data, status=201)    

@@ -239,3 +239,66 @@ export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) =>
         }
     }
 }
+
+/**
+ * Add New student 
+ * @param 
+ * @param newStudent - the data containing info of the new student
+ */
+export const addStudent = async (newStudent: interfaces.Student) => {
+    console.log(newStudent)
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/students/add`, newStudent);
+        return response.data;
+    } 
+    catch(error) {
+        console.error("Failed to add student", error);
+        throw new Error("Failed to add student. Please check the provided data and try again.");
+    }
+}
+
+/**
+ * Add New professor 
+ * @param 
+ * @param newProfessor - the data containing info of the new Professor
+ */
+export const addProfessor = async (newProfessor: interfaces.Professor) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/professors/add`, newProfessor);
+        return response.data;
+    } 
+    catch(error) {
+        console.error("Failed to add professor", error);
+        throw new Error("Failed to add professor. Please check the provided data and try again.");
+    }
+}
+
+/**
+ * Add New sds coordinator 
+ * @param newSDSCoordinator - the data containing info of the new SDSCoordinator
+ */
+export const addSDSCoordinator = async (newSDSCoordinator: interfaces.SDSCoordinator) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/sdscoordinators/add`, newSDSCoordinator);
+        return response.data;
+    } 
+    catch(error) {
+        console.error("Failed to add SDS Coordinator", error);
+        throw new Error("Failed to add SDS Coordinator. Please check the provided data and try again.");
+    }
+}
+
+/**
+ * Add New sds coordinator 
+ * @param newTA - the data containing info of the new TA
+ */
+export const addTA = async (newTA: interfaces.TA) => {
+    try {
+        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/tas/add`, newTA);
+        return response.data;
+    } 
+    catch(error) {
+        console.error("Failed to add TA", error);
+        throw new Error("Failed to add TA. Please check the provided data and try again.");
+    }
+}

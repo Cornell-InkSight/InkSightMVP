@@ -216,16 +216,14 @@ const submitNoteTakingRequest = async () => {
       submitErrorMessage.value = "Please select a course and enter request details.";
       return;
     }
-    console.log(studentId, selectedCourseId.value, noteTakingRequest.value)
     await addNoteTakingRequest(studentId, selectedCourseId.value, noteTakingRequest.value);
     
     submitSuccessMessage.value = "Note-taking request added successfully!";
     
     selectedCourseId.value = "";
     noteTakingRequest.value = "";
-    console.log(noteTakingRequest.value)
-    // Reload note-taking requests after adding a new one
     await loadNoteakingRequestsForCourses();
+    await loadCourses(studentId);
   } catch (error) {
     console.error("Error adding note-taking request:", error);
     submitErrorMessage.value = "Failed to add note-taking request. Please try again.";
