@@ -1,5 +1,8 @@
 #!/bin/bash
-source venv/bin/activate
+# Activate virtual environment (if it exists)
+if [ -f "venv/bin/activate" ]; then
+    source venv/bin/activate
+fi
 
 # Run Django migrations
 python manage.py migrate --noinput
