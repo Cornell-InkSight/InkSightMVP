@@ -3,9 +3,12 @@ runtime: python3
 build:
   commands:
     build:
-      - pip3 install -r requirements.txt
+      - pip install -r requirements.txt
 run:
-  runtime-version: 3.8
+  runtime-version: 3.8.16
   command: sh startup.sh
   network:
     port: 8000
+  secrets:
+    - name: DATABASE_SECRET
+      value-from: "arn:aws:secretsmanager:us-east-2:881222034154:secret:DATABASE_URL-LHgevh"
