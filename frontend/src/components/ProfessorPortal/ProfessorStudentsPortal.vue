@@ -35,12 +35,14 @@
         v-for="(students, courseId) in students" 
         :key="courseId" 
         class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
+        
       >
         <!-- Course Header -->
-        <h2 class="text-xl font-bold text-gray-800">{{ courses[courseId] || "Loading..." }}</h2>
-
+        <div @click="toggleCourseDetails(courseId)">
+          <h2 class="text-xl font-bold text-gray-800">{{ courses[courseId] || "Loading..." }}</h2>
+        </div>
         <!-- List of Students for Each Course -->
-        <ul class="mt-2 space-y-1">
+        <ul class="mt-2 space-y-1" v-if="expandedCourses.includes(courseId)">
           <li 
             v-for="student in students" 
             :key="student.id" 
@@ -98,7 +100,8 @@ const loading = ref<boolean>(true);       // Loading state indicator
 const error = ref<string | null>(null);   // Error message, if any
 const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
 const courses = ref<Record<string, string>>({});         // Dictionary to store course names by ID
-  const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for each student
+const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for each student
+ const expandedCourses = ref<number[]>([]); // Tracks the open dropdown for each course
 
 // Store tooltip content to avoid async issues
 const tooltipContentCache = ref<Record<string, string>>({});
@@ -168,6 +171,18 @@ const loadNoteTakingRequestsForCourses = async () => {
  */
  const getRequestTooltip = (studentId: string, courseId: string): string => {
   return tooltipContent(studentId, courseId);
+};
+
+/**
+ * Toggles course details visibility
+ * @param courseId - ID of the course to toggle
+ */
+ const toggleCourseDetails = (courseId: number) => {
+  if (expandedCourses.value.includes(courseId)) {
+    expandedCourses.value = expandedCourses.value.filter(id => id !== courseId);
+  } else {
+    expandedCourses.value.push(courseId);
+  }
 };
 
 
