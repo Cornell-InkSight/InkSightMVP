@@ -1,5 +1,6 @@
 version: 1.0
 runtime: python3
+instanceRoleArn: arn:aws:iam::881222034154:role/InksightAWSrunner
 build:
   commands:
     build:
