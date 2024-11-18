@@ -12,5 +12,5 @@ run:
   secrets:
     - name: DATABASE_SECRET
       value-from: "arn:aws:secretsmanager:us-east-2:881222034154:secret:DATABASE_URL-LHgevh"
-     - name: DJANGO_SECRET_KEY
+    - name: DJANGO_SECRET_KEY
       value-from: "arn:aws:secretsmanager:us-east-2:881222034154:secret:DJANGO_SECRET_KEY-1giSfY"
