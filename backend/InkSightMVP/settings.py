@@ -34,7 +34,7 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [".awsapprunner.com"]
+ALLOWED_HOSTS = ["127.0.0.1", ".awsapprunner.com"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", 
 ]
@@ -101,8 +101,8 @@ WSGI_APPLICATION = 'InkSightMVP.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-if "DATABASE_SECRET" in environ:
-    database_secret = environ.get("DATABASE_SECRET")
+if "DATABASE_SECRET" in os.environ:
+    database_secret = os.environ.get("DATABASE_SECRET")
     db_url = json.loads(database_secret)["DATABASE_URL"]
     DATABASES = {"default": dj_database_url.parse(db_url)}
 else:
