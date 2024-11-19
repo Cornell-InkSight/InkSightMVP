@@ -11,7 +11,7 @@ const baseURL = import.meta.env.VITE_API_URL;
 export const fetchStudentsForSDSCoordinators = async (sdscoordinatorId: string): Promise<{ data: interfaces.Student[] | null, error: string | null }> => {
   try {
     const response = await axios.get(`${baseURL}/coursemanagement/sdscoordinators/${sdscoordinatorId}/students`);
-    return { data: response.data, error: null };
+    return { data: response.data, error: null }; 
   } catch (err) {
     return { data: null, error: "Failed to load students" };
   }
