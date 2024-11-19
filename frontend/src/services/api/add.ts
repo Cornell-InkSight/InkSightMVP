@@ -62,7 +62,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
             request,
             student_id,
             course_id,
-            sdscoordinator_id: sdsCoordinator.id
+            sdscoordinator_id: sdsCoordinator ? sdsCoordinator[0].id : 1
         };
         console.log(note_taking_request)
         // Send the request to the server

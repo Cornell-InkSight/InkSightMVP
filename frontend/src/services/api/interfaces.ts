@@ -13,6 +13,7 @@ export interface Student {
  * Represents an SDS Coordinator.
  */
 export interface SDSCoordinator {
+    id: string,
     name: string;
 }
 

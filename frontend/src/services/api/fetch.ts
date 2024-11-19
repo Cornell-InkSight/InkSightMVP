@@ -20,7 +20,7 @@ export const fetchStudentsForSDSCoordinators = async (sdscoordinatorId: string):
  * @param {string} professorId - The ID of the professor.
  * @returns {Promise<{ data: interfaces.Student[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of students or an error message.
  */
-export const fetchStudentsForProfessors = async (professorId: string): Promise<{ data: Student[] | null, error: string | null }> => {
+export const fetchStudentsForProfessors = async (professorId: string): Promise<{ data: interfaces.Student[] | null, error: string | null }> => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/professors/${professorId}/students`);
     return { data: response.data, error: null };
