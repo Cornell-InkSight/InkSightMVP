@@ -118,7 +118,7 @@ const loadCourses = async (taId: string) => {
     } else {
         const coursePromises = data.map(async (course: interfaces.Course) => {
         const professors = await loadProfessorsForCourses(course.id);
-        const notesPackets = await loadNotesPacketsForCourse(course.id);
+        const notesPackets = await loadNotesPacketsForCourse(parseInt(course.id));
         
         const recentNotesPackets = notesPackets.slice(0, 5).reverse();  
 
@@ -150,7 +150,7 @@ const loadProfessorsForCourses = async (courseId: string) => {
  * @param courseId 
  */
 const loadNotesPacketsForCourse = async (courseId: number) => {
-    const { data, error } = await fetchUnpublishedNotePacketsForCourse(courseId);
+    const { data, error } = await fetchUnpublishedNotePacketsForCourse(courseId.toString());
     console.log(data)
     if (error) {
         console.error(error);
