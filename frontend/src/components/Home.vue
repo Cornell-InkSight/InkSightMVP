@@ -77,7 +77,7 @@ justify-content: space-between;
 align-items: center;
 width: 100%;
 padding: 20px 40px;
-background: linear-gradient(90deg, #4A90E2, #007AFF);
+background: linear-gradient(90deg, #7f9bbb, #007AFF);
 color: white;
 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
@@ -113,13 +113,13 @@ color: #ffcc00;
 
 /* Hero Section */
 .hero {
-width: 100%;
-height: 60vh;
+width: 80%;
+height: 50vh;
 display: flex;
 justify-content: center;
 align-items: center;
 background: url('https://source.unsplash.com/1600x900/?technology,education') no-repeat center center/cover;
-color: white;
+color: rgb(0, 0, 0);
 text-align: center;
 padding: 40px 20px;
 }
