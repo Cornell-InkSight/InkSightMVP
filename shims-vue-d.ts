@@ -4,3 +4,4 @@ declare module '*.vue' {
 }
 
 declare module '@/services/api';
+declare module '@/components';
