@@ -141,7 +141,7 @@ const loadCourses = async (studentId: string) => {
   } else {
     const coursePromises = data.map(async (course: interfaces.Course) => {
       const professors = await loadProfessorsForCourses(course.id);
-      const notesPackets = await loadNotesPacketsForCourse(course.id);
+      const notesPackets = await loadNotesPacketsForCourse(parseInt(course.id));
       const isApprovedForCourse = await loadIsStudentApprovedForCourse(studentId, course.id);
 
       const { data: ongoingLectureData, error: ongoingLectureError } = await fetchCurrentOngoingLectureSession(course.id);
@@ -180,7 +180,7 @@ const loadProfessorsForCourses = async (courseId: string) => {
  * @param courseId - ID of the course
  */
 const loadNotesPacketsForCourse = async (courseId: number) => {
-  const { data, error } = await fetchPublishedNotePacketsForCourse(courseId);
+  const { data, error } = await fetchPublishedNotePacketsForCourse(courseId.toString());
   if (error) {
     console.error(error);
     return [];

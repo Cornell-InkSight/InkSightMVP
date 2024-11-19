@@ -24,7 +24,7 @@ export interface SDSCoordinator {
 export interface Professor {
     id?: string;
     name: string;
-    title: string;
+    title?: string;
 }
 
 /**
@@ -61,6 +61,8 @@ export interface Course {
     id?: string;
     name: string;
     sds_coordinator_id: string;
+    professors?: Professor[],
+    cannotRequest?: string,
 }
 
 /**

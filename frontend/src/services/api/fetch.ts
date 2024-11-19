@@ -314,7 +314,7 @@ export const fetchIsApprovedStudentForCourse = async(student_id: string, course_
     const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/approved`)
     return { data: response.data.approved, error: null }
   } catch(err) {
-    return [{ data: null, error: "Failed to load Approval" }]
+    return { data: null, error: "Failed to load Approval" }
   }
 }
 
@@ -329,7 +329,7 @@ export const fetchIsPendingStudentForCourse = async(student_id: string, course_i
     const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/pending`)
     return { data: response.data.pending, error: null }
   } catch(err) {
-    return [{ data: null, error: "Failed to load Approval" }]
+    return { data: null, error: "Failed to load Approval" }
   }
 }
 
@@ -358,6 +358,6 @@ export const fetchCurrentOngoingLectureSession = async(course_id: string) => {
     const response = await axios.get(`http://127.0.0.1:8000/lecturesessionsmanagement/${course_id}/current-lecture-session`)
     return { data: response.data, error: null }
   } catch(err) {
-    return [{ data: null, error: "Failed to load Approval" }]
+    return { data: null, error: "Failed to load Approval" }
   }
 }
