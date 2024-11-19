@@ -24,6 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env.local')) 
 
+import os
+
+PORT = int(os.environ.get("PORT", 8080))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -37,7 +40,7 @@ if SECRET_KEY == "default_secret_key":
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["127.0.0.1", ".awsapprunner.com"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", ".awsapprunner.com"]
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", 
 ]
@@ -103,23 +106,18 @@ WSGI_APPLICATION = 'InkSightMVP.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
+IS_DOCKERIZED = os.getenv('DOCKERIZED', False)
 
-if "DATABASE_SECRET" in os.environ:
-    database_secret = os.environ.get("DATABASE_SECRET")
-    db_url = json.loads(database_secret)["DATABASE_URL"]
-    DATABASES = {"default": dj_database_url.parse(db_url)}
-else:
-    DATABASES = { 
-        "default": {
-            "ENGINE": "django.db.backends.postgresql",
-            "NAME": os.getenv('DB_NAME'),
-            "USER": os.getenv('DB_USER'),
-            "PASSWORD": os.getenv('DB_PWD'),
-            "HOST": os.getenv('DB_HOST'),
-            "PORT": os.getenv('DB_PORT', '5432'),
-        } 
-    }
-
+DATABASES = { 
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": os.getenv('DB_NAME'),
+        "USER": os.getenv('DB_USER'),
+        "PASSWORD": os.getenv('DB_PWD'),
+        "HOST": "db" if IS_DOCKERIZED else os.getenv("DB_HOST", "127.0.0.1"),
+        "PORT": os.getenv('DB_PORT', '5432'),
+    } 
+}
 
 
 
