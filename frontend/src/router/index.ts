@@ -2,7 +2,10 @@ import { createRouter, createWebHistory } from 'vue-router';
 
 const routes = [
     {
-        path: "/", component: () => import("@/components/Authentication/Home.vue"),
+        path: "/", component: () => import("@/components/Home.vue"),
+    },
+    {
+        path: "/signin", component: () => import("@/components/Authentication/SignIn.vue"),
     },
     {
         path: "/students/:studentId", component: () => import("@/components/StudentPortal/StudentPortal.vue"),
