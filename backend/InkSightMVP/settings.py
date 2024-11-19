@@ -41,6 +41,7 @@ if SECRET_KEY == "default_secret_key":
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+print(ALLOWED_HOSTS)
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", 
 ]

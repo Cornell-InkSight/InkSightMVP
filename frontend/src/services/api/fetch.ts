@@ -1,6 +1,8 @@
 import axios from 'axios';
 import * as interfaces from '@/services/api/interfaces' 
 
+const baseURL = import.meta.env.VITE_API_URL;
+
 /**
  * Fetches students associated with a specific SDS coordinator.
  * @param {string} sdscoordinatorId - The ID of the SDS coordinator.
@@ -8,7 +10,7 @@ import * as interfaces from '@/services/api/interfaces'
  */
 export const fetchStudentsForSDSCoordinators = async (sdscoordinatorId: string): Promise<{ data: interfaces.Student[] | null, error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/sdscoordinators/${sdscoordinatorId}/students`);
+    const response = await axios.get(`${baseURL}/coursemanagement/sdscoordinators/${sdscoordinatorId}/students`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load students" };
@@ -22,7 +24,7 @@ export const fetchStudentsForSDSCoordinators = async (sdscoordinatorId: string):
  */
 export const fetchStudentsForProfessors = async (professorId: string): Promise<{ data: interfaces.Student[] | null, error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/professors/${professorId}/students`);
+    const response = await axios.get(`${baseURL}/coursemanagement/professors/${professorId}/students`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load students" };
@@ -36,7 +38,7 @@ export const fetchStudentsForProfessors = async (professorId: string): Promise<{
  */
 export const fetchProfessor = async (professorId: string): Promise<{ data: interfaces.Professor | null, error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/usermanagement/professors/${professorId}`);
+    const response = await axios.get(`${baseURL}/usermanagement/professors/${professorId}`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load Professor" };
@@ -50,7 +52,7 @@ export const fetchProfessor = async (professorId: string): Promise<{ data: inter
  */
 export const fetchSDSCoordinator = async (sdscoordinatorId: string): Promise<{ data: interfaces.SDSCoordinator | null, error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/usermanagement/sdscoordinators/${sdscoordinatorId}`);
+    const response = await axios.get(`${baseURL}/usermanagement/sdscoordinators/${sdscoordinatorId}`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load SDS Coordinator" };
@@ -64,7 +66,7 @@ export const fetchSDSCoordinator = async (sdscoordinatorId: string): Promise<{ d
  */
 export const fetchSchool = async (schoolId: string): Promise<{ data: interfaces.School | null, error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/schoolmanagement/schools/${schoolId}`);
+    const response = await axios.get(`${baseURL}/schoolmanagement/schools/${schoolId}`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load school" };
@@ -78,7 +80,7 @@ export const fetchSchool = async (schoolId: string): Promise<{ data: interfaces.
  */
 export const fetchStudent = async (studentId: string): Promise<{ data: interfaces.Student | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/usermanagement/students/${studentId}`);
+    const response = await axios.get(`${baseURL}/usermanagement/students/${studentId}`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load student" };
@@ -92,7 +94,7 @@ export const fetchStudent = async (studentId: string): Promise<{ data: interface
  */
 export const fetchTA = async (taId: string): Promise<{ data: interfaces.TA | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/usermanagement/tas/${taId}`);
+    const response = await axios.get(`${baseURL}/usermanagement/tas/${taId}`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load TA" };
@@ -106,7 +108,7 @@ export const fetchTA = async (taId: string): Promise<{ data: interfaces.TA | nul
  */
 export const fetchCourses = async (studentId: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/students/${studentId}/courses/`);
+    const response = await axios.get(`${baseURL}/coursemanagement/students/${studentId}/courses/`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load courses" };
@@ -120,7 +122,7 @@ export const fetchCourses = async (studentId: string): Promise<{ data: interface
  */
 export const fetchCourse = async (courseId: string): Promise<{ data: interfaces.Course | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/courses/${courseId}`);
+    const response = await axios.get(`${baseURL}/coursemanagement/courses/${courseId}`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load courses" };
@@ -134,7 +136,7 @@ export const fetchCourse = async (courseId: string): Promise<{ data: interfaces.
  */
 export const fetchStudentCourses = async (studentcoursesid: string): Promise<{ data: interfaces.StudentCourse | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/student-courses/${studentcoursesid}`);
+    const response = await axios.get(`${baseURL}/coursemanagement/student-courses/${studentcoursesid}`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load student" };
@@ -148,7 +150,7 @@ export const fetchStudentCourses = async (studentcoursesid: string): Promise<{ d
  */
 export const fetchCoursesForSchools = async (schoolid: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/schoolmanagement/schools/${schoolid}/courses`);
+    const response = await axios.get(`${baseURL}/schoolmanagement/schools/${schoolid}/courses`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load courses" };
@@ -163,7 +165,7 @@ export const fetchCoursesForSchools = async (schoolid: string): Promise<{ data: 
  */
 export const fetchProfessorsForSchools = async (schoolid: string): Promise<{ data: interfaces.Professor[] | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/schoolmanagement/schools/${schoolid}/professors`);
+    const response = await axios.get(`${baseURL}/schoolmanagement/schools/${schoolid}/professors`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load professors" };
@@ -178,7 +180,7 @@ export const fetchProfessorsForSchools = async (schoolid: string): Promise<{ dat
  */
 export const fetchCoursesForProfessors = async (professorid: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/professors/${professorid}/courses`);
+    const response = await axios.get(`${baseURL}/coursemanagement/professors/${professorid}/courses`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load courses" };
@@ -194,7 +196,7 @@ export const fetchCoursesForProfessors = async (professorid: string): Promise<{ 
  */
 export const fetchProfessorsForCourses = async (courseid: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/courses/${courseid}/professors`);
+    const response = await axios.get(`${baseURL}/coursemanagement/courses/${courseid}/professors`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load courses" };
@@ -208,7 +210,7 @@ export const fetchProfessorsForCourses = async (courseid: string): Promise<{ dat
  */
 export const fetchSDSCoordinatorForCourses = async (courseid: string): Promise<{ data: interfaces.SDSCoordinator | null; error: string | null }> => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/courses/${courseid}/sdscoordinator`);
+    const response = await axios.get(`${baseURL}/coursemanagement/courses/${courseid}/sdscoordinator`);
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load SDS Coordinator" };
@@ -223,7 +225,7 @@ export const fetchSDSCoordinatorForCourses = async (courseid: string): Promise<{
  */
 export const fetchNotetakingRequestsForCourses = async (courseId: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/courses/${courseId}/note-packets`)
+    const response = await axios.get(`${baseURL}/notetakingrequestmanagement/courses/${courseId}/note-packets`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Note Taking Courses" }
@@ -238,7 +240,7 @@ export const fetchNotetakingRequestsForCourses = async (courseId: string) => {
  */
 export const fetchdNotePacketsForCourse = async (courseId: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notepacketsmanagement/courses/${courseId}/notes-packets`)
+    const response = await axios.get(`${baseURL}/notepacketsmanagement/courses/${courseId}/notes-packets`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Note Packets" }
@@ -253,7 +255,7 @@ export const fetchdNotePacketsForCourse = async (courseId: string) => {
  */
 export const fetchApprovedStudentsForCourse = async (courseId: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/courses/${courseId}/approved-students`)
+    const response = await axios.get(`${baseURL}/notetakingrequestmanagement/courses/${courseId}/approved-students`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Note Taking Courses" }
@@ -267,7 +269,7 @@ export const fetchApprovedStudentsForCourse = async (courseId: string) => {
  */
 export const fetchUnpublishedNotePacketsForCourse = async (courseId: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notepacketsmanagement/courses/${courseId}/notes-packets-unpublished`)
+    const response = await axios.get(`${baseURL}/notepacketsmanagement/courses/${courseId}/notes-packets-unpublished`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Note Packets" }
@@ -282,7 +284,7 @@ export const fetchUnpublishedNotePacketsForCourse = async (courseId: string) => 
  */
 export const fetchPublishedNotePacketsForCourse = async (courseId: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notepacketsmanagement/courses/${courseId}/notes-packets-published`)
+    const response = await axios.get(`${baseURL}/notepacketsmanagement/courses/${courseId}/notes-packets-published`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Note Packets" }
@@ -296,7 +298,7 @@ export const fetchPublishedNotePacketsForCourse = async (courseId: string) => {
  */
 export const fetchNotePacket = async (note_packet_id: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notepacketsmanagement/notes-packets/${note_packet_id}/`)
+    const response = await axios.get(`${baseURL}/notepacketsmanagement/notes-packets/${note_packet_id}/`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Note Packets" }
@@ -311,7 +313,7 @@ export const fetchNotePacket = async (note_packet_id: string) => {
  */
 export const fetchIsApprovedStudentForCourse = async(student_id: string, course_id: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/approved`)
+    const response = await axios.get(`${baseURL}/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/approved`)
     return { data: response.data.approved, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Approval" }
@@ -326,7 +328,7 @@ export const fetchIsApprovedStudentForCourse = async(student_id: string, course_
  */
 export const fetchIsPendingStudentForCourse = async(student_id: string, course_id: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/pending`)
+    const response = await axios.get(`${baseURL}/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/pending`)
     return { data: response.data.pending, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Approval" }
@@ -341,7 +343,7 @@ export const fetchIsPendingStudentForCourse = async(student_id: string, course_i
  */
 export const fetchNoteTakingRequestStudentForCourse = async(student_id: string, course_id: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/`)
+    const response = await axios.get(`${baseURL}/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Approval" }
@@ -355,7 +357,7 @@ export const fetchNoteTakingRequestStudentForCourse = async(student_id: string, 
  */
 export const fetchCurrentOngoingLectureSession = async(course_id: string) => {
   try {
-    const response = await axios.get(`http://127.0.0.1:8000/lecturesessionsmanagement/${course_id}/current-lecture-session`)
+    const response = await axios.get(`${baseURL}/lecturesessionsmanagement/${course_id}/current-lecture-session`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Approval" }
