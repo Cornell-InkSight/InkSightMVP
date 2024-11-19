@@ -131,7 +131,7 @@ const newCourse = ref({
  * Fetches the student profile based on the provided id
  */
 const loadStudentProfile = async () => {
-    const { data, error: fetchError } = await fetchStudent(props.id);
+    const { data, error: fetchError } = await fetchStudent(props.id.toString());
     if (fetchError) {
         error.value = fetchError;
     } else {
@@ -143,7 +143,7 @@ const loadStudentProfile = async () => {
  * Fetches the courses based on the student's id
  */
 const loadStudentCourses = async () => {
-    const { data, error: fetchError } = await fetchCourses(props.id);
+    const { data, error: fetchError } = await fetchCourses(props.id.toString());
     if (fetchError) {
         error.value = fetchError;
     } else {

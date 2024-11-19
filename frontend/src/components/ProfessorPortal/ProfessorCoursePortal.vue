@@ -7,7 +7,7 @@
     <div v-if="!showRecordingPortal" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
     <div v-for="course in courses" :key="course.id" class="p-4 bg-white rounded-lg shadow-md border border-gray-200">
         <h2 class="text-lg font-semibold">{{ course.name }}</h2>
-        <p class="text-sm text-gray-600">{{ course.description }}</p>
+        <!-- <p class="text-sm text-gray-600">{{ course.description }}</p> -->
         
         <!-- Start Recording Button -->
         <button 

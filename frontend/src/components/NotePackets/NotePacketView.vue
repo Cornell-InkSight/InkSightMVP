@@ -12,7 +12,7 @@
             <h2 class="text-2xl font-bold text-gray-900">
                 Notes Packet For Lecture {{ notePacket.lecture_session_id }}
             </h2>
-            <span :class="statusClass(notePacket.status)" class="text-sm font-semibold px-2 py-1 rounded-full">
+            <span :class="statusClass(notePacket.status as string)" class="text-sm font-semibold px-2 py-1 rounded-full">
                 {{ notePacket.status }}
             </span>
         </div>
@@ -20,7 +20,7 @@
         <!-- Course Information -->
         <div class="mb-4 p-4 bg-white rounded-md shadow-sm">
             <h3 class="text-xl font-semibold text-gray-800">Course: {{ courseName }}</h3>
-            <p class="text-gray-600">{{ notePacket.course?.code }}</p>
+            <p class="text-gray-600">{{ notePacket.course_id }}</p>
         </div>
 
         <!-- Notes Content -->
@@ -110,7 +110,8 @@ onMounted(async () => {
     const note_packet_id = route.params.notepacketId as string;
     await fetchNotePacketData(note_packet_id);
     if(notePacket) {
-        loadCourseName(notePacket.value.course_id);
+        const notePacketCourse = notePacket.value.course_id as string
+        loadCourseName(notePacketCourse);
     }
 });
 </script>

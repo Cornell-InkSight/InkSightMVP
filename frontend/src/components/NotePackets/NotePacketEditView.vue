@@ -20,7 +20,7 @@
         <!-- Course Information -->
         <div class="mb-4 p-4 bg-white rounded-md shadow-sm">
             <h3 class="text-xl font-semibold text-gray-800">Course: {{ courseName }}</h3>
-            <p class="text-gray-600">{{ notePacket.course?.code }}</p>
+            <p class="text-gray-600">{{ notePacket.course_id }}</p>
         </div>
 
         <!-- Notes Content -->
@@ -92,7 +92,7 @@ const updateText = async () => {
     updateMessage.value = null; // Clear previous message
 
     try {
-        await updateTextOfNotePacket(notePacket.value.id, updatedText.value);
+        await updateTextOfNotePacket(notePacket.value.id as string, updatedText.value);
         updateMessage.value = "Text updated successfully!";
     } catch (error: any) {
         console.error(error.message);
@@ -139,7 +139,8 @@ onMounted(async () => {
     const note_packet_id = route.params.notepacketId as string;
     await fetchNotePacketData(note_packet_id);
     if (notePacket.value) {
-        loadCourseName(notePacket.value.course_id);
+        const notePacketCourse = notePacket.value.course_id as string
+        loadCourseName(notePacketCourse);
     }
 });
 

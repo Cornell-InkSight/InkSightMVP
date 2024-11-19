@@ -160,10 +160,10 @@ const loadSchool = async (schoolId: string) => {
  * Fetches the SDS Coordinator data for the given SDS Coordinator id.
  */
 const loadSDSCoordinator = async (sdscoordinatorId: string) => {
-    const { data, error } = await fetchSDSCoordinator(sdscoordinatorId);
-    if (error) {
-        console.error(error);
-        error.value = error;
+    const { data, error: fetchError } = await fetchSDSCoordinator(sdscoordinatorId);
+    if (fetchError) {
+        console.error(fetchError);
+        error.value = fetchError;
     }
     sdscoordinator.value = data;
 };

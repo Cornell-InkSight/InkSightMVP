@@ -104,7 +104,7 @@ const startRecording = async () => {
     try {
         stream = await getCameraStream("environment");
 
-        const videoElement = document.getElementById("live-camera-view");
+        const videoElement = document.getElementById("live-camera-view") as HTMLVideoElement;
         videoElement.srcObject = stream;
         videoElement.play(); 
 
@@ -120,7 +120,7 @@ const startRecording = async () => {
         // API call to create lecture session
         const lectureSessionData = {
             date: new Date(),
-            course_id: props.courseId,
+            course_id: parseInt(props.courseId),
             status: "recording",
             url: "https://example.com/stream-url",
         };

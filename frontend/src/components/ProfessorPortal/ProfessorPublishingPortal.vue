@@ -12,11 +12,11 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
     <div v-for="course in courses" :key="course.id" class="p-4 bg-white rounded-lg shadow-md border border-gray-200">
         <h2 class="text-lg font-semibold">{{ course.name }}</h2>
-        <p class="text-sm text-gray-600">{{ course.description }}</p>
+        <!-- <p class="text-sm text-gray-600">{{ course.description }}</p> -->
         
         <!-- Add Button to Open Notes Packet Form -->
         <button 
-        @click="toggleNotesPacketForm(course.id)" 
+        @click="toggleNotesPacketForm(parseInt(course.id))" 
         class="mt-4 bg-gray-300 text-gray-700 py-2 px-4 rounded-full hover:bg-gray-400"
         >
         + Notes
@@ -35,7 +35,7 @@
         </div>
 
         <!-- Notes Packet Form (Visible only for the selected course) -->
-        <div v-if="showAddNotesPacketForm && selectedCourseId === course.id" class="mt-4 border-t pt-4">
+        <div v-if="showAddNotesPacketForm && selectedCourseId == Number(course.id)" class="mt-4 border-t pt-4">
         <h3 class="text-lg font-semibold mb-2">Publish Notes</h3>
         <form @submit.prevent="submitNotesPacketForm">
             
@@ -49,7 +49,7 @@
                 required
             >
                 <option v-if="!notePackets[course.id]" disabled>Loading...</option>
-                <option v-for="packet in notePackets[course.id]" :key="packet.id" :value="packet.id">
+                <option v-for="packet in notePackets[course.id]" :key="packet.id as string" :value="packet.id">
                 Packet from Lecture Session {{ packet.lecture_session_id }}
                 </option>
             </select>
@@ -137,7 +137,7 @@ const loadCoursesForProfessor = async (professorId: string) => {
 };
 
 const loadNotesPacketsForCourse = async (courseId: number) => {
-    const { data, error } = await fetchUnpublishedNotePacketsForCourse(courseId);
+    const { data, error } = await fetchUnpublishedNotePacketsForCourse(courseId.toString());
     if (error) {
         console.error(error);
         addNotesPacketsError.value = "Failed to load note packets";
@@ -148,7 +148,7 @@ const loadNotesPacketsForCourse = async (courseId: number) => {
 
 // Load approved students for course
 const loadApprovedStudentsForCourse = async (courseId: number) => {
-    const { data, error } = await fetchApprovedStudentsForCourse(courseId);
+    const { data, error } = await fetchApprovedStudentsForCourse(courseId.toString());
     if (error) {
         console.error(error);
         return [];

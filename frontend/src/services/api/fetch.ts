@@ -1,5 +1,5 @@
 import axios from 'axios';
-import * as interfaces from './interfaces.ts' 
+import * as interfaces from '@/services/api/interfaces' 
 
 /**
  * Fetches students associated with a specific SDS coordinator.
@@ -132,7 +132,7 @@ export const fetchCourse = async (courseId: string): Promise<{ data: interfaces.
  * @param {string} studentId - The ID of the student.
  * @returns {Promise<{ data: Student | null; error: string | null }>} - A Promise that resolves to an object containing either a student or an error message.
  */
-export const fetchStudentCourses = async (studentcoursesid: string): Promise<{ data: interfaces.Student | null; error: string | null }> => {
+export const fetchStudentCourses = async (studentcoursesid: string): Promise<{ data: interfaces.StudentCourse | null; error: string | null }> => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/student-courses/${studentcoursesid}`);
     return { data: response.data, error: null };
@@ -204,9 +204,9 @@ export const fetchProfessorsForCourses = async (courseid: string): Promise<{ dat
 /**
  * Fetches SDS coordinator for a specific course.
  * @param {string} courseid - The ID of the course.
- * @returns {Promise<{ data: interfaces.SDSCoordinator[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ * @returns {Promise<{ data: interfaces.SDSCoordinator | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
-export const fetchSDSCoordinatorForCourses = async (courseid: string): Promise<{ data: interfaces.SDSCoordinator[] | null; error: string | null }> => {
+export const fetchSDSCoordinatorForCourses = async (courseid: string): Promise<{ data: interfaces.SDSCoordinator | null; error: string | null }> => {
   try {
     const response = await axios.get(`http://127.0.0.1:8000/coursemanagement/courses/${courseid}/sdscoordinator`);
     return { data: response.data, error: null };
@@ -344,7 +344,7 @@ export const fetchNoteTakingRequestStudentForCourse = async(student_id: string, 
     const response = await axios.get(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${student_id}/${course_id}/`)
     return { data: response.data, error: null }
   } catch(err) {
-    return [{ data: null, error: "Failed to load Approval" }]
+    return { data: null, error: "Failed to load Approval" }
   }
 }
 
