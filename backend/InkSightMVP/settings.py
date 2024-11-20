@@ -34,17 +34,18 @@ if SECRET_KEY == "default_secret_key":
     print("WARNING: Using default SECRET_KEY. Check if DJANGO_SECRET_KEY is being loaded from the environment.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "inksight-backend-575605693332.us-central1.run.app",
     "localhost",
-    "127.0.0.1"
+    "127.0.0.1",
+    "198.211.99.20",
 ]
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", 
-    "https://inksightmvp.pages.dev/"
+    "https://inksightmvp.pages.dev"
 ]
 
 

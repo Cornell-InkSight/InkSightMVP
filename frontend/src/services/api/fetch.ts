@@ -2,7 +2,6 @@ import axios from 'axios';
 import * as interfaces from '@/services/api/interfaces' 
 
 const baseURL = import.meta.env.VITE_API_URL;
-
 /**
  * Fetches students associated with a specific SDS coordinator.
  * @param {string} sdscoordinatorId - The ID of the SDS coordinator.
