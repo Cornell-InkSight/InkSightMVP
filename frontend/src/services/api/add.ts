@@ -12,7 +12,7 @@ const baseURL = import.meta.env.VITE_API_URL;
 
 export const addCourseForStudent = async (student_id: Number, newCourse: interfaces.newCourse) => {
     try {
-        const response = await axios.post(`${baseURL}/students/${student_id}/courses/add/`, newCourse);
+        const response = await axios.post(`${baseURL}/coursemanagement/students/${student_id}/courses/add/`, newCourse);
         return response.data;
     } 
     catch(error) {
@@ -227,7 +227,7 @@ export const updateTextOfNotePacket = async (notepacket_id: string, text: string
  */
 export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) => {
     try {
-        const response = await axios.post(`${baseURL}/professor-courses/add/`, data)
+        const response = await axios.post(`${baseURL}/coursemanagement/professor-courses/add/`, data)
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -311,7 +311,7 @@ export const addTA = async (newTA: interfaces.TA) => {
  */
 export const addCourse = async (newCourse: interfaces.Course) => {
     try {
-        const response = await axios.post(`${baseURL}/courses/add/`, newCourse);
+        const response = await axios.post(`${baseURL}/coursemanagement/courses/add/`, newCourse);
         return response.data;
     } 
     catch(error) {
