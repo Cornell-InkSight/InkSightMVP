@@ -8,9 +8,11 @@ import { fetchSDSCoordinatorForCourses } from './fetch'
  * @returns {Promise<void>} - A Promise that resolves to an object when the new course is added
  */
 
+const baseURL = import.meta.env.VITE_API_URL;
+
 export const addCourseForStudent = async (student_id: Number, newCourse: interfaces.newCourse) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/coursemanagement/students/${student_id}/courses/add/`, newCourse);
+        const response = await axios.post(`${baseURL}/students/${student_id}/courses/add/`, newCourse);
         return response.data;
     } 
     catch(error) {
@@ -225,7 +227,7 @@ export const updateTextOfNotePacket = async (notepacket_id: string, text: string
  */
 export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/coursemanagement/professor-courses/add/`, data)
+        const response = await axios.post(`${baseURL}/professor-courses/add/`, data)
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -309,7 +311,7 @@ export const addTA = async (newTA: interfaces.TA) => {
  */
 export const addCourse = async (newCourse: interfaces.Course) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/coursemanagement/courses/add/`, newCourse);
+        const response = await axios.post(`${baseURL}/courses/add/`, newCourse);
         return response.data;
     } 
     catch(error) {

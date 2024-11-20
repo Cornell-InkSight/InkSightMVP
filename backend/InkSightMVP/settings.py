@@ -41,10 +41,7 @@ ALLOWED_HOSTS = [
 ]
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173", 
-    "https://inksightmvp.pages.dev"
-]
+CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition
@@ -86,6 +83,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'InkSightMVP.urls'
 CORS_ALLOW_ALL_ORIGINS = True
 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -108,6 +106,7 @@ WSGI_APPLICATION = 'InkSightMVP.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 IS_DOCKERIZED = os.getenv('DOCKERIZED', False)
+print(IS_DOCKERIZED)
 
 DATABASES = { 
     "default": {
@@ -115,10 +114,13 @@ DATABASES = {
         "NAME": os.getenv('DB_NAME'),
         "USER": os.getenv('DB_USER'),
         "PASSWORD": os.getenv('DB_PWD'),
-        "HOST": "db" if IS_DOCKERIZED else os.getenv("DB_HOST", "127.0.0.1"),
+        "HOST": "/cloudsql/inksightmvp:us-central1:inksightmvp" if IS_DOCKERIZED else os.getenv("DB_HOST", "127.0.0.1"),
         "PORT": os.getenv('DB_PORT', '5432'),
     } 
 }
+
+print(DATABASES)
+
 
 
 

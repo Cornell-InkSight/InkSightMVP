@@ -19,4 +19,4 @@ EXPOSE 8000
 EXPOSE 8080
 
 # Run the app
-CMD gunicorn InkSightMVP.wsgi:application --bind 0.0.0.0:8080
+CMD ["sh", "-c", "python manage.py migrate && python manage.py create_fake_data && gunicorn InkSightMVP.wsgi --bind 0.0.0.0:8080"]

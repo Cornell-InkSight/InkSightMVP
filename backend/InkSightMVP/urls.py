@@ -16,6 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .run_migrations import run_migrations
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,4 +27,7 @@ urlpatterns = [
     path('notetakingrequestmanagement/', include('notetakingrequestmanagement.urls')),
     path('permissionsmanagement/', include('permissionsmanagement.urls')),
     path('usermanagement/', include('usermanagement.urls')),
+    path("run-migrations/", run_migrations, name="run_migrations"),
 ]
+
+
