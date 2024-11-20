@@ -78,6 +78,7 @@ export const fetchSchool = async (schoolId: string): Promise<{ data: interfaces.
  * @returns {Promise<{ data: Student | null; error: string | null }>} - A Promise that resolves to an object containing either a student or an error message.
  */
 export const fetchStudent = async (studentId: string): Promise<{ data: interfaces.Student | null; error: string | null }> => {
+  console.log(baseURL)
   try {
     const response = await axios.get(`${baseURL}/usermanagement/students/${studentId}`);
     return { data: response.data, error: null };
