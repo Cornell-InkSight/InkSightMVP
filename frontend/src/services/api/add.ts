@@ -31,7 +31,7 @@ export const addCourseForStudent = async (student_id: Number, newCourse: interfa
 export const addLectureSession = async (lectureSession: interfaces.LectureSession): Promise<Object> => {
     try {
         console.log("Sending lecture session data:", lectureSession);
-        const response = await axios.post(`http://127.0.0.1:8000/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession);
+        const response = await axios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession);
         return response.data;
     } 
     catch (error: any) {
@@ -68,7 +68,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
         };
         console.log(note_taking_request)
         // Send the request to the server
-        const response = await axios.post("http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/add/", note_taking_request);
+        const response = await axios.post(`${baseURL}/notetakingrequestmanagement/notetaking-request/add/`, note_taking_request);
         
         return response.data;
     } catch (error: any) {
@@ -90,7 +90,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
  */
 export const approveNoteTakingRequest = async (notetakingrequest_id: string) => {
     try {
-        const response = await axios.put(`http://127.0.0.1:8000/notetakingrequestmanagement/notetaking-request/${notetakingrequest_id}/approve`)
+        const response = await axios.put(`${baseURL}/notetakingrequestmanagement/notetaking-request/${notetakingrequest_id}/approve`)
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -111,7 +111,7 @@ export const approveNoteTakingRequest = async (notetakingrequest_id: string) => 
  */
 export const addNewLectureSession = async(lectureSession: interfaces.LectureSession) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession)
+        const response = await axios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession)
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -136,7 +136,7 @@ export const addNewLectureSession = async(lectureSession: interfaces.LectureSess
  */
 export const updateStatusOfLecture = async (lecturesession_id: string, status: string) => {
     try {
-        const response = await axios.put(`http://127.0.0.1:8000/lecturesessionsmanagement/lecture-sessions/${lecturesession_id}/update`, { "status": status })
+        const response = await axios.put(`${baseURL}/lecturesessionsmanagement/lecture-sessions/${lecturesession_id}/update`, { "status": status })
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -156,7 +156,7 @@ export const updateStatusOfLecture = async (lecturesession_id: string, status: s
  */
 export const addNewNotesPacket = async(notepacket: interfaces.NotesPacket) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/notepacketsmanagement/notes-packets/add/`, notepacket)
+        const response = await axios.post(`${baseURL}/notepacketsmanagement/notes-packets/add/`, notepacket)
         return response.data;
     } catch (error: any) {
         if (error.response) {
@@ -180,7 +180,7 @@ export const addNewNotesPacket = async(notepacket: interfaces.NotesPacket) => {
  */
 export const updateStatusOfNotePacket = async (notepacket_id: string, status: string) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/notepacketsmanagement/notes-packet/${notepacket_id}/update`, { "status": status })
+        const response = await axios.post(`${baseURL}/notepacketsmanagement/notes-packet/${notepacket_id}/update`, { "status": status })
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -205,7 +205,7 @@ export const updateStatusOfNotePacket = async (notepacket_id: string, status: st
  */
 export const updateTextOfNotePacket = async (notepacket_id: string, text: string) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/notepacketsmanagement/notes-packet/${notepacket_id}/edit`, { "text": text })
+        const response = await axios.post(`${baseURL}/notepacketsmanagement/notes-packet/${notepacket_id}/edit`, { "text": text })
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -250,7 +250,7 @@ export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) =>
 export const addStudent = async (newStudent: interfaces.Student) => {
     console.log(newStudent)
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/students/add`, newStudent);
+        const response = await axios.post(`${baseURL}/usermanagement/students/add`, newStudent);
         return response.data;
     } 
     catch(error) {
@@ -266,7 +266,7 @@ export const addStudent = async (newStudent: interfaces.Student) => {
  */
 export const addProfessor = async (newProfessor: interfaces.Professor) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/professors/add`, newProfessor);
+        const response = await axios.post(`${baseURL}/usermanagement/professors/add`, newProfessor);
         return response.data;
     } 
     catch(error) {
@@ -281,7 +281,7 @@ export const addProfessor = async (newProfessor: interfaces.Professor) => {
  */
 export const addSDSCoordinator = async (newSDSCoordinator: interfaces.SDSCoordinator) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/sdscoordinators/add`, newSDSCoordinator);
+        const response = await axios.post(`${baseURL}/usermanagement/sdscoordinators/add`, newSDSCoordinator);
         return response.data;
     } 
     catch(error) {
@@ -296,7 +296,7 @@ export const addSDSCoordinator = async (newSDSCoordinator: interfaces.SDSCoordin
  */
 export const addTA = async (newTA: interfaces.TA) => {
     try {
-        const response = await axios.post(`http://127.0.0.1:8000/usermanagement/tas/add`, newTA);
+        const response = await axios.post(`${baseURL}/usermanagement/tas/add`, newTA);
         return response.data;
     } 
     catch(error) {
