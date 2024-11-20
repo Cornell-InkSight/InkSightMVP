@@ -24,10 +24,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 env = environ.Env()
 environ.Env.read_env(os.path.join(BASE_DIR, '.env.local')) 
 
-import os
-
-PORT = int(os.environ.get("PORT", 8080))
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -40,10 +36,15 @@ if SECRET_KEY == "default_secret_key":
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
-print(ALLOWED_HOSTS)
+ALLOWED_HOSTS = [
+    "inksight-backend-575605693332.us-central1.run.app",
+    "localhost",
+    "127.0.0.1"
+]
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173", 
+    "https://inksightmvp.pages.dev/"
 ]
 
 
