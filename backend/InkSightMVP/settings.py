@@ -34,7 +34,7 @@ if SECRET_KEY == "default_secret_key":
     print("WARNING: Using default SECRET_KEY. Check if DJANGO_SECRET_KEY is being loaded from the environment.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "*"
@@ -82,7 +82,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'InkSightMVP.urls'
 CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_CREDENTIALS = True
 
 TEMPLATES = [
     {
