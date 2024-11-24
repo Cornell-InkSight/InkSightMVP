@@ -15,7 +15,6 @@ import json
 import os
 from django.core.exceptions import ImproperlyConfigured
 import environ
-import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,14 +33,12 @@ if SECRET_KEY == "default_secret_key":
     print("WARNING: Using default SECRET_KEY. Check if DJANGO_SECRET_KEY is being loaded from the environment.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
     "*"
 ]
 print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
-
-CORS_ALLOW_ALL_ORIGINS = True
 
 
 # Application definition
@@ -84,6 +81,15 @@ ROOT_URLCONF = 'InkSightMVP.urls'
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
+SECURE_REFERRER_POLICY = 'no-referrer-when-downgrade'
+SECURE_CROSS_ORIGIN_OPENER_POLICY = "same-origin-allow-popups"
+
+GOOGLE_OAUTH2_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
+GOOGLE_OAUTH2_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET")
+GOOGLE_OAUTH2_PROJECT_ID = os.getenv("GOOGLE_PROJECT_ID")
+
+BASE_BACKEND_URL = "http://127.0.0.1:8000" 
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -106,18 +112,29 @@ WSGI_APPLICATION = 'InkSightMVP.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 IS_DOCKERIZED = os.getenv('DOCKERIZED', False)
-print(IS_DOCKERIZED)
+if IS_DOCKERIZED:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": os.getenv('DB_NAME'),
+            "USER": os.getenv('DB_USER'),
+            "PASSWORD": os.getenv('DB_PWD'),
+            "HOST": "/cloudsql/inksightmvp:us-central1:inksightmvp",
+            "PORT": os.getenv('DB_PORT', '5432'),
+        }
+    }
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": 'InksightMVP',
+            "USER": os.getenv('DB_USER', 'postgres'),
+            "PASSWORD": os.getenv('DB_PWD', ''),
+            "HOST": "127.0.0.1",
+            "PORT": os.getenv('DB_PORT'),
+        }
+    }
 
-DATABASES = { 
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv('DB_NAME'),
-        "USER": os.getenv('DB_USER'),
-        "PASSWORD": os.getenv('DB_PWD'),
-        "HOST": "/cloudsql/inksightmvp:us-central1:inksightmvp" if IS_DOCKERIZED else os.getenv("DB_HOST", "127.0.0.1"),
-        "PORT": os.getenv('DB_PORT', '5432'),
-    } 
-}
 
 print(DATABASES)
 

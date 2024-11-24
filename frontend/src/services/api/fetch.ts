@@ -73,6 +73,21 @@ export const fetchSchool = async (schoolId: string): Promise<{ data: interfaces.
 };
 
 /**
+ * Fetches details for a specific school.
+ * @param {string} schoolId - The ID of the school.
+ * @returns {Promise<{ data: School | null; error: string | null }>} - A Promise that resolves to an object containing either a school or an error message.
+ */
+export const fetchSchools = async (): Promise<{ data: interfaces.School[] | null, error: string | null }> => {
+  try {
+    const response = await axios.get(`${baseURL}/schoolmanagement/schools/`);
+    console.log(response.data)
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load school" };
+  }
+};
+
+/**
  * Fetches details for a specific student.
  * @param {string} studentId - The ID of the student.
  * @returns {Promise<{ data: Student | null; error: string | null }>} - A Promise that resolves to an object containing either a student or an error message.

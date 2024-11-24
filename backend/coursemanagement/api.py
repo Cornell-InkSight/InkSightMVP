@@ -148,7 +148,7 @@ def get_all_professors_for_courses(request, course_id):
     """
     professor_courses = ProfessorCourse.objects.filter(course_id=course_id)
     professor_ids = professor_courses.values_list("professor_id", flat=True).distinct()
-    professors = Professor.objects.filter(id__in=professor_ids)
+    professors = Professor.objects.filter(user_ptr_id__in=professor_ids)
     serializer = ProfessorSerializer(professors, many=True)
     return Response(serializer.data)
 
@@ -162,10 +162,10 @@ def get_all_courses_for_ta(request, ta_id):
         JSON response containing courses associated with the ta, or an error message.
     """
     ta = Professor.objects.get(id=ta_id)
-    professor = Professor.objects.get(id=ta.professor_id)
+    professor = Professor.objects.get(id=ta.assigned_professor_id)
     ta_courses = ProfessorCourse.objects.filter(professor_id=professor.id)
     course_ids = ta_courses.values_list("course_id", flat=True).distinct()
-    courses = Course.objects.filter(id__in=course_ids)
+    courses = Course.objects.filter(user_ptr_id__in=course_ids)
     serializer = CourseSerializer(courses, many=True)
     return Response(serializer.data)
 
@@ -202,7 +202,7 @@ def get_all_students_for_professor(request, professor_id):
     for course in courses:
         student_courses = StudentCourse.objects.filter(course_id = course.id)
         student_ids = student_courses.values_list("student_id", flat=True).distinct()
-        students = Student.objects.filter(id__in = student_ids)
+        students = Student.objects.filter(user_ptr_id__in = student_ids)
 
         serializer = StudentSerializer(students, many=True)
         course_students_dict[course.id] = serializer.data
@@ -218,10 +218,7 @@ def get_all_students_for_sds_coordinator(request, sds_coordinator_id):
     Returns:
         JSON response with student data or a 404 error if none found.
     """
-    courses = Course.objects.filter(sds_coordinator_id=sds_coordinator_id)
-    student_courses = StudentCourse.objects.filter(course_id__in=courses)
-    student_ids = student_courses.values_list("student_id", flat=True).distinct()
-    students = Student.objects.filter(id__in=student_ids)
+    students = Student.objects.filter(sds_coordinator_id=sds_coordinator_id)
     serializer = StudentSerializer(students, many=True)
     return Response(serializer.data)
 
@@ -311,6 +308,7 @@ def add_course_for_student(request, student_id):
     Expected JSON fields: name, school_id, sds_coordinator_id.
     """
     course_data = request.data
+    print(course_data)
     required_fields = ["name", "school_id", "sds_coordinator_id"]
     
     for field in required_fields:
@@ -318,7 +316,7 @@ def add_course_for_student(request, student_id):
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        student = Student.objects.get(id=student_id)
+        student = Student.objects.get(user_ptr_id=student_id)
     except Student.DoesNotExist:
         return Response({"error": "Student does not exist"}, status=status.HTTP_404_NOT_FOUND)
 

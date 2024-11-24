@@ -76,7 +76,7 @@
         <div v-if="course.professors && course.professors.length > 0" class="mt-2">
           <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
           <ul class="mt-1 space-y-1">
-            <li v-for="professor in course.professors" :key="professor.id" class="text-sm text-gray-600 bg-gray-100 rounded-md p-2">
+            <li v-for="professor in course.professors" :key="professor.user_ptr_id" class="text-sm text-gray-600 bg-gray-100 rounded-md p-2">
               {{ professor.name }}
             </li>
           </ul>

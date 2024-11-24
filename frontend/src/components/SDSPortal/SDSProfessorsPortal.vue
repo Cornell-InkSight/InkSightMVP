@@ -48,6 +48,12 @@
                     placeholder="Enter professor name"
                 />
                 <input 
+                    v-model="newProfessorEmail" 
+                    type="text" 
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
+                    placeholder="Enter professor email"
+                />
+                <input 
                     v-model="newProfessorTitle" 
                     type="text" 
                     class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
@@ -79,7 +85,7 @@
             <div v-if="professors && professors.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <div
                     v-for="professor in professors"
-                    :key="professor.id"
+                    :key="professor.user_ptr_id"
                     class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
                 >
                     <h3 class="text-lg font-bold text-gray-800">{{ professor.name }}</h3>
@@ -93,7 +99,7 @@
                         </li>
                     </ul>
                      <!-- Add Existing Course to Professor -->
-                    <form @submit.prevent="handleAddCourseToProfessor(professor.id, professor.selectedCourse)">
+                    <form @submit.prevent="handleAddCourseToProfessor(professor.user_ptr_id, professor.selectedCourse)">
                         <label class="block mt-4 text-sm font-semibold text-gray-700">Add Existing Course:</label>
                         <select 
                             v-model="professor.selectedCourse"
@@ -146,6 +152,7 @@ const loading = ref<boolean>(true)  // Loading state indicator
 
 const showAddProfessorModal = ref(false); // Controls visibility of the modal
 const newProfessorName = ref(''); // Holds the name of the new professor
+const newProfessorEmail = ref(''); // Holds the email of the new professor
 const newProfessorTitle = ref(''); // Holds the title of the new professor
 
 const availableCourses = ref([]); // List of all available courses
@@ -228,7 +235,10 @@ const loadCoursesForProfessor = async (professorId: string) => {
   const professorsWithCourses = await Promise.all(
     fetchedProfessors.map(async (prof) => {
       const selectedProfessor = ref(null);
-      const courses = await loadCoursesForProfessor(prof.id);
+      let courses = await loadCoursesForProfessor(prof.user_ptr_id);
+      if(!courses) {
+        courses = []
+      }
       return { ...prof, courses, selectedProfessor };
     })
   );
@@ -244,6 +254,10 @@ const loadCoursesForProfessor = async (professorId: string) => {
     alert('Professor name is required.');
     return;
   }
+  if (!newProfessorEmail.value.trim()) {
+    alert('Professor email is required.');
+    return;
+  }
   if (!newProfessorTitle.value.trim()) {
     alert('Professor title is required.');
     return;
@@ -253,6 +267,7 @@ const loadCoursesForProfessor = async (professorId: string) => {
   try {
     const newProfessor = {
       name: newProfessorName.value,
+      email: newProfessorEmail.value,
       title: newProfessorTitle.value,
       school_id: sdscoordinator.value.school_id,
     };
@@ -262,6 +277,7 @@ const loadCoursesForProfessor = async (professorId: string) => {
     professors.value.push(addProfessors);
 
     newProfessorName.value = '';
+    newProfessorEmail.value = '';
     newProfessorTitle.value = '';
     showAddProfessorModal.value = false;
   } catch (error) {

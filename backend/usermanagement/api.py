@@ -1,7 +1,7 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import Student, SDSCoordinator, Professor, TeacherAssistant
+from .models import User, Student, SDSCoordinator, Professor, TeacherAssistant
 from .serializers import StudentSerializer, SDSCoordinatorSerializer, ProfessorSerializer, TeacherAssistantSerializer
 from django.shortcuts import render
 
@@ -29,16 +29,16 @@ def get_students(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_student(request, student_id):
+def get_student(request, user_id):
     """
     Retrieve a specific student by ID.
     Args:
-        student_id (int): The ID of the student to retrieve.
+        user_id (int): The ID of the student to retrieve.
     Returns:
         JSON response containing student data if found; otherwise, a 404 error.
     """
     try:
-        student = Student.objects.get(id=student_id)
+        student = Student.objects.get(user_ptr_id=user_id)
         serializer = StudentSerializer(student)
         return Response(serializer.data)
     except Student.DoesNotExist:
@@ -59,17 +59,17 @@ def get_sdscoordinators(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_sdscoordinator(request, sds_coordinator_id):
+def get_sdscoordinator(request, user_id):
     """
     Retrieve a specific SDS Coordinator by ID.
     Args:
-        sds_coordinator_id (int): The ID of the SDS Coordinator to retrieve.
+        user_id (int): The ID of the SDS Coordinator to retrieve.
     Returns:
         JSON response containing SDS Coordinator data if found; otherwise, a 404 error.
     """
 
     try:
-        sdscoordinator = SDSCoordinator.objects.get(id=sds_coordinator_id)
+        sdscoordinator = SDSCoordinator.objects.get(user_ptr_id=user_id)
         serializer = SDSCoordinatorSerializer(sdscoordinator)
         return Response(serializer.data)
     except SDSCoordinator.DoesNotExist:
@@ -89,17 +89,17 @@ def get_professors(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_professor(request, professor_id):
+def get_professor(request, user_id):
     """
     Retrieve a specific professor by ID.
     Args:
-        professor_id (int): The ID of the professor to retrieve.
+        user_id (int): The ID of the professor to retrieve.
     Returns:
         JSON response containing professor data if found; otherwise, a 404 error.
     """
 
     try:
-        professor = Professor.objects.get(id=professor_id)
+        professor = Professor.objects.get(user_ptr_id=user_id)
         serializer = ProfessorSerializer(professor)
         return Response(serializer.data)
     except Professor.DoesNotExist:
@@ -119,17 +119,17 @@ def get_tas(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def get_ta(request, ta_id):
+def get_ta(request, user_id):
     """
     Retrieve a specific teaching assistant by ID.
     Args:
-        ta_id (int): The ID of the teaching assistant to retrieve.
+        user_id (int): The ID of the teaching assistant to retrieve.
     Returns:
         JSON response containing teaching assistant data if found; otherwise, a 404 error.
     """
 
     try:
-        teacherassistant = TeacherAssistant.objects.get(id=ta_id)
+        teacherassistant = TeacherAssistant.objects.get(user_ptr_id=user_id)
         serializer = TeacherAssistantSerializer(teacherassistant)
         return Response(serializer.data)
     except TeacherAssistant.DoesNotExist:
@@ -140,111 +140,126 @@ def get_ta(request, ta_id):
 POST (User) Methods
 1. Get the request data from the server (JSON)
 2. List required fields and make sure the request has all necessary data, if not redo
-3. create a new Object with all the fields, serialize and return
+3. Create a new Object with all the fields, serialize and return
 """
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework import status
+from .models import User, Student, SDSCoordinator, Professor, TeacherAssistant
+from .serializers import StudentSerializer, SDSCoordinatorSerializer, ProfessorSerializer, TeacherAssistantSerializer
+
+
 @api_view(['POST'])
 def add_student(request):
     """
     Add a new student entry to the database.
-    Expected JSON fields: name, school_id, year, disability.
+    Expected JSON fields: email, name, school_id, year, disability, sds_coordinator_id.
     Args:
         request (Request): The HTTP request containing student data in JSON format.
     Returns:
         JSON response containing the created student data, or an error if validation fails.
     """
-
     student_data = request.data
 
-    required_fields = ["name", "school_id", "year", "disability", "sds_coordinator_id"]
+    required_fields = ["email", "name", "school_id", "year", "disability", "sds_coordinator_id"]
     for field in required_fields:
         if field not in student_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
-
     
     student = Student.objects.create(
-        name=student_data["name"], 
-        school_id=student_data["school_id"], 
-        year=student_data["year"], 
+        email=student_data["email"],
+        name=student_data["name"],
+        school_id=student_data["school_id"],
+        year=student_data["year"],
         disability=student_data["disability"],
-        sds_coordinator_id = student_data["sds_coordinator_id"],
+        sds_coordinator_id=student_data["sds_coordinator_id"],
     )
-    print(student)
 
     serializer = StudentSerializer(student)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
+
 
 @api_view(['POST'])
 def add_professor(request):
     """
     Add a new professor entry to the database.
-    Expected JSON fields: name, school_id (optional: title with default "Dr.").
+    Expected JSON fields: email, name, school_id, title (optional: default "Dr.").
     Args:
         request (Request): The HTTP request containing professor data in JSON format.
     Returns:
         JSON response containing the created professor data, or an error if validation fails.
     """
-
     professor_data = request.data
 
-    required_fields = ["name", "school_id"]
+    required_fields = ["email", "name", "school_id"]
     for field in required_fields:
         if field not in professor_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
 
+
     professor = Professor.objects.create(
-        name=professor_data["name"], 
-        school_id=professor_data["school_id"], 
+        email=professor_data["email"],
+        name=professor_data["name"],
+        school_id=professor_data["school_id"],
         title=professor_data.get("title", "Dr.")
     )
 
     serializer = ProfessorSerializer(professor)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
+
 
 @api_view(['POST'])
 def add_ta(request):
     """
     Add a new teaching assistant (TA) entry to the database.
-    Expected JSON fields: name, school_id, professor_id.
+    Expected JSON fields: email, name, school_id, assigned_professor_user_ptr_id.
     Args:
         request (Request): The HTTP request containing TA data in JSON format.
     Returns:
         JSON response containing the created TA data, or an error if validation fails.
     """
-
     ta_data = request.data
 
-    required_fields = ["name", "school_id", "professor_id"]
+    required_fields = ["email", "name", "school_id", "assigned_professor_user_ptr_id"]
     for field in required_fields:
         if field not in ta_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-
     ta = TeacherAssistant.objects.create(
-        name=ta_data["name"], 
-        school_id=ta_data["school_id"], 
-        professor_id = ta_data["professor_id"]
+        email=ta_data["email"],
+        name=ta_data["name"],
+        school_id=ta_data["school_id"],
+        assigned_professor_id=ta_data["assigned_professor_user_ptr_id"]
     )
 
     serializer = TeacherAssistantSerializer(ta)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)
+
 
 @api_view(['POST'])
 def add_sds_coordinator(request):
-    """Method to Add New SDS Coordinator"""
+    """
+    Add a new SDS Coordinator entry to the database.
+    Expected JSON fields: email, name, school_id, position.
+    Args:
+        request (Request): The HTTP request containing SDS Coordinator data in JSON format.
+    Returns:
+        JSON response containing the created SDS Coordinator data, or an error if validation fails.
+    """
     sds_coordinator_data = request.data
 
-    required_fields = ["name", "school_id", "position"]
+    required_fields = ["email", "name", "school_id", "position"]
     for field in required_fields:
         if field not in sds_coordinator_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
 
-
     sds_coordinator = SDSCoordinator.objects.create(
-        name=sds_coordinator_data["name"], 
-        school_id=sds_coordinator_data["school_id"], 
-        position=sds_coordinator_data["position"], 
+        email=sds_coordinator_data["email"],
+        name=sds_coordinator_data["name"],
+        school_id=sds_coordinator_data["school_id"],
+        position=sds_coordinator_data["position"]
     )
 
     serializer = SDSCoordinatorSerializer(sds_coordinator)
-    return Response(serializer.data, status=201)    
+    return Response(serializer.data, status=201)

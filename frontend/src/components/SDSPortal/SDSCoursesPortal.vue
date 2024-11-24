@@ -82,7 +82,7 @@
                     required
                 >
                     <option disabled value="">Select a professor</option>
-                    <option v-for="professor in availableProfessors" :key="professor.id" :value="professor.id">
+                    <option v-for="professor in availableProfessors.filter(p => !course.professors.some(cp => p.user_ptr_id === cp.user_ptr_id))" :key="professor.user_ptr_id" :value="professor.user_ptr_id">
                     {{ professor.name }}
                     </option>
                 </select>
@@ -223,7 +223,7 @@ const addNewProfessorToCourse = async (course_id: string, professor_id: string) 
     const courseData = {
         name: newCourseName.value,
         school_id: sdscoordinator.value.school_id,
-        sds_coordinator_id: sdscoordinator.value.id,
+        sds_coordinator_id: sdscoordinator.value.user_ptr_id,
     };
 
     try {

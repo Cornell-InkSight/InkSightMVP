@@ -47,11 +47,11 @@
                         :class="['px-4 py-2 rounded-md', addExistingCourse ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700']">
                         Select Existing Course
                     </button>
-                    <button 
+                    <!-- <button 
                         @click="addExistingCourse = false" 
                         :class="['px-4 py-2 rounded-md', !addExistingCourse ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-700']">
                         Add New Course
-                    </button>
+                    </button> -->
                 </div>
             </div>
 
@@ -220,7 +220,7 @@ const submitCourse = async () => {
         console.error(error);
         return;
     }
-    sds_coordinator_id.value = data.id;
+    sds_coordinator_id.value = data.user_ptr_id;
 };
 
 /**

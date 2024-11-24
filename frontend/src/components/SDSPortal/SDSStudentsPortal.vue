@@ -43,12 +43,17 @@
       <h2 class="text-xl font-bold mb-4">Add New Student</h2>
       <form @submit.prevent="handleAddStudent">
         <label class="block mb-2">
-          Student Name
           <input 
             v-model="newStudentName" 
             type="text" 
             class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
             placeholder="Enter student name"
+          />
+          <input 
+            v-model="newStudentEmail" 
+            type="text" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
+            placeholder="Enter student email"
           />
           <input 
             v-model="newStudentDisability" 
@@ -97,7 +102,7 @@
         v-for="student in students" 
         :key="student.id" 
         class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
-        @click="selectedStudentId = student.id"
+        @click="selectedStudentId = student.user_ptr_id"
       >
         <h2 class="text-xl font-bold text-gray-800">{{ student.name }}</h2>
         <p class="text-gray-600">{{ student.description }}</p>
@@ -127,6 +132,7 @@ const selectedStudentId = ref<number | null>(null) // Holds selected student id
 
 const showAddStudentModal = ref(false); // Controls visibility of the modal
 const newStudentName = ref(''); // Holds the name of the new student
+const newStudentEmail = ref(''); // Holds the name of the new student
 const newStudentDisability = ref(''); // Holds the disability of the new student
 const newStudentYear = ref(''); // Holds the year of the new student
 
@@ -184,8 +190,12 @@ const loadSchool = async (schoolId: string) => {
     alert('Student name is required.');
     return;
   }
+  if (!newStudentEmail.value.trim()) {
+    alert('Student email is required.');
+    return;
+  }
   if (!newStudentDisability.value.trim()) {
-    alert('Student name is required.');
+    alert('Student disability is required.');
     return;
   }
   
@@ -193,7 +203,8 @@ const loadSchool = async (schoolId: string) => {
   try {
     const newStudent = {
       name: newStudentName.value,
-      sds_coordinator_id: sdscoordinator.value?.id,
+      email: newStudentEmail.value,
+      sds_coordinator_id: sdscoordinator.value?.user_ptr_id,
       school_id: sdscoordinator.value.school_id,
       disability: newStudentDisability.value,
       year: newStudentYear.value,

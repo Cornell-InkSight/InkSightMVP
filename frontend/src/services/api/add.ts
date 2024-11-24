@@ -64,7 +64,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
             request,
             student_id,
             course_id,
-            sdscoordinator_id: sdsCoordinator ? sdsCoordinator.id : 1
+            sdscoordinator_id: sdsCoordinator ? sdsCoordinator.user_ptr_id : 1
         };
         console.log(note_taking_request)
         // Send the request to the server
@@ -248,7 +248,6 @@ export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) =>
  * @param newStudent - the data containing info of the new student
  */
 export const addStudent = async (newStudent: interfaces.Student) => {
-    console.log(newStudent)
     try {
         const response = await axios.post(`${baseURL}/usermanagement/students/add`, newStudent);
         return response.data;

@@ -43,34 +43,34 @@
         <ul class="mt-2 space-y-1">
           <li 
             v-for="student in students" 
-            :key="student.id" 
+            :key="student.user_ptr_id" 
             :class="{
-              'bg-green-100 border-l-4 border-green-500': isApprovedNoteTakingRequest(student.id, courseId.toString()),
-              'bg-yellow-100 border-l-4 border-yellow-500': hasActiveNoteTakingRequest(student.id, courseId.toString()) && !isApprovedNoteTakingRequest(student.id, courseId.toString())
+              'bg-green-100 border-l-4 border-green-500': isApprovedNoteTakingRequest(student.user_ptr_id, courseId.toString()),
+              'bg-yellow-100 border-l-4 border-yellow-500': hasActiveNoteTakingRequest(student.user_ptr_id, courseId.toString()) && !isApprovedNoteTakingRequest(student.id, courseId.toString())
             }"
             class="text-sm text-gray-600 rounded-md p-2 flex items-center justify-between relative"
           >
-            <div @click="toggleDropdown(student.id, courseId.toString())" class="cursor-pointer">
+            <div @click="toggleDropdown(student.user_ptr_id, courseId.toString())" class="cursor-pointer">
               <p class="font-semibold text-gray-800">{{ student.name }}</p>
               <p class="text-xs text-gray-500">{{ student.disability }}</p>
             </div>
 
             <!-- Dropdown with Request Details -->
             <div
-              v-if="isDropdownOpen(student.id, courseId.toString())"
+              v-if="isDropdownOpen(student.user_ptr_id, courseId.toString())"
               class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg shadow-lg p-3 z-10 text-gray-700"
             >
-              <p v-if="hasActiveNoteTakingRequest(student.id, courseId.toString())">
+              <p v-if="hasActiveNoteTakingRequest(student.user_ptr_id, courseId.toString())">
                 <strong>Status:</strong>
-                {{ isApprovedNoteTakingRequest(student.id, courseId.toString()) ? 'Approved' : 'Pending approval' }}
+                {{ isApprovedNoteTakingRequest(student.user_ptr_id, courseId.toString()) ? 'Approved' : 'Pending approval' }}
               </p>
-              <p ><strong>Request Details:</strong> {{ getRequestTooltip(student.id, courseId.toString()) }}</p>
+              <p ><strong>Request Details:</strong> {{ getRequestTooltip(student.user_ptr_id, courseId.toString()) }}</p>
             </div>
 
-            <div v-if="hasActiveNoteTakingRequest(student.id, courseId.toString()) && !isApprovedNoteTakingRequest(student.id, courseId.toString())">
+            <div v-if="hasActiveNoteTakingRequest(student.user_ptr_id, courseId.toString()) && !isApprovedNoteTakingRequest(student.user_ptr_id, courseId.toString())">
               <!-- Approve Button -->
               <button 
-                @click="approveRequest(student.id, courseId.toString())" 
+                @click="approveRequest(student.user_ptr_id, courseId.toString())" 
                 class="text-green-600 hover:text-green-800"
               >
                 ✔️
