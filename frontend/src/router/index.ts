@@ -5,6 +5,9 @@ const routes = [
         path: "/", component: () => import("@/components/Home.vue"),
     },
     {
+        path: "/auth/callback", component: () => import("@/components/Authentication/LoginRedirect.vue")
+    },
+    {
         path: "/signin", component: () => import("@/components/Authentication/SignIn.vue"),
     },
     {
@@ -50,4 +53,15 @@ const router = createRouter({
     routes: routes
 });
 
+router.beforeEach((to, from, next) => {
+    const authToken = localStorage.getItem("authToken");
+
+    if (to.meta.requiresAuth && !authToken) {
+        next("/signin");
+    } else {
+        next();
+    }
+});  
+
 export default router;
+

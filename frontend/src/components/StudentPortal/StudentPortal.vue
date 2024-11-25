@@ -222,6 +222,7 @@ onMounted(async () => {
   const studentId = route.params.studentId as string;
   await loadStudent(studentId);
   await loadCourses(studentId);
+  console.log(localStorage.getItem("authToken"))
   loading.value = false; 
 });
 </script>

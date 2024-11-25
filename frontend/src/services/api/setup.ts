@@ -1,10 +1,19 @@
 import axios from 'axios';
 
-const apiClient = axios.create({
-  baseURL: process.env.VUE_APP_API_URL, 
-  headers: {
-    'Content-Type': 'application/json',
-  },
+const baseURL = import.meta.env.VITE_API_URL;
+
+const authAxios = axios.create({
+  baseURL,
 });
 
-export default apiClient;
+authAxios.interceptors.request.use((config) => {
+  const token = localStorage.getItem("authToken"); 
+  if (token) {
+    config.headers.Authorization = `Token ${token}`;
+  }
+  return config;
+}, (error) => {
+  return Promise.reject(error);
+});
+
+export default authAxios;

@@ -16,6 +16,10 @@ import google_auth_oauthlib.flow
 from typing import Dict, Any
 from usermanagement.models import *
 from django.contrib.auth import login
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
 
 class PublicApi(APIView):
     authentication_classes = ()
@@ -347,6 +351,8 @@ class GoogleSignInAPI(PublicApi):
             email=user_email,
             defaults=user_defaults
         )
+        user_base = User.objects.get(pk=user.pk)
+        token, _ = Token.objects.get_or_create(user_id=user_base.id)
 
         if created:
             print(f"Created new {role}: {user.name}")
@@ -357,31 +363,10 @@ class GoogleSignInAPI(PublicApi):
         login(request, user)
 
         # Response data
-        result = {
-            "name": user.name,
-            "email": user.email,
-            "school": school.name,
-        }
-
         # Construct a query string for the redirect
         url_id = user.user_ptr_id
 
-        if role == "student":
-            result.update({
-                "year": user.year,
-                "disability": user.disability,
-                "sds_coordinator": user.sds_coordinator.name,
-            })
-            redirect_url = f"http://localhost:5173/students/{url_id}"
-        elif role == "professor":
-            result.update({"title": user.title})
-            redirect_url = f"http://localhost:5173/professors/{url_id}"
-        elif role == "teacher_assistant":
-            result.update({"assigned_professor": user.assigned_professor.name})
-            redirect_url = f"http://localhost:5173/tas/{url_id}"
-        elif role == "sds_coordinator":
-            result.update({"position": user.position})
-            redirect_url = f"http://localhost:5173/sdscoordinators/{url_id}"
+        redirect_url = f"http://localhost:5173/auth/callback?token={token.key}&user_id={url_id}&role={role}"
 
         return redirect(redirect_url)
 
@@ -460,14 +445,10 @@ class GoogleLoginApi(PublicApi):
 
         # Construct a query string for the redirect
         url_id = user.user_ptr_id
-        if role == "student":
-            redirect_url = f"http://localhost:5173/students/{url_id}"
-        elif role == "professor":
-            redirect_url = f"http://localhost:5173/professors/{url_id}"
-        elif role == "teacher_assistant":
-            redirect_url = f"http://localhost:5173/tas/{url_id}"
-        elif role == "sds_coordinator":
-            redirect_url = f"http://localhost:5173/sdscoordinators/{url_id}"
+        user_base = User.objects.get(pk=user.pk)
+        token, _ = Token.objects.get_or_create(user_id=user_base.id)
+
+        redirect_url = f"http://localhost:5173/auth/callback?token={token.key}&user_id={url_id}&role={role}"
 
         return redirect(redirect_url)
 
@@ -694,3 +675,16 @@ class GoogleSdkSignupFlowService:
 
         return response.json()
         
+
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'email': user.email
+        })

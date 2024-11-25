@@ -41,6 +41,15 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return self.name
+    
+    def has_perm(self, perm, obj=None):
+        """Does the user have a specific permission?"""
+        return self.is_superuser
+
+    def has_module_perms(self, app_label):
+        """Does the user have permissions to view the app `app_label`?"""
+        return self.is_superuser
+
 
 
 class Student(User):
