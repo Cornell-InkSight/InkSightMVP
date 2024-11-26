@@ -43,6 +43,23 @@ class PublicApi(APIView):
 
 class GoogleSignUpRedirectApi(PublicApi):
     def get(self, request, *args, **kwargs):
+        """
+        Handles Google OAuth2 signup redirection.
+
+        This function validates the user's role and associated query parameters 
+        (such as school_id, year, disability, etc.), stores relevant data in the 
+        session for callback processing, generates an authorization URL for Google OAuth2, 
+        and redirects the user to the consent screen.
+
+        Parameters:
+            request (Request): The HTTP request object containing query parameters.
+            args: Positional arguments.
+            kwargs: Keyword arguments.
+
+        Returns:
+            Response: Redirects to Google's authorization URL.
+            HTTP 400 Response: If required fields are missing or invalid.
+        """
         role = request.GET.get("role")
         year = request.GET.get("year")
         disability = request.GET.get("disability")
@@ -122,6 +139,23 @@ class GoogleSignUpRedirectApi(PublicApi):
 
 class GoogleLoginRedirectApi(PublicApi):
     def get(self, request, *args, **kwargs):
+        """
+        Handles Google OAuth2 signup redirection.
+
+        This function validates the user's role and associated query parameters 
+        (such as school_id, year, disability, etc.), stores relevant data in the 
+        session for callback processing, generates an authorization URL for Google OAuth2, 
+        and redirects the user to the consent screen.
+
+        Parameters:
+            request (Request): The HTTP request object containing query parameters.
+            args: Positional arguments.
+            kwargs: Keyword arguments.
+
+        Returns:
+            Response: Redirects to Google's authorization URL.
+            HTTP 400 Response: If required fields are missing or invalid.
+        """
         role = request.GET.get("role")
 
         if not role:
@@ -148,6 +182,13 @@ class GoogleLoginRedirectApi(PublicApi):
         return redirect(authorization_url)
 
 class GoogleRawLoginFlowService:
+
+    """
+    Defined Variables
+    API_URI is the name of the API route in the usermanagement app that is called for callback, it invokes /callback
+    The Google AUTH URLS are used for basic setup for th eGOogle Auth
+    The Scopes are used to grab the google profiles and emails
+    """
     API_URI = reverse_lazy("usermanagement:callback")
 
     GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/auth"
@@ -165,18 +206,36 @@ class GoogleRawLoginFlowService:
 
     @staticmethod
     def _generate_state_session_token(length=30, chars=UNICODE_ASCII_CHARACTER_SET):
+        """
+        Gets the state session token using Random() and returns as a string
+        """
         # This is how it's implemented in the official SDK
         rand = SystemRandom()
         state = "".join(rand.choice(chars) for _ in range(length))
         return state
 
     def _get_redirect_uri(self):
+        """
+        Gets the redirect_uri for post-auth using API_URI and backend url
+        """
         domain = settings.BASE_BACKEND_URL
         api_uri = self.API_URI
         redirect_uri = f"{domain}{api_uri}"
         return redirect_uri
 
     def get_authorization_url(self):
+        """
+        Generates the Google OAuth2 authorization URL.
+
+        This function builds the authorization URL using client credentials, 
+        redirect URI, and requested scopes, allowing the user to authenticate 
+        and grant access to their account.
+
+        Returns:
+            tuple: A tuple containing:
+                - authorization_url (str): The URL to redirect the user to Google.
+                - state (str): A unique state token for CSRF protection.
+        """
         redirect_uri = self._get_redirect_uri()
 
         state = self._generate_state_session_token()
@@ -198,6 +257,21 @@ class GoogleRawLoginFlowService:
         return authorization_url, state
     
     def get_tokens(self, *, code: str) -> GoogleAccessTokens:
+        """
+        Fetches Google OAuth2 tokens using an authorization code.
+
+        This function exchanges the authorization code for an ID token and an 
+        access token by making a POST request to Google's token endpoint.
+
+        Parameters:
+            code (str): The authorization code received from Google.
+
+        Returns:
+            GoogleAccessTokens: An object containing the ID token and access token.
+
+        Raises:
+            ApplicationError: If the token exchange fails.
+        """
         redirect_uri = self._get_redirect_uri()
 
         data = {
@@ -223,6 +297,8 @@ class GoogleRawLoginFlowService:
 
 
 class GoogleSignInAPI(PublicApi):
+
+    """Serializer For The Input --> data is validated"""
     class InputSerializer(serializers.Serializer):
         code = serializers.CharField(required=True)
         error = serializers.CharField(required=False)
@@ -237,7 +313,24 @@ class GoogleSignInAPI(PublicApi):
         role = serializers.CharField(required=True)
 
     def get(self, request, *args, **kwargs):
-        # Retrieve and merge form data
+        """
+        Handles Google OAuth2 sign-in callback.
+
+        This function processes the callback request from Google, validates the 
+        provided tokens and state, retrieves or creates a user based on their role, 
+        generates an authentication token, and redirects the user to the appropriate 
+        client-side URL.
+
+        Parameters:
+            request (Request): The HTTP request object containing query parameters.
+            args: Positional arguments.
+            kwargs: Keyword arguments.
+
+        Returns:
+            Response: Redirects to the client application with a token, user_id, 
+                      and role in the query string.
+            HTTP 400 Response: If validation fails.
+        """
         form_data = request.session.get("form_data")
         if not form_data:
             return Response(
@@ -245,15 +338,18 @@ class GoogleSignInAPI(PublicApi):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Merge the Form Data (which is drawn from the HTML) and GET data which is the google auth
         merged_form_data = {
             **request.GET.dict(),
             **form_data
         }
 
+        # Check serializer to ensure data validity
         input_serializer = self.InputSerializer(data=merged_form_data)
         input_serializer.is_valid(raise_exception=True)
         validated_data = input_serializer.validated_data
 
+        # A Bunch of gets to get the data from the serializer, now that we have verifiedit
         school_id = validated_data.get("school_id")
         year = validated_data.get("year")
         disability = validated_data.get("disability")
@@ -362,8 +458,7 @@ class GoogleSignInAPI(PublicApi):
         # Log the user in
         login(request, user)
 
-        # Response data
-        # Construct a query string for the redirect
+        # The User of the ID for redirect
         url_id = user.user_ptr_id
 
         redirect_url = f"http://localhost:5173/auth/callback?token={token.key}&user_id={url_id}&role={role}"
@@ -372,6 +467,7 @@ class GoogleSignInAPI(PublicApi):
 
 
 class GoogleLoginApi(PublicApi):
+    """Serializer For The Input --> data is validated"""
     class InputSerializer(serializers.Serializer):
         code = serializers.CharField(required=True)
         error = serializers.CharField(required=False)
@@ -379,6 +475,24 @@ class GoogleLoginApi(PublicApi):
         role = serializers.CharField(required=True)
 
     def get(self, request, *args, **kwargs):
+        """
+        Handles Google OAuth2 sign-in callback.
+
+        This function processes the callback request from Google, validates the 
+        provided tokens and state, retrieves or creates a user based on their role, 
+        generates an authentication token, and redirects the user to the appropriate 
+        client-side URL.
+
+        Parameters:
+            request (Request): The HTTP request object containing query parameters.
+            args: Positional arguments.
+            kwargs: Keyword arguments.
+
+        Returns:
+            Response: Redirects to the client application with a token, user_id, 
+                      and role in the query string.
+            HTTP 400 Response: If validation fails.
+        """
         # Retrieve and merge form data
         form_data = request.session.get("form_data")
         if not form_data:
@@ -462,6 +576,13 @@ class GoogleSdkLoginCredentials:
     
    
 def google_sdk_login_get_credentials() -> GoogleSdkLoginCredentials:
+    """
+    Define SDK Login Credentials
+
+    Returns:
+        credentials:    
+            Dict of the GOogleSDKLoginCredentials (client_id, client_secret, project_id), needed for auth
+    """
     client_id = settings.GOOGLE_OAUTH2_CLIENT_ID
     client_secret = settings.GOOGLE_OAUTH2_CLIENT_SECRET
     project_id = settings.GOOGLE_OAUTH2_PROJECT_ID
@@ -485,6 +606,12 @@ def google_sdk_login_get_credentials() -> GoogleSdkLoginCredentials:
 
 
 class GoogleSdkLoginFlowService:
+    """
+    Defined Variables
+    API_URI is the name of the API route in the usermanagement app that is called for callback, it invokes /callback
+    The Google AUTH URLS are used for basic setup for th eGOogle Auth
+    The Scopes are used to grab the google profiles and emails
+    """
     API_URI = reverse_lazy("usermanagement:login/callback")
 
     # Two options are available: 'web', 'installed'
@@ -507,13 +634,23 @@ class GoogleSdkLoginFlowService:
         self._credentials = google_sdk_login_get_credentials()
 
     def _get_redirect_uri(self):
+        """
+        Gets the redirect_uri for post-auth using API_URI and backend url
+        """
         domain = settings.BASE_BACKEND_URL
         api_uri = self.API_URI
         redirect_uri = f"{domain}{api_uri}"
         return redirect_uri
 
     def _generate_client_config(self):
-        # This follows the structure of the official "client_secret.json" file
+        """
+        Gets the Client JSON string using details from scopes and credentials
+        Follow same format as client_secrets.json
+
+        Returns:
+            client_config: 
+                Dict containing all necessary info for Google Auth0 Client
+        """
         client_config = {
             self.GOOGLE_CLIENT_TYPE: {
                 "client_id": self._credentials.client_id,
@@ -531,6 +668,18 @@ class GoogleSdkLoginFlowService:
     # Reference:
     # https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient
     def get_authorization_url(self):
+        """
+        Generates the Google OAuth2 authorization URL.
+
+        This function builds the authorization URL using client credentials, 
+        redirect URI, and requested scopes, allowing the user to authenticate 
+        and grant access to their account.
+
+        Returns:
+            tuple: A tuple containing:
+                - authorization_url (str): The URL to redirect the user to Google.
+                - state (str): A unique state token for CSRF protection.
+        """
         redirect_uri = self._get_redirect_uri()
         client_config = self._generate_client_config()
 
@@ -547,6 +696,21 @@ class GoogleSdkLoginFlowService:
         return authorization_url, state
     
     def get_tokens(self, *, code: str, state: str) -> GoogleAccessTokens:
+        """
+        Fetches Google OAuth2 tokens using an authorization code.
+
+        This function exchanges the authorization code for an ID token and an 
+        access token by making a POST request to Google's token endpoint.
+
+        Parameters:
+            code (str): The authorization code received from Google.
+
+        Returns:
+            GoogleAccessTokens: An object containing the ID token and access token.
+
+        Raises:
+            ApplicationError: If the token exchange fails.
+        """
         redirect_uri = self._get_redirect_uri()
         client_config = self._generate_client_config()
 
@@ -567,6 +731,21 @@ class GoogleSdkLoginFlowService:
         return google_tokens
     
     def get_user_info(self, *, google_tokens: GoogleAccessTokens):
+        """
+        Retrieves user information from Google using an access token.
+
+        This function makes an API call to Google's UserInfo endpoint to obtain 
+        user details such as email and name.
+
+        Parameters:
+            google_tokens (GoogleAccessTokens): The access tokens obtained from Google.
+
+        Returns:
+            dict: A dictionary containing user information.
+
+        Raises:
+            ApplicationError: If the request to fetch user info fails.
+        """
         access_token = google_tokens.access_token
 
         response = requests.get(
@@ -581,6 +760,12 @@ class GoogleSdkLoginFlowService:
         
 
 class GoogleSdkSignupFlowService:
+    """
+    Defined Variables
+    API_URI is the name of the API route in the usermanagement app that is called for callback, it invokes /callback
+    The Google AUTH URLS are used for basic setup for th eGOogle Auth
+    The Scopes are used to grab the google profiles and emails
+    """
     API_URI = reverse_lazy("usermanagement:signup/callback")
 
     # Two options are available: 'web', 'installed'
@@ -603,13 +788,23 @@ class GoogleSdkSignupFlowService:
         self._credentials = google_sdk_login_get_credentials()
 
     def _get_redirect_uri(self):
+        """
+        Gets the redirect_uri for post-auth using API_URI and backend url
+        """
         domain = settings.BASE_BACKEND_URL
         api_uri = self.API_URI
         redirect_uri = f"{domain}{api_uri}"
         return redirect_uri
 
     def _generate_client_config(self):
-        # This follows the structure of the official "client_secret.json" file
+        """
+        Gets the Client JSON string using details from scopes and credentials
+        Follow same format as client_secrets.json
+
+        Returns:
+            client_config: 
+                Dict containing all necessary info for Google Auth0 Client
+        """
         client_config = {
             self.GOOGLE_CLIENT_TYPE: {
                 "client_id": self._credentials.client_id,
@@ -627,6 +822,18 @@ class GoogleSdkSignupFlowService:
     # Reference:
     # https://developers.google.com/identity/protocols/oauth2/web-server#creatingclient
     def get_authorization_url(self):
+        """
+        Generates the Google OAuth2 authorization URL.
+
+        This function builds the authorization URL using client credentials, 
+        redirect URI, and requested scopes, allowing the user to authenticate 
+        and grant access to their account.
+
+        Returns:
+            tuple: A tuple containing:
+                - authorization_url (str): The URL to redirect the user to Google.
+                - state (str): A unique state token for CSRF protection.
+        """
         redirect_uri = self._get_redirect_uri()
         client_config = self._generate_client_config()
 
@@ -643,6 +850,21 @@ class GoogleSdkSignupFlowService:
         return authorization_url, state
     
     def get_tokens(self, *, code: str, state: str) -> GoogleAccessTokens:
+        """
+        Fetches Google OAuth2 tokens using an authorization code.
+
+        This function exchanges the authorization code for an ID token and an 
+        access token by making a POST request to Google's token endpoint.
+
+        Parameters:
+            code (str): The authorization code received from Google.
+
+        Returns:
+            GoogleAccessTokens: An object containing the ID token and access token.
+
+        Raises:
+            ApplicationError: If the token exchange fails.
+        """
         redirect_uri = self._get_redirect_uri()
         client_config = self._generate_client_config()
 
@@ -663,6 +885,21 @@ class GoogleSdkSignupFlowService:
         return google_tokens
     
     def get_user_info(self, *, google_tokens: GoogleAccessTokens):
+        """
+        Retrieves user information from Google using an access token.
+
+        This function makes an API call to Google's UserInfo endpoint to obtain 
+        user details such as email and name.
+
+        Parameters:
+            google_tokens (GoogleAccessTokens): The access tokens obtained from Google.
+
+        Returns:
+            dict: A dictionary containing user information.
+
+        Raises:
+            ApplicationError: If the request to fetch user info fails.
+        """
         access_token = google_tokens.access_token
 
         response = requests.get(
@@ -678,6 +915,23 @@ class GoogleSdkSignupFlowService:
 
 
 class CustomAuthToken(ObtainAuthToken):
+    """
+    Generates or retrieves an authentication token for a user.
+
+    This function validates the user's credentials, creates a token if it 
+    doesn't exist, and returns the token along with the user ID and email.
+
+    Parameters:
+        request (Request): The HTTP request object containing user credentials.
+        args: Positional arguments.
+        kwargs: Keyword arguments.
+
+    Returns:
+        Response: A JSON response containing:
+            - token (str): The authentication token.
+            - user_id (int): The user's ID.
+            - email (str): The user's email address.
+    """
     def post(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)

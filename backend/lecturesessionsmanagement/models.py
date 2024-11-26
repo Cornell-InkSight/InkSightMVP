@@ -2,12 +2,14 @@ from django.db import models
 from coursemanagement.models import Course
 
 class LectureSession(models.Model):
+    """Model For Lecture Session"""
     id = models.AutoField(primary_key=True)
     date = models.DateTimeField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     status = models.TextField(default="recording")
 
 class RecordingSession(models.Model):
+    """Model for Recording Session"""
     id = models.AutoField(primary_key=True)
     lecture_session = models.ForeignKey(LectureSession, on_delete=models.CASCADE)
     recording_type = models.TextField()
