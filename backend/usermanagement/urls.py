@@ -21,6 +21,7 @@ urlpatterns = [
     path("sdscoordinators/<int:user_id>", get_sdscoordinator, name="get_sdscoordinator"),
     path("sdscoordinators/add", add_sds_coordinator, name="add_sds_coordinator"),
 
+    # Auth Routes
     path("google-signup/redirect/", GoogleSignUpRedirectApi.as_view(), name="signup-redirect"),
     path("google-login/redirect/", GoogleLoginRedirectApi.as_view(), name="login-redirect"),
     path("signup/callback/", GoogleSignInAPI.as_view(), name="signup/callback"),

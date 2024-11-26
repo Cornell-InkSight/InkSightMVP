@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from schoolmanagement.models import School
 
 class UserManager(BaseUserManager):
+    """Serializer For User Manager, based off of Auth Models"""
     def create_user(self, email, name, password=None, **extra_fields):
         if not email:
             raise ValueError("The Email field must be set")

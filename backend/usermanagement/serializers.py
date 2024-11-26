@@ -16,11 +16,13 @@ class SDSCoordinatorSerializer(serializers.ModelSerializer):
         fields = ['user_ptr_id', 'email', 'name', 'school_id', 'position', 'access_code']
 
 class ProfessorSerializer(serializers.ModelSerializer):
+    """Serializer For Professor"""
     class Meta:
         model = Professor
         fields = ['user_ptr_id', 'email', 'name', 'school_id', 'title']
 
 class TeacherAssistantSerializer(serializers.ModelSerializer):
+    """Serializer For TA"""
     class Meta:
         model = TeacherAssistant
         fields = ['user_ptr_id', 'email', 'name', 'school_id', 'professor_id']
