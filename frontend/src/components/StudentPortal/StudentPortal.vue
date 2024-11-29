@@ -42,9 +42,9 @@
               >
                 <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ course.name.split(": ")[0] }}</h2>
                 <p class="text-sm text-gray-600">{{ course.name.split(": ")[1] }}</p>
-                <i 
+                <!-- <i 
                   class= 'fas fa-chevron-up text-gray-500'
-                ></i>
+                ></i> -->
               </div>
 
               <!-- Expanded Details -->
