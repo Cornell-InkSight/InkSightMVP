@@ -1,6 +1,7 @@
 <template>
-  <StudentPortalNavbar />
-  <div class="max-w-6xl mx-auto p-6 bg-gray-100 min-h-screen">
+   <div class="flex min-h-screen bg-gray-100">
+    <StudentPortalNavbar class="w-[20%]" />
+  <div class="p-6 bg-gray-100 min-h-screen">
     <!-- Header with Title and Layout Options -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-900">
@@ -90,6 +91,7 @@
       </div>
     </div>
   </div>
+</div>
 </template>
 
 <script setup lang="ts">

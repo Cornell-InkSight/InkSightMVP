@@ -18,6 +18,7 @@
             </li>
         </ul>
         </div>
+        <p v-else class="text-sm text-gray-500">No recent notes packets available.</p>
     </div>
     <!-- Not Approved Message -->
     <div v-else class="text-sm text-red-500">
