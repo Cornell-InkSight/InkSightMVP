@@ -5,6 +5,7 @@ import router from './router'
 import VueTippy from 'vue-tippy'
 import VueSweetalert2 from 'vue-sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 
 const app = createApp(App).use(router);
 app.use(

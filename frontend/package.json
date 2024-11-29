@@ -10,6 +10,12 @@
   },
   "dependencies": {
     "@codekraft-studio/vue-record": "^0.0.3",
+    "@fortawesome/fontawesome-free": "^6.7.1",
+    "@fortawesome/fontawesome-svg-core": "^6.7.1",
+    "@fortawesome/free-brands-svg-icons": "^6.7.1",
+    "@fortawesome/free-regular-svg-icons": "^6.7.1",
+    "@fortawesome/free-solid-svg-icons": "^6.7.1",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "@vue-hero-icons/solid": "^1.7.2",
     "axios": "^1.7.7",
     "file-saver": "^2.0.5",
