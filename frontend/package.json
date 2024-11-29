@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@codekraft-studio/vue-record": "^0.0.3",
+    "@vue-hero-icons/solid": "^1.7.2",
     "axios": "^1.7.7",
     "file-saver": "^2.0.5",
     "path": "^0.12.7",

@@ -129,8 +129,8 @@ class GoogleSignUpRedirectApi(PublicApi):
             )
 
 
-        google_login_flow = GoogleSdkSignupFlowService()
-        authorization_url, state = google_login_flow.get_authorization_url()
+        google_sign_in_flow = GoogleSdkSignupFlowService()
+        authorization_url, state = google_sign_in_flow.get_authorization_url()
 
         # Store the OAuth state in session
         request.session["google_oauth2_state"] = state
@@ -296,8 +296,7 @@ class GoogleRawLoginFlowService:
         return google_tokens
 
 
-class GoogleSignInAPI(PublicApi):
-
+class GoogleSignupAPI(PublicApi):
     """Serializer For The Input --> data is validated"""
     class InputSerializer(serializers.Serializer):
         code = serializers.CharField(required=True)
@@ -375,7 +374,7 @@ class GoogleSignInAPI(PublicApi):
         del request.session["google_oauth2_state"]
 
         # Handle Google OAuth2 tokens
-        google_login_flow = GoogleSdkLoginFlowService()
+        google_login_flow = GoogleSdkSignupFlowService()
         google_tokens = google_login_flow.get_tokens(code=code, state=state)
         id_token_decoded = google_tokens.decode_id_token()
         user_email = id_token_decoded.get("email")
@@ -847,6 +846,9 @@ class GoogleSdkSignupFlowService:
             include_granted_scopes="true",
             prompt="select_account",
         )
+        print("Authorization URL:", authorization_url)
+        print("State:", state)
+
         return authorization_url, state
     
     def get_tokens(self, *, code: str, state: str) -> GoogleAccessTokens:

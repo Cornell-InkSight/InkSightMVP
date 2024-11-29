@@ -1,8 +1,12 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import NotesPacket
-from .serializers import NotesPacketSerializer
+from .models import NotesPacket, StudentNotePacket
+from lecturesessionsmanagement.models import LectureSession
+from .serializers import NotesPacketSerializer, StudentNotePacketSerializer
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
 
 """
 GET (Notes Packet Management) Methods
@@ -40,10 +44,35 @@ def get_note_packet(request, note_packet_id):
         return Response(serializer.data)
     except NotesPacket.DoesNotExist:
         return Response({"error": "Notes Packet not found in database"}, status=404)
+    
 
-from rest_framework import status
-from rest_framework.response import Response
-from rest_framework.decorators import api_view
+@api_view(['GET'])
+def get_student_notes_packets(request):
+    """
+    Retrieve all notes packets.
+    Fetches all notes packets available in the database and returns them in JSON format.
+    Returns:
+        JSON response containing all notes packets.
+    """
+    notes_packets = StudentNotePacket.objects.all()
+    serializer = StudentNotePacketSerializer(notes_packets, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_student_note_packet(request, student_note_packet_id):
+    """
+    Retrieve a specific student notes packet by ID.
+    Args:
+        student_note_packet_id (int): The ID of the student notes packet to retrieve.
+    Returns:
+        JSON response containing notes packet data if found; otherwise, a 404 error.
+    """
+    try:
+        notes_packet = StudentNotePacket.objects.get(id=student_note_packet_id)
+        serializer = StudentNotePacketSerializer(notes_packet)
+        return Response(serializer.data)
+    except NotesPacket.DoesNotExist:
+        return Response({"error": "Student Notes Packet not found in database"}, status=404)
 
 @api_view(['GET'])
 def get_note_packets_for_course(request, course_id):
@@ -87,6 +116,23 @@ def get_unpublished_note_packets_for_course(request, course_id):
     return Response(serializer.data)  
 
 
+@api_view(['GET'])
+def get_student_note_packets_for_student_course(request, student_id, course_id):
+    """
+    Retrieve notes packets for a specific student by ID.
+    Args:
+        student_id (int): The ID of the Student to retrieve note packets for.
+    Returns:
+        JSON response containing notes packet data if found; otherwise, an empty list.
+    """
+    lecture_sessions = LectureSession.objects.filter(course_id=course_id)
+    if not lecture_sessions.exists():
+            return Response({"detail": "No lecture sessions found for the given course."}, status=404)
+    notes_packets = StudentNotePacket.objects.filter(student_id=student_id, lecture_session_id__in=lecture_sessions)
+    serializer = StudentNotePacketSerializer(notes_packets, many=True)
+    return Response(serializer.data) 
+
+
 """
 POST (Notes Packet) Methods
 Handles the creation of new Notes Packets. Each function:
@@ -121,6 +167,36 @@ def add_notes_packet(request):
     )
 
     serializer = NotesPacketSerializer(notes_packet)
+    return Response(serializer.data, status=201)
+
+@api_view(['POST'])
+def add_student_note_packet(request):
+    """
+    Add a new students notes packet to the database.
+    Expected JSON fields: note, student_id, lecture_session_id
+    Args:
+        request (Request): The HTTP request containing notes packet data in JSON format.
+    Returns:
+        JSON response containing the created notes packet data, or an error if validation fails.
+    """
+    notes_packet_data = request.data
+    required_fields = ["notes", "student_id", "lecture_session_id", "title", "time"]
+
+    # Validate required fields
+    for field in required_fields:
+        if field not in notes_packet_data:
+            return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Create a new NotesPacket object
+    notes_packet = StudentNotePacket.objects.create(
+        notes=notes_packet_data["notes"],
+        student_id=notes_packet_data["student_id"],
+        lecture_session_id=notes_packet_data["lecture_session_id"],
+        title=notes_packet_data["title"],
+        time=notes_packet_data["time"]
+    )
+
+    serializer = StudentNotePacketSerializer(notes_packet)
     return Response(serializer.data, status=201)
 
 @api_view(['POST'])

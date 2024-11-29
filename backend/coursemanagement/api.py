@@ -252,14 +252,19 @@ def add_course(request):
     Expected JSON fields: name, school_id, sds_coordinator_id.
     """
     course_data = request.data
-    required_fields = ["name", "school_id", "sds_coordinator_id"]
+    required_fields = ["name", "school_id", "sds_coordinator_id", "term", "courseUID", "type", "meetingTime", "campus"]
     for field in required_fields:
         if field not in course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
     course = Course.objects.create(
         name=course_data["name"],
         school_id=course_data["school_id"],
-        sds_coordinator_id=course_data["sds_coordinator_id"]
+        sds_coordinator_id=course_data["sds_coordinator_id"],
+        term=course_data["term"],
+        course_uid = course_data["courseUID"],
+        type = course_data["type"],
+        meeting_time = course_data["meetingTime"],
+        campus = course_data["campus"]
     )
     serializer = CourseSerializer(course)
     return Response(serializer.data, status=201)
@@ -308,9 +313,7 @@ def add_course_for_student(request, student_id):
     Expected JSON fields: name, school_id, sds_coordinator_id.
     """
     course_data = request.data
-    print(course_data)
-    required_fields = ["name", "school_id", "sds_coordinator_id"]
-    
+    required_fields = ["name", "school_id", "sds_coordinator_id", "term", "courseUID", "type", "meetingTime", "campus"]
     for field in required_fields:
         if field not in course_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -329,7 +332,12 @@ def add_course_for_student(request, student_id):
         course = Course.objects.create(
             name=course_data["name"],
             school_id=course_data["school_id"],
-            sds_coordinator_id=course_data["sds_coordinator_id"]
+            sds_coordinator_id=course_data["sds_coordinator_id"],
+            term=course_data["term"],
+            course_uid = course_data["courseUID"],
+            type = course_data["type"],
+            meeting_time = course_data["meetingTime"],
+            campus = course_data["campus"]
         )
 
     if StudentCourse.objects.filter(student=student, course=course).exists():

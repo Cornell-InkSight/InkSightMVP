@@ -16,4 +16,8 @@ authAxios.interceptors.request.use((config) => {
   return Promise.reject(error);
 });
 
+authAxios.defaults.xsrfHeaderName = "X-CSRFToken";
+authAxios.defaults.xsrfCookieName = "csrftoken";
+
+
 export default authAxios;

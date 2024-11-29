@@ -1,5 +1,6 @@
 import * as interfaces from '@/services/api/interfaces' 
 import authAxios from '@/services/api/setup';
+import axios from 'axios';
 
 const baseURL = import.meta.env.VITE_API_URL;
 /**
@@ -83,7 +84,7 @@ export const fetchSchools = async (): Promise<{ data: interfaces.School[] | null
     console.log(response.data)
     return { data: response.data, error: null };
   } catch (err) {
-    return { data: null, error: "Failed to load school" };
+    return { data: null, error: "Failed to load schools" };
   }
 };
 
@@ -262,6 +263,20 @@ export const fetchdNotePacketsForCourse = async (courseId: string) => {
   }
 }
 
+/**
+ * Fetches All NOte Packets for Respective Course
+ * @param {string} courseid - The id of the course
+ * @returns {Promise <data: interfaces.NotesPacket[] | null; error: string | null> } - A Promise that resolves to an object containing either an array of students or an error message.
+ */
+export const fetchStudentNotePacketsForCourse = async (studentId: string, courseId: string) => {
+  try {
+    const response = await authAxios.get(`${baseURL}/notepacketsmanagement/students/${studentId}/${courseId}/student-note-packets`)
+    return { data: response.data, error: null }
+  } catch(err) {
+    return { data: null, error: "Failed to load Note Packets" }
+  }
+}
+
 
 /**
  * Fetches Approved Students for Respective Course
@@ -319,6 +334,22 @@ export const fetchNotePacket = async (note_packet_id: string) => {
     return { data: null, error: "Failed to load Note Packets" }
   }
 }
+
+/**
+ * Fetches Published NOte Packets for Respective Course
+ * @param {string} courseid - The id of the course
+ * @returns {Promise <data: interfaces.NotesPacket | null; error: string | null> } - A Promise that resolves to an object containing either an array of note-packets or an error message.
+ */
+export const fetchStudentNotePacket = async (note_packet_id: string) => {
+  try {
+    const response = await authAxios.get(`${baseURL}/notepacketsmanagement/student-notes-packets/${note_packet_id}/`)
+    return { data: response.data, error: null }
+  } catch(err) {
+    return { data: null, error: "Failed to load Note Packets" }
+  }
+}
+
+
 
 /**
  * Fetches If Student Has Approval for Note Packets for Course

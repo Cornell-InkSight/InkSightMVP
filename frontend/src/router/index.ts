@@ -45,7 +45,10 @@ const routes = [
     },
     {
         path: "/notepackets/:notepacketId/edit", component: () => import("@/components/NotePackets/NotePacketEditView.vue")
-    }
+    },
+    {
+        path: "/studentnotepackets/:notepacketId/", component: () => import("@/components/NotePackets/StudentNotePacketView.vue")
+    },
 ];
 
 const router = createRouter({

@@ -105,8 +105,7 @@
         @click="selectedStudentId = student.user_ptr_id"
       >
         <h2 class="text-xl font-bold text-gray-800">{{ student.name }}</h2>
-        <p class="text-gray-600">{{ student.description }}</p>
-        <p class="mt-2 text-sm text-gray-500">{{ student.instructor }}</p>
+        <p class="text-gray-600">{{ student.disability }}</p>
       </button>
     </div>
   </transition>

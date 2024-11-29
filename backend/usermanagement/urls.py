@@ -24,7 +24,7 @@ urlpatterns = [
     # Auth Routes
     path("google-signup/redirect/", GoogleSignUpRedirectApi.as_view(), name="signup-redirect"),
     path("google-login/redirect/", GoogleLoginRedirectApi.as_view(), name="login-redirect"),
-    path("signup/callback/", GoogleSignInAPI.as_view(), name="signup/callback"),
+    path("signup/callback/", GoogleSignupAPI.as_view(), name="signup/callback"),
     path("login/callback/", GoogleLoginApi.as_view(), name="login/callback"),
     path('api-token-auth/', CustomAuthToken.as_view()),
 ]

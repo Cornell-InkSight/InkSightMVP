@@ -4,6 +4,7 @@ from coursemanagement.models import Course
 class LectureSession(models.Model):
     """Model For Lecture Session"""
     id = models.AutoField(primary_key=True)
+    title = models.TextField(default="Lecture")
     date = models.DateTimeField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     status = models.TextField(default="recording")

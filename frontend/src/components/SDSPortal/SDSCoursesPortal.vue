@@ -21,25 +21,90 @@
 
     <!-- Add Course Section -->
     <div class="mb-8">
-            <h2 class="text-2xl font-bold mb-4">Add New Course</h2>
-            <form @submit.prevent="addNewCourse">
-                <label for="courseName" class="block text-sm font-semibold text-gray-700">Course Name:</label>
+        <button class="text-2xl font-bold mb-4" @click="toggleAddNewCourseModal">Add New Course</button>
+        <form @submit.prevent="addNewCourse" v-if="addNewCourseModalIsOpen">
+            <label for="courseName" class="block text-sm font-semibold text-gray-700">Course Name:</label>
+            <input
+                id="courseName"
+                v-model="newCourseData.name"
+                type="text"
+                class="mt-2 w-full p-2 border border-gray-300 rounded-md"
+                placeholder="Enter course name"
+                required
+            />
+             <!-- Term -->
+            <div>
+                <label for="term" class="block text-sm font-semibold text-gray-700">Term</label>
                 <input
-                    id="courseName"
-                    v-model="newCourseName"
-                    type="text"
-                    class="mt-2 w-full p-2 border border-gray-300 rounded-md"
-                    placeholder="Enter course name"
-                    required
+                id="term"
+                v-model="newCourseData.term"
+                type="text"
+                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter term (e.g., Fall 2024)"
+                required
                 />
-                <button
-                    type="submit"
-                    class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+            </div>
+
+            <!-- Course UID -->
+            <div>
+                <label for="courseUID" class="block text-sm font-semibold text-gray-700">Course UID</label>
+                <input
+                id="courseUID"
+                v-model="newCourseData.courseUID"
+                type="number"
+                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter unique course ID"
+                required
+                />
+            </div>
+
+            <!-- Type -->
+            <div>
+                <label for="type" class="block text-sm font-semibold text-gray-700">Type</label>
+                <select
+                id="type"
+                v-model="newCourseData.type"
+                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                required
                 >
-                    Add Course
-                </button>
-            </form>
-        </div>
+                <option value="" disabled>Select a type</option>
+                <option value="Lecture">Lecture</option>
+                <option value="Discussion">Discussion</option>
+                </select>
+            </div>
+
+            <!-- Meeting Time -->
+            <div>
+                <label for="meetingTime" class="block text-sm font-semibold text-gray-700">Meeting Time</label>
+                <input
+                id="meetingTime"
+                v-model="newCourseData.meetingTime"
+                type="time"
+                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                required
+                />
+            </div>
+
+            <!-- Campus -->
+            <div>
+                <label for="campus" class="block text-sm font-semibold text-gray-700">Campus</label>
+                <input
+                id="campus"
+                v-model="newCourseData.campus"
+                type="text"
+                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Enter campus location"
+                required
+                />
+            </div>
+            <button
+                type="submit"
+                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
+            >
+                Add Course
+            </button>
+        </form>
+    </div>
 
     <!-- Courses Section -->
     <div class="mb-4">
@@ -52,8 +117,6 @@
             class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
         >
             <h3 class="text-lg font-bold text-gray-800">{{ course.name }}</h3>
-            <p class="text-sm text-gray-600">Instructor: {{ course.instructor }}</p>
-            <p class="text-sm text-gray-600">Credits: {{ course.credits }}</p>
 
             <!-- Professors List -->
             <div v-if="course.professors && course.professors.length > 0" class="mt-2">
@@ -108,6 +171,7 @@ import { fetchCoursesForSchools, fetchSDSCoordinator, fetchSchool, fetchProfesso
 import { addNewProfessorCourse, addCourse } from "@/services/api/add";
 import { useRoute } from 'vue-router';
 import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue";
+import * as interfaces from "@/services/api/interfaces"
 
 const route = useRoute();
 const courses = ref([]); // Holds courses for the school
@@ -117,7 +181,16 @@ const availableProfessors = ref([]); // Holds list of all available professors
 const selectedProfessor = ref(null); // Holds selected professor ID from form
 const error = ref<String>(); // Error message, if any exists
 const loading = ref<boolean>(true); // Loading state indicator
-const newCourseName = ref(""); // Holds the name of the new course
+const newCourseData = ref<interfaces.Course>({
+  name: '', // Default empty name
+  sds_coordinator_id: '', // Default SDS coordinator ID
+  term: '', // Default term
+  courseUID: 0, // Default unique course ID (e.g., 0 or any placeholder value)
+  type: '', // Default type (e.g., 'Lecture' or 'Discussion')
+  meetingTime: {} as TimeRanges, // Initialize meetingTime as an empty TimeRanges object
+  campus: '', // Default campus name
+});
+const addNewCourseModalIsOpen = ref<boolean>(false); // Checks if the addNewCourseModal is open
 
 /**
  * Fetches all available professors.
@@ -215,15 +288,20 @@ const addNewProfessorToCourse = async (course_id: string, professor_id: string) 
  * Adds a new course for the school.
  */
  const addNewCourse = async () => {
-    if (!newCourseName.value.trim()) {
+    if (!newCourseData.value.name.trim()) {
         error.value = "Course name cannot be empty.";
         return;
     }
 
     const courseData = {
-        name: newCourseName.value,
+        name: newCourseData.value.name,
         school_id: sdscoordinator.value.school_id,
         sds_coordinator_id: sdscoordinator.value.user_ptr_id,
+        term: newCourseData.value.term,
+        courseUID: newCourseData.value.courseUID,
+        type: newCourseData.value.type,
+        meetingTime: newCourseData.value.meetingTime,
+        campus: newCourseData.value.campus
     };
 
     try {
@@ -234,13 +312,19 @@ const addNewProfessorToCourse = async (course_id: string, professor_id: string) 
         await loadCoursesWithProfessors(sdscoordinator.value.school_id);
 
         // Clear the input field
-        newCourseName.value = "";
+        newCourseData.value = null;
     } catch (err) {
         console.error("Failed to add course:", err);
         error.value = "Failed to add course. Please try again.";
     }
 };
 
+/**
+ * Toggles the Add New Course Modal
+ */
+const toggleAddNewCourseModal = () => {
+    addNewCourseModalIsOpen.value = !addNewCourseModalIsOpen.value
+}
 
 /**
  * Lifecycle hook called when the component is mounted.

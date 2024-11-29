@@ -8,6 +8,11 @@ class Course(models.Model):
     name = models.CharField(max_length=666, unique=True)
     school = models.ForeignKey(School, on_delete=models.CASCADE)
     sds_coordinator = models.ForeignKey(SDSCoordinator, on_delete=models.CASCADE)
+    term = models.CharField(max_length=666)
+    course_uid = models.IntegerField(unique=True)
+    type = models.CharField(max_length=666, default="Lecture")
+    meeting_time = models.TimeField()
+    campus = models.CharField(max_length=100)
 
     def __str__(self):
         return self.name + " @ " + self.school.name

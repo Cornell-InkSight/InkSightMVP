@@ -67,6 +67,11 @@ export interface Course {
     sds_coordinator_id: string;
     professors?: Professor[],
     cannotRequest?: string,
+    term: string,
+    courseUID: number,
+    type: string,
+    meetingTime: TimeRanges,
+    campus: string,
 }
 
 /**
@@ -108,6 +113,19 @@ export interface NotesPacket {
     notes: string,
     status: string,
 }
+
+/**
+ * Represents a student notes packet
+ */
+export interface StudentNotePacket {
+    id?: String,
+    lecture_session_id: String,
+    student_id: String,
+    title: string,
+    time: string,
+    notes?: string,
+}
+
 
 /**
  * Represents NoteTakingRequest

@@ -309,6 +309,7 @@ export const addTA = async (newTA: interfaces.TA) => {
  * @param newCourse - the data containing info of the new Course
  */
 export const addCourse = async (newCourse: interfaces.Course) => {
+    console.log(newCourse)
     try {
         const response = await axios.post(`${baseURL}/coursemanagement/courses/add/`, newCourse);
         return response.data;
