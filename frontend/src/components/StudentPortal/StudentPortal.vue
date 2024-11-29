@@ -29,11 +29,11 @@
           />
           
           <!-- Course List -->
-          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 border-black">
             <div 
               v-for="course in courses" 
               :key="course.id" 
-              class="p-4 bg-white rounded-lg shadow-md border border-gray-200 cursor-pointer hover:shadow-lg"
+              class="p-4 bg-white rounded-lg border border-black cursor-pointer hover:shadow-lg"
             >
               <!-- Course Header -->
               <div 
@@ -133,14 +133,11 @@ const loadCourses = async (studentId: string) => {
 
       const { data: ongoingLectureData, error: ongoingLectureError } = await fetchCurrentOngoingLectureSession(course.id);
       const ongoingLectureSession = !ongoingLectureError && ongoingLectureData;
-
       
-      const recentNotesPackets = notesPackets.slice(0, 5).reverse();  
-
       return {
         ...course,
         professors,
-        notesPackets: recentNotesPackets,
+        notesPackets: notesPackets.reverse(),
         isApprovedForCourse,
         ongoingLectureSession,
         studentNotePackets
@@ -222,7 +219,6 @@ onMounted(async () => {
   const studentId = route.params.studentId as string;
   await loadStudent(studentId);
   await loadCourses(studentId);
-  console.log(localStorage.getItem("authToken"))
   loading.value = false; 
 });
 </script>

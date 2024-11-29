@@ -10,7 +10,7 @@
     </div>
 
     <!-- Note Taking Request Form -->
-    <div class="bg-white p-4 rounded-lg shadow-md mb-6">
+    <div class="bg-white p-4 rounded-lg border border-black mb-6">
       <h2 class="text-xl font-bold mb-1">Add Note-Taking Request</h2>
       <h3 class="mb-4" v-if="sdscoordinator">SDS Coordinator: {{ sdscoordinator.name }}</h3>
 
@@ -68,7 +68,7 @@
       <div 
         v-for="course in courses" 
         :key="course.id" 
-        class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
+        class="p-4 bg-white rounded-lg border border-black"
         :class="{ 'border-l-4 border-green-500': isApprovedNoteTakingRequest(studentId, course.id), 'border-l-4 border-yellow-500': hasActiveNoteTakingRequest(studentId, course.id) && !isApprovedNoteTakingRequest(studentId, course.id) }"
       >
         <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>

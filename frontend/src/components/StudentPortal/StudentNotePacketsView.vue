@@ -7,7 +7,7 @@
     class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg"
     >
         <!-- Left Content: Icon and Details -->
-     <router-link :to="`/studentnotepackets/${packet.id}/`" target='_blank'>
+    <router-link :to="`/studentnotepackets/${packet.id}/`" target='_blank'>
     <div class="flex items-center space-x-4">
         <div>
             <h4 class="text-lg font-semibold text-gray-900">{{ packet.title }}</h4>
@@ -27,7 +27,6 @@
 </template>
 
 <script setup>
-import { DocumentTextIcon } from "@vue-hero-icons/solid"
 
 
 const props = defineProps({

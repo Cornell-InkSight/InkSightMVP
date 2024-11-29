@@ -34,7 +34,7 @@ export const fetchStudentsForProfessors = async (professorId: string): Promise<{
 /**
  * Fetches details for a specific professor.
  * @param {string} professorId - The ID of the professor.
- * @returns {Promise<{ data: Professor | null; error: string | null }>} - A Promise that resolves to an object containing either a professor or an error message.
+ * @returns {Promise<{ data: interfaces.Professor | null; error: string | null }>} - A Promise that resolves to an object containing either a professor or an error message.
  */
 export const fetchProfessor = async (professorId: string): Promise<{ data: interfaces.Professor | null, error: string | null }> => {
   try {
@@ -48,7 +48,7 @@ export const fetchProfessor = async (professorId: string): Promise<{ data: inter
 /**
  * Fetches details for a specific SDS coordinator.
  * @param {string} sdscoordinatorId - The ID of the SDS coordinator.
- * @returns {Promise<{ data: SDSCoordinator | null; error: string | null }>} - A Promise that resolves to an object containing either an SDS coordinator or an error message.
+ * @returns {Promise<{ data: interfaces.SDSCoordinator | null; error: string | null }>} - A Promise that resolves to an object containing either an SDS coordinator or an error message.
  */
 export const fetchSDSCoordinator = async (sdscoordinatorId: string): Promise<{ data: interfaces.SDSCoordinator | null, error: string | null }> => {
   try {
@@ -62,7 +62,7 @@ export const fetchSDSCoordinator = async (sdscoordinatorId: string): Promise<{ d
 /**
  * Fetches details for a specific school.
  * @param {string} schoolId - The ID of the school.
- * @returns {Promise<{ data: School | null; error: string | null }>} - A Promise that resolves to an object containing either a school or an error message.
+ * @returns {Promise<{ data: interfaces.School | null; error: string | null }>} - A Promise that resolves to an object containing either a school or an error message.
  */
 export const fetchSchool = async (schoolId: string): Promise<{ data: interfaces.School | null, error: string | null }> => {
   try {
@@ -76,7 +76,7 @@ export const fetchSchool = async (schoolId: string): Promise<{ data: interfaces.
 /**
  * Fetches details for a specific school.
  * @param {string} schoolId - The ID of the school.
- * @returns {Promise<{ data: School | null; error: string | null }>} - A Promise that resolves to an object containing either a school or an error message.
+ * @returns {Promise<{ data: interfaces.School | null; error: string | null }>} - A Promise that resolves to an object containing either a school or an error message.
  */
 export const fetchSchools = async (): Promise<{ data: interfaces.School[] | null, error: string | null }> => {
   try {
@@ -91,7 +91,7 @@ export const fetchSchools = async (): Promise<{ data: interfaces.School[] | null
 /**
  * Fetches details for a specific student.
  * @param {string} studentId - The ID of the student.
- * @returns {Promise<{ data: Student | null; error: string | null }>} - A Promise that resolves to an object containing either a student or an error message.
+ * @returns {Promise<{ data: interfaces.Student | null; error: string | null }>} - A Promise that resolves to an object containing either a student or an error message.
  */
 export const fetchStudent = async (studentId: string): Promise<{ data: interfaces.Student | null; error: string | null }> => {
   console.log(baseURL)
@@ -106,7 +106,7 @@ export const fetchStudent = async (studentId: string): Promise<{ data: interface
 /**
  * Fetches details for a specific student.
  * @param {string} taId - The ID of the TA.
- * @returns {Promise<{ data: Student | null; error: string | null }>} - A Promise that resolves to an object containing either a TA or an error message.
+ * @returns {Promise<{ data: interfaces.TA | null; error: string | null }>} - A Promise that resolves to an object containing either a TA or an error message.
  */
 export const fetchTA = async (taId: string): Promise<{ data: interfaces.TA | null; error: string | null }> => {
   try {
@@ -120,7 +120,7 @@ export const fetchTA = async (taId: string): Promise<{ data: interfaces.TA | nul
 /**
  * Fetches courses for a specific student.
  * @param {string} studentId - The ID of the student.
- * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ * @returns {Promise<{ data: interfaces.Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
 export const fetchCourses = async (studentId: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
@@ -134,7 +134,7 @@ export const fetchCourses = async (studentId: string): Promise<{ data: interface
 /**
  * Fetches course for a specific id.
  * @param {string} courseId - The ID of the course.
- * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ * @returns {Promise<{ data: interfaces.Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
 export const fetchCourse = async (courseId: string): Promise<{ data: interfaces.Course | null; error: string | null }> => {
   try {
@@ -148,7 +148,7 @@ export const fetchCourse = async (courseId: string): Promise<{ data: interfaces.
 /**
  * Fetches details for a specific student.
  * @param {string} studentId - The ID of the student.
- * @returns {Promise<{ data: Student | null; error: string | null }>} - A Promise that resolves to an object containing either a student or an error message.
+ * @returns {Promise<{ data: interfaces.StudentCourse | null; error: string | null }>} - A Promise that resolves to an object containing either a student or an error message.
  */
 export const fetchStudentCourses = async (studentcoursesid: string): Promise<{ data: interfaces.StudentCourse | null; error: string | null }> => {
   try {
@@ -162,7 +162,7 @@ export const fetchStudentCourses = async (studentcoursesid: string): Promise<{ d
 /**
  * Fetches courses for a specific school.
  * @param {string} schoolid - The ID of the school.
- * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ * @returns {Promise<{ data: interfaces.Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
 export const fetchCoursesForSchools = async (schoolid: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
@@ -177,7 +177,7 @@ export const fetchCoursesForSchools = async (schoolid: string): Promise<{ data: 
 /**
  * Fetches courses for a specific school.
  * @param {string} schoolid - The ID of the school.
- * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ * @returns {Promise<{ data: interfaces.Professor[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
 export const fetchProfessorsForSchools = async (schoolid: string): Promise<{ data: interfaces.Professor[] | null; error: string | null }> => {
   try {
@@ -192,7 +192,7 @@ export const fetchProfessorsForSchools = async (schoolid: string): Promise<{ dat
 /**
  * Fetches courses for a specific professor.
  * @param {string} professorid - The ID of the professor.
- * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ * @returns {Promise<{ data: interfaces.Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
 export const fetchCoursesForProfessors = async (professorid: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
@@ -208,7 +208,7 @@ export const fetchCoursesForProfessors = async (professorid: string): Promise<{ 
 /**
  * Fetches professors for a specific course.
  * @param {string} courseid - The ID of the course.
- * @returns {Promise<{ data: Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
+ * @returns {Promise<{ data: interfaces.Professor[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of courses or an error message.
  */
 export const fetchProfessorsForCourses = async (courseid: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
@@ -336,7 +336,7 @@ export const fetchNotePacket = async (note_packet_id: string) => {
 }
 
 /**
- * Fetches Published NOte Packets for Respective Course
+ * Fetches Student NOte Packets for Respective Student Course
  * @param {string} courseid - The id of the course
  * @returns {Promise <data: interfaces.NotesPacket | null; error: string | null> } - A Promise that resolves to an object containing either an array of note-packets or an error message.
  */
@@ -349,13 +349,27 @@ export const fetchStudentNotePacket = async (note_packet_id: string) => {
   }
 }
 
+/**
+ * Fetches Lecture Session for Respective lecture session ID
+ * @param {string} lecture_session_id - The id of the lecture session
+ * @returns {Promise <data: interfaces.LectureSession | null; error: string | null> } - A Promise that resolves to an object containing either a Lecture Session or an error message.
+ */
+export const fetchLectureSessionData = async (lecture_session_id: string) => {
+  try {
+    const response = await authAxios.get(`${baseURL}/lecturesessionmanagement/lecture-sessions/${lecture_session_id}/`)
+    return { data: response.data, error: null }
+  } catch(err) {
+    return { data: null, error: "Failed to load Lecture Session" }
+  }
+}
+
 
 
 /**
  * Fetches If Student Has Approval for Note Packets for Course
  * @param {string} courseId - the id of the course
  * @param {string} studentId - the id of the student
- *  * @returns {Promise <data: interfaces.NotesPacket | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
+ *  * @returns {Promise <data: boolean | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
  */
 export const fetchIsApprovedStudentForCourse = async(student_id: string, course_id: string) => {
   try {
@@ -370,7 +384,7 @@ export const fetchIsApprovedStudentForCourse = async(student_id: string, course_
  * Fetches If Student Has Pending for Note Packets for Course
  * @param {string} courseId - the id of the course
  * @param {string} studentId - the id of the student
- *  * @returns {Promise <data: interfaces.NotesPacket | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
+ *  * @returns {Promise <data: boolean | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
  */
 export const fetchIsPendingStudentForCourse = async(student_id: string, course_id: string) => {
   try {
@@ -385,7 +399,7 @@ export const fetchIsPendingStudentForCourse = async(student_id: string, course_i
  * Fetches If Student Has Approval for Note Packets for Course
  * @param {string} courseId - the id of the course
  * @param {string} studentId - the id of the student
- *  * @returns {Promise <data: interfaces.NotesPacket | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
+ *  * @returns {Promise <data: interfaces.NoteTakingRequest | null; error: string | null> } - A Promise that resolves to an object containing either a boolean or an error message.
  */
 export const fetchNoteTakingRequestStudentForCourse = async(student_id: string, course_id: string) => {
   try {

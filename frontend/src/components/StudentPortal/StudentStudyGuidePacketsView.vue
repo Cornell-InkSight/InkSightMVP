@@ -1,36 +1,49 @@
 <template>
-    <!-- Approval Check -->
-    <div v-if="course.isApprovedForCourse">
-        <!-- Notes Packets -->
-        <div v-if="course.notesPackets && course.notesPackets.length > 0" class="mb-4">
-        <h4 class="text-sm font-semibold text-gray-700">Recent Notes Packets:</h4>
-        <ul class="mt-1 space-y-1">
-            <li 
-            v-for="packet in course.notesPackets" 
-            :key="packet.id" 
-            class="text-sm text-gray-500 bg-gray-50 rounded-md p-2 hover:bg-gray-100"
-            >
-            <div class="text-blue-500 hover:underline">
-                <router-link :to="`/notepackets/${packet.id}/`" target='_blank'>
-                Study Guide from Lecture Session {{ packet.lecture_session_id }}
-                </router-link>
-            </div>
-            </li>
-        </ul>
+<!-- Notes Packets -->
+<div v-if="course.notesPackets && course.notesPackets.length > 0" class="space-y-4">
+    <div
+    v-for="packet in course.notesPackets"
+    :key="packet.id"
+    class="flex items-center justify-between p-4 bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg"
+    >
+        <!-- Left Content: Icon and Details -->
+    <router-link :to="`/notepackets/${packet.id}/`" target='_blank'>
+    <div class="flex items-center space-x-4">
+        <div>
+            <h4 class="text-lg font-semibold text-gray-900">Study Guide from Lecture Session {{ packet.lecture_session_id }}</h4>
+            <p class="text-sm text-gray-500">{{ packet.date }}</p>
         </div>
-        <p v-else class="text-sm text-gray-500">No recent notes packets available.</p>
     </div>
-    <!-- Not Approved Message -->
-    <div v-else class="text-sm text-red-500">
-        You are not approved for this course. Please request access in the Requests tab.
+    </router-link>
+
+
+    <!-- Right Content: Menu Icon -->
+    <button class="text-gray-500 hover:text-gray-700">
+        <i class="fas fa-ellipsis-v"></i>
+    </button>
     </div>
-    </template>
-    
-    <script setup>
-    const props = defineProps({
+</div>
+<p v-else class="text-center text-gray-500">No recent notes packets available.</p>
+</template>
+
+<script setup lang="ts">
+import { fetchLectureSessionData } from "@/services/api/fetch";
+
+
+const props = defineProps({
     course: {
         type: Object,
         required: true,
     },
-    });
-    </script>
+});
+
+const loadLectureSessionData = async (lecture_session_id: string) => {
+    const { data, error: returnError } = await fetchLectureSessionData(lecture_session_id);
+    if(returnError) {
+        console.error(returnError);
+    }
+    return data;
+}
+</script>
+
+      
