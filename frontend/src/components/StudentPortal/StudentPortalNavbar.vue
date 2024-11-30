@@ -34,6 +34,16 @@
             Requests
             </router-link>
         </li>
+        <li>
+            <router-link
+            :to="`/students/${student_id}/hub`"
+            class="flex items-center text-gray-700 px-4 py-2 hover:bg-gray-200 hover:text-black rounded-lg transition-colors"
+            active-class="bg-black text-white font-bold"
+            >
+            <i class="fas fa-record-vinyl mr-3 text-lg"></i>
+            Recording Hub
+            </router-link>
+        </li>
         </ul>
     </nav>
 

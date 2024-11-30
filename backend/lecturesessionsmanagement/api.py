@@ -83,7 +83,7 @@ def get_current_lecture_session_for_course(request, course_id):
 
         if not lecture_sessions.exists():
             return Response({"error": "No ongoing lecture session for this course"}, status=404)
-
+        
         latest_lecture_session = lecture_sessions.first()
 
         serializer = LectureSessionSerializer(latest_lecture_session)

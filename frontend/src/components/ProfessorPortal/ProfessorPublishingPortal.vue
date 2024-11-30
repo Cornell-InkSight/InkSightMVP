@@ -87,23 +87,29 @@ import { useRoute } from 'vue-router';
 import * as interfaces from "@/services/api/interfaces";
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
 
-const courses = ref<interfaces.Course[]>([]);
-const addNotesPacketsError = ref<string>("");
+const courses = ref<interfaces.Course[]>([]); // List of Professors Courses
+const addNotesPacketsError = ref<string>(""); // Error
+
+// Input for New Notes Session
 const newNotesSession = ref({
     lecture_session_id: "",
     course_id: 0,
     notes: "",
     status: "draft",
 });
-const approvedStudents = ref<Record<number, interfaces.Student[]>>({});
-const notePackets = ref<Record<number, interfaces.NotesPacket[]>>({});
+const approvedStudents = ref<Record<number, interfaces.Student[]>>({}); // List of Approved Students for course
+const notePackets = ref<Record<number, interfaces.NotesPacket[]>>({}); // List of notes packets for course
 
-const route = useRoute();
-const professorId = route.params.professorId as string;
+const route = useRoute(); // router for params
+const professorId = route.params.professorId as string; // professor ID for respective page
 
-const showAddNotesPacketForm = ref(false);
-const selectedCourseId = ref<number | null>(null);
+const showAddNotesPacketForm = ref(false); // checks if the add notes packet toggle is open or not
+const selectedCourseId = ref<number | null>(null); // ID of the selected course
 
+/**
+ * Toggles the Note Packets Form for the specific course
+ * @param courseId 
+ */
 const toggleNotesPacketForm = async (courseId: number) => {
     if (selectedCourseId.value === courseId) {
         showAddNotesPacketForm.value = false;
@@ -126,6 +132,10 @@ const toggleNotesPacketForm = async (courseId: number) => {
     }
 };
 
+/**
+ * Loads data for professor from API
+ * @param professorId - ID of the professor 
+ */
 const loadCoursesForProfessor = async (professorId: string) => {
     const { data, error } = await fetchCoursesForProfessors(professorId);
     if (error) {
@@ -136,6 +146,10 @@ const loadCoursesForProfessor = async (professorId: string) => {
     courses.value = data;
 };
 
+/**
+ * Loads the notepacket for a specific course
+ * @param courseId - the ID of the course whose notespackets to load
+ */
 const loadNotesPacketsForCourse = async (courseId: number) => {
     const { data, error } = await fetchUnpublishedNotePacketsForCourse(courseId.toString());
     if (error) {
@@ -146,7 +160,10 @@ const loadNotesPacketsForCourse = async (courseId: number) => {
     return data;
 };
 
-// Load approved students for course
+/**
+ * Loads the approved students for the course
+ * @param courseId - the ID of the course
+ */
 const loadApprovedStudentsForCourse = async (courseId: number) => {
     const { data, error } = await fetchApprovedStudentsForCourse(courseId.toString());
     if (error) {
@@ -156,6 +173,10 @@ const loadApprovedStudentsForCourse = async (courseId: number) => {
     return data;
 };
 
+/**
+ * Submit A New Published Note Packet
+ * Updates status of notepacket to published, resets form values
+ */
 const submitNotesPacketForm = async () => {
     if (!newNotesSession.value.lecture_session_id) {
         addNotesPacketsError.value = "Please select a notes packet.";
@@ -173,6 +194,10 @@ const submitNotesPacketForm = async () => {
     }
 };
 
+/**
+ * Lifecycle hook called when the component is mounted.
+ * Fetches and sets data for both the professor and their courses.
+ */
 onMounted(async () => {
     await loadCoursesForProfessor(professorId);
 });
