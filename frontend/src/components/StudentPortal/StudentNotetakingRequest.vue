@@ -1,7 +1,8 @@
 <template>
-   <div class="flex min-h-screen bg-gray-100">
-    <StudentPortalNavbar class="w-[20%]" />
+<div class="flex min-h-screen bg-gray-100">
+  <StudentPortalNavbar />
   <div class="p-6 bg-gray-100 min-h-screen">
+
     <!-- Header with Title and Layout Options -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-900">
@@ -19,7 +20,7 @@
           <label class="block text-sm font-medium text-gray-700">Course</label>
           <select 
             v-model="selectedCourseId" 
-            class="mt-1 p-2 block w-full border border-gray-300 rounded-md" 
+            class="mt-1 p-2 block w-[90%] border border-gray-300 rounded-md" 
             required
           >
             <option value="" disabled>Select a course</option>
@@ -71,7 +72,8 @@
         class="p-4 bg-white rounded-lg border border-black"
         :class="{ 'border-l-4 border-green-500': isApprovedNoteTakingRequest(studentId, course.id), 'border-l-4 border-yellow-500': hasActiveNoteTakingRequest(studentId, course.id) && !isApprovedNoteTakingRequest(studentId, course.id) }"
       >
-        <h2 class="text-xl font-bold text-gray-800">{{ course.name }}</h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ course.name.split(": ")[0] }}</h2>
+      <p class="text-sm text-gray-600">{{ course.name.split(": ")[1] }}</p>
         
         <!-- Professors Section -->
         <div v-if="course.professors && course.professors.length > 0" class="mt-2">

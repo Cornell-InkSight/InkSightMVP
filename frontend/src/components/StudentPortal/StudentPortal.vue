@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-h-screen bg-gray-100">
-  <StudentPortalNavbar class="w-[20%]" />
+  <StudentPortalNavbar />
   <div class="p-6 bg-gray-100 min-h-screen">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">

@@ -1,7 +1,7 @@
 <template>
-<div class="flex h-screen">
+<div class="flex h-screen w-65">
     <!-- Sidebar -->
-    <aside class="w-64 bg-gray-100 shadow-md flex flex-col">
+    <aside class="w-full bg-gray-100 shadow-md flex flex-col">
     <!-- Header -->
     <div class="p-4 border-b">
         <button class="bg-blue-500 text-white text-sm px-4 py-2 rounded-lg w-full font-semibold">
@@ -75,11 +75,6 @@
         </ul>
     </div>
     </aside>
-
-    <!-- Main Content -->
-    <main class="flex-1 bg-gray-50 p-6 overflow-y-auto">
-    <router-view></router-view>
-    </main>
 </div>
 </template>
 

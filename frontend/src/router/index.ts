@@ -17,7 +17,7 @@ const routes = [
         path: "/students/:studentId/request", component: () => import("@/components/StudentPortal/StudentNotetakingRequest.vue"),
     },
     {
-        path: "/students/:courseId/lecture", component: () => import("@/components/StudentPortal/StudentRecordingView.vue"),
+        path: "/students/:studentId/:courseId/lecture", component: () => import("@/components/StudentPortal/StudentRecordingView.vue"),
     },    
     {
         path: "/students/:studentId/hub", component: () => import("@/components/StudentPortal/StudentRecordingHub.vue"),

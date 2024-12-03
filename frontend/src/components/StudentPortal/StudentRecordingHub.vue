@@ -10,7 +10,7 @@
         <strong>Lecture Title:</strong> {{ ongoingLecture.title }}
         </p>
         <p class="text-sm text-gray-600 mb-4">
-        <strong>Course:</strong> {{ courseName }}
+        <strong>Course:</strong> {{ course.name }}
         </p>
         <!-- Buttons -->
         <div class="flex justify-end space-x-4">
@@ -53,11 +53,12 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { fetchCurrentOngoingLectureSession, fetchCourse, fetchCourses } from "@/services/api/fetch";
+import * as interfaces from "@/services/api/interfaces"
 
 const router = useRouter();
 const route = useRoute();
 const ongoingLecture = ref(null); // Holds the ongoing lecture session data (if any)
-const courseName = ref(""); // Holds the course name
+const course = ref<interfaces.Course>(); // Holds the course data
 
 /**
  * Navigates back to the previous page.
@@ -71,22 +72,22 @@ const goBack = () => {
  */
 const joinLecture = () => {
     if (ongoingLecture.value) {
-        const courseId = route.params.courseId;
-        router.push(`/students/${courseId}/lecture`);
+        router.push(`/students/${route.params.studentId}/${course.value.id}/lecture`);
     }
 };
 
 /**
  * Loads course names for each course ID in `studentscourses`.
  */
-const loadCourseName = async (courseId: string): Promise<void> => {
+const loadCourse = async (courseId: string): Promise<void> => {
     const { data, error: fetchError } = await fetchCourse(courseId);
     if (!fetchError && data) {
-        courseName.value = data.name;
+        course.value = data;
     } else {
         console.error(`Failed to fetch course name for course ID ${courseId}:`, fetchError);
     }
 };
+
 
 /**
  * Fetches and sets ongoing lecture session data (if any).
@@ -123,7 +124,7 @@ onMounted(async () => {
 
   if (courses && courses.length > 0) {
     for (const course of courses) {
-      await loadCourseName(course.id);
+      await loadCourse(course.id);
 
       const hasOngoingLecture = await checkOngoingLecture(course.id);
       console.log(hasOngoingLecture)
