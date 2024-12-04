@@ -25,4 +25,4 @@ class TeacherAssistantSerializer(serializers.ModelSerializer):
     """Serializer For TA"""
     class Meta:
         model = TeacherAssistant
-        fields = ['user_ptr_id', 'email', 'name', 'school_id', 'professor_id']
+        fields = ['user_ptr_id', 'email', 'name', 'school_id', 'assigned_professor_id']

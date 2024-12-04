@@ -125,7 +125,7 @@
         <label for="professor" class="block text-sm font-medium text-gray-700">Assign Professor</label>
         <select id="professor" v-model="professorId" required class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:border-blue-300">
           <option value="" disabled>Select your professor</option>
-          <option v-for="professor in professors" :key="professor.id" :value="professor.id">{{ professor.name }}</option>
+          <option v-for="professor in professors" :key="professor.user_ptr_id" :value="professor.user_ptr_id">{{ professor.name }}</option>
         </select>
       </div>
       <div v-if="role === 'sds_coordinator'">

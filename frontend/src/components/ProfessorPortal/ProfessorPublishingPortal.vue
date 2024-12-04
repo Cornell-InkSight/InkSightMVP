@@ -26,7 +26,7 @@
         <div v-if="showAddNotesPacketForm && notePackets[course.id]" class="mt-6">
         <h3 class="text-lg font-semibold mb-2">Edit New Notes Packets</h3>
         <ul class="space-y-2">
-            <li v-for="(packet, index) in notePackets[course.id].reverse().slice(0, 5)" :key="packet.id">
+            <li v-for="(packet, index) in [...notePackets[course.id]].reverse().slice(0, 5)" :key="packet.id">
             <router-link :to="`/notepackets/${packet.id}/edit`" target="_blank" class="text-blue-500 hover:underline">
                 Lecture Session {{ packet.lecture_session_id }}
             </router-link>
@@ -110,7 +110,7 @@ const selectedCourseId = ref<number | null>(null); // ID of the selected course
  * Toggles the Note Packets Form for the specific course
  * @param courseId 
  */
-const toggleNotesPacketForm = async (courseId: number) => {
+ const toggleNotesPacketForm = async (courseId: number) => {
     if (selectedCourseId.value === courseId) {
         showAddNotesPacketForm.value = false;
         selectedCourseId.value = null;
@@ -119,18 +119,18 @@ const toggleNotesPacketForm = async (courseId: number) => {
         selectedCourseId.value = courseId;
         newNotesSession.value.course_id = courseId;
 
-        const students = await loadApprovedStudentsForCourse(courseId);
-        if (students) {
-            approvedStudents.value[courseId] = students;
+        if (!approvedStudents.value[courseId]) {
+            const students = await loadApprovedStudentsForCourse(courseId);
+            approvedStudents.value[courseId] = students || [];
         }
 
-        const packets = await loadNotesPacketsForCourse(courseId);
-        if (packets) {
-            console.log(packets)
-            notePackets.value[courseId] = packets;
+        if (!notePackets.value[courseId]) {
+            const packets = await loadNotesPacketsForCourse(courseId);
+            notePackets.value[courseId] = packets || [];
         }
     }
 };
+
 
 /**
  * Loads data for professor from API

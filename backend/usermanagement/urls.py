@@ -1,6 +1,9 @@
 from django.urls import path
 from .api import *
 from .views import *
+from .auth_login_api import *
+from .auth_login_api import *
+from .auth_signup_api import *
 
 app_name = "usermanagement"
 
