@@ -62,6 +62,7 @@ import { computed, ref } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStreamStore } from '@/stores/streamStore'
 import VideoComponent from '@/components/Streaming/CameraView.vue'
+
 const store = useStreamStore()
 const { call, remoteParticipant } = storeToRefs(store)
 
@@ -73,10 +74,17 @@ const showRemoteVideo = computed(() => {
   return call.value && remoteParticipant.value
 })
 
-function watchStream() {
-  isActiveStream.value = true;
-  store.watchStream(callId.value)
-  callId.value = "";
+
+function watchStreamHandler() {
+  store
+    .watchStream(callId.value)
+    .then(() => {
+      isActiveStream.value = true;
+      callId.value = '';
+    })
+    .catch((error) => {
+      console.error("Error starting stream:", error);
+    });
 }
 
 function endStream() {
@@ -91,7 +99,7 @@ function endStream() {
 const validateCallId = () => {
     const validCallId = "12345";
     if (callId.value === validCallId) {
-        watchStream();
+      watchStreamHandler();
         validationError.value = false;
     } else {
         validationError.value = true;

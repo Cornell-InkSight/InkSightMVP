@@ -4,8 +4,9 @@ from .models import Course, StudentCourse, ProfessorCourse
 from .serializers import CourseSerializer, StudentCourseSerializer, ProfessorCourseSerializer
 from usermanagement.models import Professor, Student, SDSCoordinator, TeacherAssistant
 from usermanagement.serializers import StudentSerializer, ProfessorSerializer, SDSCoordinatorSerializer, TeacherAssistantSerializer
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from rest_framework import status
+from django.db import IntegrityError
 
 """
 GET (Course) Methods
@@ -307,7 +308,7 @@ def add_professor_course(request):
     return Response(serializer.data, status=201)
 
 @api_view(['POST'])
-def add_course_for_student(request, student_id):
+def add_new_course_for_student(request, student_id):
     """
     Link an existing or new course to a specific student.
     Expected JSON fields: name, school_id, sds_coordinator_id.
@@ -349,3 +350,24 @@ def add_course_for_student(request, student_id):
         "course": CourseSerializer(course).data,
         "student_course": StudentCourseSerializer(student_course).data
     }, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def add_course_for_student(request, course_id, student_id):
+    """
+    Link an existing course to a specific student.
+    """
+    student = get_object_or_404(Student, id=student_id)
+    course = get_object_or_404(Course, id=course_id)
+
+    try:
+        student_course = StudentCourse.objects.create(student=student, course=course)
+    except IntegrityError:
+        return Response(
+            {"error": "This student is already enrolled in the course."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
+    return Response(
+        {"student_course": StudentCourseSerializer(student_course).data},
+        status=status.HTTP_201_CREATED
+    )

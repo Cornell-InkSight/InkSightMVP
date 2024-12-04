@@ -10,7 +10,7 @@ import { fetchSDSCoordinatorForCourses } from './fetch'
 
 const baseURL = import.meta.env.VITE_API_URL;
 
-export const addCourseForStudent = async (student_id: Number, newCourse: interfaces.newCourse) => {
+export const addNewCourseForStudent = async (student_id: Number, newCourse: interfaces.newCourse) => {
     try {
         const response = await axios.post(`${baseURL}/coursemanagement/students/${student_id}/courses/add/`, newCourse);
         return response.data;
@@ -319,3 +319,19 @@ export const addCourse = async (newCourse: interfaces.Course) => {
         throw new Error("Failed to add course. Please check the provided data and try again.");
     }
 }
+
+/**
+ * Add New sds coordinator 
+ * @param newCourse - the data containing info of the new Course
+ */
+export const addStudentToCourse = async (studentId: Number, courseId: Number) => {
+    try {
+        const response = await axios.post(`${baseURL}/coursemanagement/students/${studentId}/${courseId}/add/`);
+        return response.data;
+    } 
+    catch(error) {
+        console.error("Failed to add course", error);
+        throw new Error("Failed to add course. Please check the provided data and try again.");
+    }
+}
+

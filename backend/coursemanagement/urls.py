@@ -25,6 +25,7 @@ urlpatterns = [
     # Course POST methods
     path("courses/add/", add_course, name="add_course"),
     path("student-courses/add/", add_student_course, name="add_student_course"),
-    path("students/<int:student_id>/courses/add/", add_course_for_student, name="add_course_for_student"),
+    path("students/<int:student_id>/courses/add/", add_new_course_for_student, name="add_new_course_for_student"),
+    path("students/<int:student_id>/<int:course_id>/add/", add_course_for_student, name="add_student_to_course"),
     path("professor-courses/add/", add_professor_course, name="add_professor_course"),
 ]

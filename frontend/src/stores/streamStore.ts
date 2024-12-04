@@ -61,24 +61,29 @@ export const useStreamStore = defineStore('stream', () => {
     call.value = undefined
   }
 
-  async function watchStream(id: string) {
-    const newCall = streamVideoClient.call('livestream', id)
-    await newCall.camera.disable()
-    await newCall.microphone.disable()
-    await newCall.join()
-
-    remoteParticipantSub.value = newCall.state.remoteParticipants$.subscribe(
-      (newRemoteParticipants) => {
-        if (newRemoteParticipants && newRemoteParticipants.length > 0) {
-          remoteParticipant.value = newRemoteParticipants[0]
-        } else {
-          remoteParticipant.value = undefined
+  async function watchStream(id: string): Promise<void> {
+    try {
+      const newCall = streamVideoClient.call('livestream', id);
+      await newCall.camera.disable();
+      await newCall.microphone.disable();
+      await newCall.join();
+  
+      remoteParticipantSub.value = newCall.state.remoteParticipants$.subscribe(
+        (newRemoteParticipants) => {
+          if (newRemoteParticipants && newRemoteParticipants.length > 0) {
+            remoteParticipant.value = newRemoteParticipants[0];
+          } else {
+            remoteParticipant.value = null;
+          }
         }
-      }
-    )
-
-    call.value = newCall
-  }
+      );
+  
+      call.value = newCall;
+    } catch (error) {
+      console.error("Failed to watch stream:", error);
+      throw error; // Ensures the Promise rejects on error
+    }
+  }  
 
   async function leaveStream() {
     await call.value?.leave()

@@ -64,7 +64,7 @@
                     class="w-full px-4 py-2 border border-gray-300 rounded-md"
                 >
                     <option value="" disabled>Select a course</option>
-                    <option v-for="course in schoolCourses" :key="course.id" :value="course.name">
+                    <option v-for="course in schoolCourses" :key="course.id" :value="course.id">
                         {{ course.name }}
                     </option>
                 </select>
@@ -102,8 +102,8 @@
 
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { fetchStudent, fetchCourses, fetchSchool, fetchSDSCoordinator, fetchCoursesForSchools } from '@/services/api/fetch';
-import { addCourseForStudent } from "@/services/api/add"
+import { fetchStudent, fetchCourses, fetchSchool, fetchSDSCoordinator, fetchCoursesForSchools, } from '@/services/api/fetch';
+import { addNewCourseForStudent, addStudentToCourse } from "@/services/api/add"
 
 const props = defineProps<{ id: number }>();
 const emit = defineEmits(['closeProfile']);
@@ -160,7 +160,7 @@ const addCourse = async () => {
         return;
     }
 
-    const { error: addError } = await addCourseForStudent(props.id, {
+    const { error: addError } = await addNewCourseForStudent(props.id, {
         name: newCourse.value.name,
         school_id: school_id.value,
         sds_coordinator_id: sds_coordinator_id.value
@@ -181,14 +181,20 @@ const addCourse = async () => {
  * Submit Course
  */
 const submitCourse = async () => {
-    if (addExistingCourse.value && selectedExistingCourseName.value) {
-        await addCourseForStudent(props.id, { name: selectedExistingCourseName.value, school_id: school_id.value, sds_coordinator_id: sds_coordinator_id.value })
+    // if (addExistingCourse.value && selectedExistingCourseName.value) {
+    //     await addNewCourseForStudent(props.id, { name: selectedExistingCourseName.value, school_id: school_id.value, sds_coordinator_id: sds_coordinator_id.value })
+    //     selectedExistingCourseName.value = "";
+    //     await loadSchoolCourses(school_id.value);
+    // } else if (!addExistingCourse.value && newCourse.value.name) {
+    //     await addCourse();
+    // } else {
+    //     addCourseError.value = "Please complete the required fields.";
+    // }
+    if(addExistingCourse.value) {
+        addStudentToCourse(student.value.user_ptr_id, parseInt(selectedExistingCourseName.value))
         selectedExistingCourseName.value = "";
+        await loadStudentCourses();
         await loadSchoolCourses(school_id.value);
-    } else if (!addExistingCourse.value && newCourse.value.name) {
-        await addCourse();
-    } else {
-        addCourseError.value = "Please complete the required fields.";
     }
 };
 
