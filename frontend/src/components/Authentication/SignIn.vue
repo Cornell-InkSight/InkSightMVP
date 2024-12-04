@@ -113,9 +113,11 @@
       </div>
       <div v-if="role === 'student'">
         <label for="year" class="block text-sm font-medium text-gray-700">Year</label>
-        <input type="number" id="year" v-model="year" required min="2024" max="2028" placeholder="Enter your year" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:border-blue-300" />
+        <input type="number" id="year" v-model="year" required min="2024" max="2028" placeholder="Enter your year" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:border-blue-300 mb-2" />
         <label for="disability" class="block text-sm font-medium text-gray-700">Disability</label>
-        <input type="text" id="disability" v-model="disability" required placeholder="Enter your disability" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:border-blue-300" />
+        <input type="text" id="disability" v-model="disability" required placeholder="Enter your disability" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:border-blue-300 mb-2" />
+        <label for="sds_coordinator_access_code" class="block text-sm font-medium text-gray-700">Access Code</label>
+        <input type="text" id="sds_coordinator_access_code" v-model="sds_coordinator_access_code" required placeholder="Enter the access code provided by your disability coordinator" class="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:border-blue-300" />
       </div>
       <div v-if="role === 'professor'">
         <label for="title" class="block text-sm font-medium text-gray-700">Title</label>
@@ -146,9 +148,9 @@ import { ref, onMounted } from "vue";
 import { fetchProfessorsForSchools, fetchSchools } from "@/services/api/fetch"
 
 const schoolName = ref("");
-const year = ref("");
+const year = ref("2024");
 const disability = ref("");
-const sdsCoordinatorId = ref("");
+const sds_coordinator_access_code = ref("");
 const title = ref("");
 const schoolId = ref("");
 const position = ref("");
@@ -189,7 +191,7 @@ const redirectToGoogle = () => {
     role: role.value,
     year: role.value === "student" ? year.value : undefined,
     disability: role.value === "student" ? disability.value : undefined,
-    sds_coordinator_id: role.value === "student" ? sdsCoordinatorId.value : undefined,
+    sds_coordinator_access_code: role.value === "student" ? sds_coordinator_access_code.value : undefined,
     title: role.value === "professor" ? title.value : undefined,
     school_id: schoolId.value,
     professor_id: role.value === "teacher_assistant" ? professorId.value : undefined,

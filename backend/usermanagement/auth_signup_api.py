@@ -38,7 +38,7 @@ class GoogleSignUpRedirectApi(PublicApi):
         role = request.GET.get("role")
         year = request.GET.get("year")
         disability = request.GET.get("disability")
-        sds_coordinator_id = request.GET.get("sds_coordinator_id")
+        sds_coordinator_access_code = request.GET.get("sds_coordinator_access_code")
         title = request.GET.get("title")
         school_id = request.GET.get("school_id")
         professor_id = request.GET.get("professor_id")
@@ -52,9 +52,9 @@ class GoogleSignUpRedirectApi(PublicApi):
 
         # Validation based on the role
         if role == "student":
-            if not all([school_id, year, disability, sds_coordinator_id]):
+            if not all([school_id, year, disability, sds_coordinator_access_code]):
                 return Response(
-                    {"error": "All fields are required for students (school_id, year, disability, sds_coordinator_id)."},
+                    {"error": "All fields are required for students (school_id, year, disability, sds_coordinator_access_code)."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
             request.session["form_data"] = {
@@ -62,7 +62,7 @@ class GoogleSignUpRedirectApi(PublicApi):
                 "school_id": school_id,
                 "year": year,
                 "disability": disability,
-                "sds_coordinator_id": sds_coordinator_id,
+                "sds_coordinator_access_code": sds_coordinator_access_code,
             }
         elif role == "professor":
             if not all([school_id, title]):
@@ -122,7 +122,7 @@ class GoogleSignupAPI(PublicApi):
         school_id = serializers.CharField(required=True)
         year = serializers.IntegerField(required=False)
         disability = serializers.CharField(required=False)
-        sds_coordinator_id = serializers.CharField(required=False)
+        sds_coordinator_access_code = serializers.CharField(required=False)
         title = serializers.CharField(required=False)
         professor_id = serializers.CharField(required=False)
         position = serializers.CharField(required=False)
@@ -170,7 +170,7 @@ class GoogleSignupAPI(PublicApi):
         year = validated_data.get("year")
         disability = validated_data.get("disability")
         role = validated_data.get("role")
-        sds_coordinator_id = validated_data.get("sds_coordinator_id")
+        sds_coordinator_access_code = validated_data.get("sds_coordinator_access_code")
         title = validated_data.get("title")
         professor_id = validated_data.get("professor_id")
         position = validated_data.get("position")
@@ -207,12 +207,11 @@ class GoogleSignupAPI(PublicApi):
         # Role-based logic
         if role == "student":
             try:
-                sds_coordinator = SDSCoordinator.objects.get(access_code=sds_coordinator_id)
+                sds_coordinator = SDSCoordinator.objects.get(access_code=sds_coordinator_access_code)
             except SDSCoordinator.DoesNotExist:
-                return Response(
-                    {"error": f"SDSCoordinator with access code {sds_coordinator_id} does not exist."},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
+                e = "SDSCoordinator with access code {sds_coordinator_access_code} does not exist."
+                return redirect(f"http://localhost:5173/signin?error={str(e)}")
+
 
             user_model = Student
             user_defaults = {
@@ -258,28 +257,31 @@ class GoogleSignupAPI(PublicApi):
         else:
             return Response({"error": "Invalid role specified."}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Get or create user
-        user, created = user_model.objects.get_or_create(
-            email=user_email,
-            defaults=user_defaults
-        )
-        user_base = User.objects.get(pk=user.pk)
-        token, _ = Token.objects.get_or_create(user_id=user_base.id)
+        try:
+            # Get or create user
+            user, created = user_model.objects.get_or_create(
+                email=user_email,
+                defaults=user_defaults
+            )
+            user_base = User.objects.get(pk=user.pk)
+            token, _ = Token.objects.get_or_create(user_id=user_base.id)
 
-        if created:
-            print(f"Created new {role}: {user.name}")
-        else:
-            print(f"{role.capitalize()} {user.name} already exists.")
+            if created:
+                print(f"Created new {role}: {user.name}")
+            else:
+                print(f"{role.capitalize()} {user.name} already exists.")
 
-        # Log the user in
-        login(request, user)
+            # Log the user in
+            login(request, user)
 
-        # The User of the ID for redirect
-        url_id = user.user_ptr_id
+            # The User of the ID for redirect
+            url_id = user.user_ptr_id
 
-        redirect_url = f"http://localhost:5173/auth/callback?token={token.key}&user_id={url_id}&role={role}"
+            redirect_url = f"http://localhost:5173/auth/callback?token={token.key}&user_id={url_id}&role={role}"
 
-        return redirect(redirect_url)
+            return redirect(redirect_url)
+        except Exception as e:
+            return redirect(f"http://localhost:5173/signin?error={str(e)}")
 
 class GoogleSdkSignupFlowService:
     """

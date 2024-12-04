@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from schoolmanagement.models import School
+import random
+import string
 
 class UserManager(BaseUserManager):
     """Serializer For User Manager, based off of Auth Models"""
@@ -78,3 +80,17 @@ class SDSCoordinator(User):
     """SDS Coordinator User Model with Additional Fields"""
     position = models.CharField(max_length=255)
     access_code = models.CharField(max_length=8, unique=True)
+
+    def save(self, *args, **kwargs):
+        """Generate a unique access code if it doesn't already exist"""
+        if not self.access_code:
+            self.access_code = self.generate_unique_access_code()
+        super().save(*args, **kwargs)
+
+    @staticmethod
+    def generate_unique_access_code():
+        """Function to generate a unique 8-character alphanumeric code"""
+        while True:
+            code = ''.join(random.choices(string.ascii_letters + string.digits, k=6))
+            if not SDSCoordinator.objects.filter(access_code=code).exists():
+                return code
