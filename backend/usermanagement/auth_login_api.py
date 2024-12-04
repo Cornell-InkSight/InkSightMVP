@@ -21,6 +21,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .auth_helper_classes import PublicApi, CustomAuthToken, GoogleAccessTokens
+from django.http import HttpResponseRedirect
 
 class GoogleLoginRedirectApi(PublicApi):
     def get(self, request, *args, **kwargs):
@@ -152,7 +153,12 @@ class GoogleLoginApi(PublicApi):
         try:
             user = user_model.objects.get(email=user_email)
         except user_model.DoesNotExist:
-            return Response({"error": f"No {role} account found for this email."}, status=status.HTTP_404_NOT_FOUND)
+            base_url = "http://localhost:5173/signin"
+            error_message = f"No {role} account found for this email."
+            query_string = urlencode({"error": error_message})
+            redirect_url = f"{base_url}?{query_string}"
+            return HttpResponseRedirect(redirect_url)
+
 
         # Log the user in
         login(request, user)
