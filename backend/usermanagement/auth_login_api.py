@@ -153,7 +153,7 @@ class GoogleLoginApi(PublicApi):
         try:
             user = user_model.objects.get(email=user_email)
         except user_model.DoesNotExist:
-            base_url = "http://localhost:5173/signin"
+            base_url = f"{settings.FRONTEND_URL}/signin"
             error_message = f"No {role} account found for this email."
             query_string = urlencode({"error": error_message})
             redirect_url = f"{base_url}?{query_string}"
@@ -168,7 +168,7 @@ class GoogleLoginApi(PublicApi):
         user_base = User.objects.get(pk=user.pk)
         token, _ = Token.objects.get_or_create(user_id=user_base.id)
 
-        redirect_url = f"http://localhost:5173/auth/callback?token={token.key}&user_id={url_id}&role={role}"
+        redirect_url = f"{settings.FRONTEND_URL}/auth/callback?token={token.key}&user_id={url_id}&role={role}"
 
         return redirect(redirect_url)
 

@@ -145,6 +145,7 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
     ],
 }
+FRONTEND_URL = os.environ.get("FRONTEND_URL")
 
 AUTH_USER_MODEL = 'usermanagement.User'
 

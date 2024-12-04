@@ -210,7 +210,7 @@ class GoogleSignupAPI(PublicApi):
                 sds_coordinator = SDSCoordinator.objects.get(access_code=sds_coordinator_access_code)
             except SDSCoordinator.DoesNotExist:
                 e = "SDSCoordinator with access code {sds_coordinator_access_code} does not exist."
-                return redirect(f"http://localhost:5173/signin?error={str(e)}")
+                return redirect(f"{settings.FRONTEND_URL}/signin?error={str(e)}")
 
 
             user_model = Student
@@ -277,11 +277,11 @@ class GoogleSignupAPI(PublicApi):
             # The User of the ID for redirect
             url_id = user.user_ptr_id
 
-            redirect_url = f"http://localhost:5173/auth/callback?token={token.key}&user_id={url_id}&role={role}"
+            redirect_url = f"{settings.FRONTEND_URL}/auth/callback?token={token.key}&user_id={url_id}&role={role}"
 
             return redirect(redirect_url)
         except Exception as e:
-            return redirect(f"http://localhost:5173/signin?error={str(e)}")
+            return redirect(f"{settings.FRONTEND_URL}/signin?error={str(e)}")
 
 class GoogleSdkSignupFlowService:
     """
