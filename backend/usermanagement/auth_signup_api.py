@@ -14,6 +14,7 @@ from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .auth_helper_classes import PublicApi, CustomAuthToken, GoogleAccessTokens
+from django.core.exceptions import ImproperlyConfigured
 
 class GoogleSignUpRedirectApi(PublicApi):
     def get(self, request, *args, **kwargs):
