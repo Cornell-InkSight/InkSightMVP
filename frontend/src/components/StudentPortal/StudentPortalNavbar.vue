@@ -1,5 +1,5 @@
 <template>
-<div class="flex h-screen w-65 border-r-2 border-gray-100">
+<div class="flex h-screen w-[15%] border-r-2 border-gray-100">
     <!-- Sidebar -->
     <aside class="w-full bg-gray-100 shadow-md flex flex-col">
     <!-- Header -->

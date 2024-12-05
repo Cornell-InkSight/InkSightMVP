@@ -1,5 +1,5 @@
 <template>
-<div class="p-6 bg-white rounded-lg shadow-lg border border-gray-200">
+<div class="p-6 bg-white rounded-lg shadow-lg border border-gray-200 w-full">
     <!-- Back Button -->
     <button @click="$emit('closeModal')" class="text-blue-500 mb-4">&larr; Back to Classes</button>
 

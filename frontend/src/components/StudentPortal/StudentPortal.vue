@@ -1,7 +1,7 @@
 <template>
   <div class="flex min-h-screen bg-gray-100">
   <StudentPortalNavbar />
-  <div class="p-6 bg-gray-100 min-h-screen">
+  <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
     <!-- Header -->
     <div class="flex items-center justify-between mb-6">
       <h1 class="text-3xl font-bold text-gray-900">
@@ -18,7 +18,7 @@
     </div>
 
     
-    <div v-else class="border p-4 rounded-lg bg-gray-50">
+    <div v-else class="border p-4 rounded-lg bg-gray-50 w-full">
    
       <!-- Course Details Modal -->
       <transition name="fade" mode="out-in">
