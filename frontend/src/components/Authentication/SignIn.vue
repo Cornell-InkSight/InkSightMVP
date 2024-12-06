@@ -1,5 +1,12 @@
 <template>
-<div class="min-h-screen flex items-center justify-center bg-gray-100">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-gray-100">
+    <!-- Error Message Box -->
+   <div v-if="errorMessage" class="w-full max-w-md mb-4">
+      <div class="bg-red-500 text-white text-sm font-bold p-3 rounded-md shadow-md">
+        {{ errorMessage }}
+      </div>
+    </div>
+
   <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
     <h2 class="text-3xl font-bold text-gray-900 text-center">Welcome to InkSight</h2>
 
@@ -146,6 +153,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { fetchProfessorsForSchools, fetchSchools } from "@/services/api/fetch"
+import { useRoute } from "vue-router";
+const errorMessage = ref<string | null>(null); 
 
 const schoolName = ref("");
 const year = ref("2024");
@@ -158,6 +167,8 @@ const professorId = ref("");
 const role = ref("student");
 const schools = ref([]);
 const professors = ref([]);
+
+const route = useRoute()
 
 const setRole = (selectedRole: string) => {
   role.value = selectedRole;
@@ -221,10 +232,23 @@ const loadSchool = async () => {
 };
 
 /**
+ * Fetches the error from the URL if there is one
+ */
+const getErrorFromUrl = () => {
+  const params = new URLSearchParams(window.location.search);
+  const error = params.get("error");
+  if (error) {
+    errorMessage.value = decodeURIComponent(error);
+  }
+};
+
+/**
  * Lifecycle hook called when the component is mounted.
  * Fetches and sets data for both the professor and their SDS coordinaotrs.
  */
  onMounted(async () => {
   await loadSchool();
+  getErrorFromUrl();
+
 })
 </script>
