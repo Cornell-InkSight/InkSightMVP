@@ -142,7 +142,8 @@ import { fetchProfessorsForSchools, fetchSDSCoordinator, fetchSchool, fetchCours
 import { useRoute } from 'vue-router';
 import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue"
 import { addProfessor, addNewProfessorCourse } from '@/services/api/add';
-    
+import { useUserStore } from "@/stores/authStore";
+
 const route = useRoute()
 const professors = ref([]); // Holds professors for scohool
 const school = ref() // Holds school
@@ -337,7 +338,10 @@ const handleAddCourseToProfessor = async (professorId: string, course_id: string
  * Fetches and sets data for both the professor and their SDS coordinaotrs.
  */
 onMounted(async () => {
-    let sds_coordinator_id = route.params.sdscoordinatorId as string;
+    const userStore = useUserStore()
+    await userStore.fetchUser()
+    const user = userStore.user;
+    const sds_coordinator_id = user.user_ptr_id;
     await loadSDSCoordinator(sds_coordinator_id);
     if(sdscoordinator) {
         let school_id = sdscoordinator.value.school_id;

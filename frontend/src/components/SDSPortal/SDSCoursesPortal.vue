@@ -172,6 +172,7 @@ import { addNewProfessorCourse, addCourse } from "@/services/api/add";
 import { useRoute } from 'vue-router';
 import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue";
 import * as interfaces from "@/services/api/interfaces"
+import { useUserStore } from "@/stores/authStore";
 
 const route = useRoute();
 const courses = ref([]); // Holds courses for the school
@@ -331,7 +332,10 @@ const toggleAddNewCourseModal = () => {
  * Fetches and sets data for both the courses and their professors and students.
  */
 onMounted(async () => {
-    const sds_coordinator_id = route.params.sdscoordinatorId as string;
+    const userStore = useUserStore()
+    await userStore.fetchUser()
+    const user = userStore.user;
+    const sds_coordinator_id = user.user_ptr_id;
     await loadSDSCoordinator(sds_coordinator_id);
     if (sdscoordinator.value) {
         const school_id = sdscoordinator.value.school_id;

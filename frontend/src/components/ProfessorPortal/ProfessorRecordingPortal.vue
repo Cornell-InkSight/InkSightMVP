@@ -12,6 +12,7 @@ import { ref, onMounted } from 'vue';
 import { defineProps, defineEmits } from 'vue';
 import { fetchCourse } from "@/services/api/fetch"
 import BroadcastView from '@/components/Streaming/BroadcastView.vue';
+import ProfessorPortalNavbar from '@/components/ProfessorPortal/ProfessorPortalNavbar.vue';
 
 const props = defineProps<{ courseId: string }>();  
 const emit = defineEmits(['closePortal']);  

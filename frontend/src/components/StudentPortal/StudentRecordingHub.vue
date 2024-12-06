@@ -53,6 +53,7 @@
 import { ref, onMounted } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import { fetchCurrentOngoingLectureSession, fetchCourse, fetchCourses } from "@/services/api/fetch";
+import { useUserStore } from "@/stores/authStore"
 import * as interfaces from "@/services/api/interfaces"
 
 const router = useRouter();
@@ -113,7 +114,10 @@ const loadCourse = async (courseId: string): Promise<void> => {
  * Fetches student courses, then iterates and checks if any course has ongoing lecture
  */
 onMounted(async () => {
-  const studentId = route.params.studentId as string;
+  const userStore = useUserStore()
+  await userStore.fetchUser()
+  const user = userStore.user;
+  const studentId = user.user_ptr_id as string
 
   const { data: courses, error: coursesError } = await fetchCourses(studentId);
 

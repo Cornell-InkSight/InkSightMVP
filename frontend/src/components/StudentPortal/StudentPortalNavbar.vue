@@ -15,7 +15,7 @@
         <!-- Classes -->
         <li>
             <router-link
-            :to="`/students/${student_id}`"
+            :to="`/students`"
             class="flex items-center text-gray-700 px-4 py-2 hover:bg-gray-200 hover:text-black rounded-lg transition-colors"
             active-class="bg-black text-white font-bold"
             >
@@ -26,7 +26,7 @@
         <!-- Requests -->
         <li>
             <router-link
-            :to="`/students/${student_id}/request`"
+            :to="`/students/request`"
             class="flex items-center text-gray-700 px-4 py-2 hover:bg-gray-200 hover:text-black rounded-lg transition-colors"
             active-class="bg-black text-white font-bold"
             >
@@ -36,7 +36,7 @@
         </li>
         <li>
             <router-link
-            :to="`/students/${student_id}/hub`"
+            :to="`/students/hub`"
             class="flex items-center text-gray-700 px-4 py-2 hover:bg-gray-200 hover:text-black rounded-lg transition-colors"
             active-class="bg-black text-white font-bold"
             >
@@ -81,14 +81,17 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
+import * as interfaces from "@/services/api/interfaces";
+import { useUserStore } from "@/stores/authStore"
 
-const route = useRoute();
 const student_id = ref();
 
-onMounted(() => {
-student_id.value = route.params.studentId as string;
-});
-</script>
+// onMounted(async () => {
+// const userStore = useUserStore()
+// await userStore.fetchUser()
+// const user = userStore.user;
+// const studentId = user.user_ptr_id;});
+// </script>
 
 <style scoped>
 /* Sidebar Link Transitions */

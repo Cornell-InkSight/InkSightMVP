@@ -1,4 +1,6 @@
 import axios from "axios";
+import authAxios from '@/services/api/setup';
+
 import * as interfaces from './interfaces'
 import { fetchSDSCoordinatorForCourses } from './fetch'
 
@@ -12,7 +14,7 @@ const baseURL = import.meta.env.VITE_API_URL;
 
 export const addNewCourseForStudent = async (student_id: Number, newCourse: interfaces.newCourse) => {
     try {
-        const response = await axios.post(`${baseURL}/coursemanagement/students/${student_id}/courses/add/`, newCourse);
+        const response = await authAxios.post(`${baseURL}/coursemanagement/students/${student_id}/courses/add/`, newCourse);
         return response.data;
     } 
     catch(error) {
@@ -31,7 +33,7 @@ export const addNewCourseForStudent = async (student_id: Number, newCourse: inte
 export const addLectureSession = async (lectureSession: interfaces.LectureSession): Promise<Object> => {
     try {
         console.log("Sending lecture session data:", lectureSession);
-        const response = await axios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession);
+        const response = await authAxios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession);
         return response.data;
     } 
     catch (error: any) {
@@ -68,7 +70,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
         };
         console.log(note_taking_request)
         // Send the request to the server
-        const response = await axios.post(`${baseURL}/notetakingrequestmanagement/notetaking-request/add/`, note_taking_request);
+        const response = await authAxios.post(`${baseURL}/notetakingrequestmanagement/notetaking-request/add/`, note_taking_request);
         
         return response.data;
     } catch (error: any) {
@@ -90,7 +92,7 @@ export const addNoteTakingRequest = async (student_id: string, course_id: string
  */
 export const approveNoteTakingRequest = async (notetakingrequest_id: string) => {
     try {
-        const response = await axios.put(`${baseURL}/notetakingrequestmanagement/notetaking-request/${notetakingrequest_id}/approve`)
+        const response = await authAxios.put(`${baseURL}/notetakingrequestmanagement/notetaking-request/${notetakingrequest_id}/approve`)
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -111,7 +113,7 @@ export const approveNoteTakingRequest = async (notetakingrequest_id: string) => 
  */
 export const addNewLectureSession = async(lectureSession: interfaces.LectureSession) => {
     try {
-        const response = await axios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession)
+        const response = await authAxios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/add/`, lectureSession)
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -136,7 +138,7 @@ export const addNewLectureSession = async(lectureSession: interfaces.LectureSess
  */
 export const updateStatusOfLecture = async (lecturesession_id: string, status: string) => {
     try {
-        const response = await axios.put(`${baseURL}/lecturesessionsmanagement/lecture-sessions/${lecturesession_id}/update`, { "status": status })
+        const response = await authAxios.put(`${baseURL}/lecturesessionsmanagement/lecture-sessions/${lecturesession_id}/update`, { "status": status })
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -156,7 +158,7 @@ export const updateStatusOfLecture = async (lecturesession_id: string, status: s
  */
 export const addNewNotesPacket = async(notepacket: interfaces.NotesPacket) => {
     try {
-        const response = await axios.post(`${baseURL}/notepacketsmanagement/notes-packets/add/`, notepacket)
+        const response = await authAxios.post(`${baseURL}/notepacketsmanagement/notes-packets/add/`, notepacket)
         return response.data;
     } catch (error: any) {
         if (error.response) {
@@ -180,7 +182,7 @@ export const addNewNotesPacket = async(notepacket: interfaces.NotesPacket) => {
  */
 export const updateStatusOfNotePacket = async (notepacket_id: string, status: string) => {
     try {
-        const response = await axios.post(`${baseURL}/notepacketsmanagement/notes-packet/${notepacket_id}/update`, { "status": status })
+        const response = await authAxios.post(`${baseURL}/notepacketsmanagement/notes-packet/${notepacket_id}/update`, { "status": status })
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -205,7 +207,7 @@ export const updateStatusOfNotePacket = async (notepacket_id: string, status: st
  */
 export const updateTextOfNotePacket = async (notepacket_id: string, text: string) => {
     try {
-        const response = await axios.post(`${baseURL}/notepacketsmanagement/notes-packet/${notepacket_id}/edit`, { "text": text })
+        const response = await authAxios.post(`${baseURL}/notepacketsmanagement/notes-packet/${notepacket_id}/edit`, { "text": text })
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -227,7 +229,7 @@ export const updateTextOfNotePacket = async (notepacket_id: string, text: string
  */
 export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) => {
     try {
-        const response = await axios.post(`${baseURL}/coursemanagement/professor-courses/add/`, data)
+        const response = await authAxios.post(`${baseURL}/coursemanagement/professor-courses/add/`, data)
         return response.data;
     } catch (error: any) {
         // Enhanced error logging
@@ -249,7 +251,7 @@ export const addNewProfessorCourse = async (data: interfaces.ProfessorCourse) =>
  */
 export const addStudent = async (newStudent: interfaces.Student) => {
     try {
-        const response = await axios.post(`${baseURL}/usermanagement/students/add`, newStudent);
+        const response = await authAxios.post(`${baseURL}/usermanagement/students/add`, newStudent);
         return response.data;
     } 
     catch(error) {
@@ -265,7 +267,7 @@ export const addStudent = async (newStudent: interfaces.Student) => {
  */
 export const addProfessor = async (newProfessor: interfaces.Professor) => {
     try {
-        const response = await axios.post(`${baseURL}/usermanagement/professors/add`, newProfessor);
+        const response = await authAxios.post(`${baseURL}/usermanagement/professors/add`, newProfessor);
         return response.data;
     } 
     catch(error) {
@@ -280,7 +282,7 @@ export const addProfessor = async (newProfessor: interfaces.Professor) => {
  */
 export const addSDSCoordinator = async (newSDSCoordinator: interfaces.SDSCoordinator) => {
     try {
-        const response = await axios.post(`${baseURL}/usermanagement/sdscoordinators/add`, newSDSCoordinator);
+        const response = await authAxios.post(`${baseURL}/usermanagement/sdscoordinators/add`, newSDSCoordinator);
         return response.data;
     } 
     catch(error) {
@@ -295,7 +297,7 @@ export const addSDSCoordinator = async (newSDSCoordinator: interfaces.SDSCoordin
  */
 export const addTA = async (newTA: interfaces.TA) => {
     try {
-        const response = await axios.post(`${baseURL}/usermanagement/tas/add`, newTA);
+        const response = await authAxios.post(`${baseURL}/usermanagement/tas/add`, newTA);
         return response.data;
     } 
     catch(error) {
@@ -311,7 +313,7 @@ export const addTA = async (newTA: interfaces.TA) => {
 export const addCourse = async (newCourse: interfaces.Course) => {
     console.log(newCourse)
     try {
-        const response = await axios.post(`${baseURL}/coursemanagement/courses/add/`, newCourse);
+        const response = await authAxios.post(`${baseURL}/coursemanagement/courses/add/`, newCourse);
         return response.data;
     } 
     catch(error) {
@@ -326,7 +328,7 @@ export const addCourse = async (newCourse: interfaces.Course) => {
  */
 export const addStudentToCourse = async (studentId: Number, courseId: Number) => {
     try {
-        const response = await axios.post(`${baseURL}/coursemanagement/students/${studentId}/${courseId}/add/`);
+        const response = await authAxios.post(`${baseURL}/coursemanagement/students/${studentId}/${courseId}/add/`);
         return response.data;
     } 
     catch(error) {

@@ -1,9 +1,13 @@
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from rest_framework import status
 from .models import User, Student, SDSCoordinator, Professor, TeacherAssistant
 from .serializers import StudentSerializer, SDSCoordinatorSerializer, ProfessorSerializer, TeacherAssistantSerializer
 from django.shortcuts import render
+from rest_framework.exceptions import NotAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.authtoken.models import Token
 
 def index(request):
     return render(request, 'index.html')
@@ -15,6 +19,40 @@ GET (User) Methods
 3. Returns the data as an HttpResponse object, in the format of JSON
 4. For specific users (fetched using id), use try/catch to check if that specific id exists
 """
+
+@api_view(['GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def get_current_user(request):
+    """
+    Returns the current authenticated user from the request
+    uses serializer depending on the type of the object
+    Args:
+        request (Request): The HTTP request containing SDS Coordinator data in JSON format.
+    Returns:
+        JSON response containing the created SDS Coordinator data, or an error if validation fails.
+    """
+    user = request.user
+
+    if not user.is_authenticated:
+        raise NotAuthenticated(detail="User is not authenticated.")
+    try:
+        if hasattr(user, 'student'):
+            serializer = StudentSerializer(user.student)
+        elif hasattr(user, 'professor'):
+            serializer = ProfessorSerializer(user.professor)
+        elif hasattr(user, 'teacherassistant'):
+            serializer = TeacherAssistantSerializer(user.teacherassistant)
+        elif hasattr(user, 'sdscoordinator'):
+            serializer = SDSCoordinatorSerializer(user.sdscoordinator)
+        else:
+            return Response({"error": "Unknown user type."}, status=400)
+    except AttributeError as e:
+        return Response({"error": str(e)}, status=500)
+
+    return Response(serializer.data)
+
+
 @api_view(['GET'])
 def get_students(request):
     """
@@ -263,3 +301,5 @@ def add_sds_coordinator(request):
 
     serializer = SDSCoordinatorSerializer(sds_coordinator)
     return Response(serializer.data, status=201)
+
+

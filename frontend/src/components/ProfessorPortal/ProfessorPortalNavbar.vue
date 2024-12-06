@@ -8,14 +8,14 @@ o
         <div class="flex space-x-4">
             <div class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium" active-class="text-white"> 
                 <router-link
-                :to="`/professors/${professor_id}`"
+                :to="`/professors`"
                 >
                 Students
                 </router-link>
             </div>
             <div class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium" active-class="text-white">
                 <router-link
-                :to="`/professors/${professor_id}/courses`"
+                :to="`/professors/courses`"
                 >
                 Courses
                 </router-link>
@@ -23,7 +23,7 @@ o
 
             <div class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium" active-class="text-white">
                 <router-link
-                :to="`/professors/${professor_id}/lectures`"
+                :to="`/professors/lectures`"
                 >
                 Publish Notes Packets
                 </router-link>
@@ -36,14 +36,17 @@ o
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
+import { useUserStore } from "@/stores/authStore"
 
 const route = useRoute()
 const professor_id = ref();
 
-onMounted(() => {
-    professor_id.value = route.params.professorId as string
-})
+// onMounted(async () => {
+//     const userStore = useUserStore()
+//     await userStore.fetchUser()
+//     const user = userStore.user;
+//     professor_id.value = user.user_ptr_id as string
+// })
 </script>
 
 <style scoped>

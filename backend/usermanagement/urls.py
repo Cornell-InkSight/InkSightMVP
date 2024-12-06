@@ -30,4 +30,6 @@ urlpatterns = [
     path("signup/callback/", GoogleSignupAPI.as_view(), name="signup/callback"),
     path("login/callback/", GoogleLoginApi.as_view(), name="login/callback"),
     path('api-token-auth/', CustomAuthToken.as_view()),
+
+    path('get-current-user', get_current_user, name="get_current_user")
 ]

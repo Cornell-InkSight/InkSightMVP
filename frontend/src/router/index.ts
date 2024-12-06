@@ -11,37 +11,37 @@ const routes = [
         path: "/signin", component: () => import("@/components/Authentication/SignIn.vue"),
     },
     {
-        path: "/students/:studentId", component: () => import("@/components/StudentPortal/StudentPortal.vue"),
+        path: "/students", component: () => import("@/components/StudentPortal/StudentPortal.vue"),
     },
     {
-        path: "/students/:studentId/request", component: () => import("@/components/StudentPortal/StudentNotetakingRequest.vue"),
+        path: "/students/request", component: () => import("@/components/StudentPortal/StudentNotetakingRequest.vue"),
     },
     {
-        path: "/students/:studentId/:courseId/lecture", component: () => import("@/components/StudentPortal/StudentRecordingView.vue"),
+        path: "/students/:courseId/lecture", component: () => import("@/components/StudentPortal/StudentRecordingView.vue"),
     },    
     {
-        path: "/students/:studentId/hub", component: () => import("@/components/StudentPortal/StudentRecordingHub.vue"),
+        path: "/students/hub", component: () => import("@/components/StudentPortal/StudentRecordingHub.vue"),
     },    
-    {
-        path: "/professors/:professorId", component: () => import("@/components/ProfessorPortal/ProfessorStudentsPortal.vue"),
+    { 
+        path: "/professors", component: () => import("@/components/ProfessorPortal/ProfessorStudentsPortal.vue"),
     },
     {
-        path: "/professors/:professorId/courses", component: () => import("@/components/ProfessorPortal/ProfessorCoursePortal.vue"),
+        path: "/professors/courses", component: () => import("@/components/ProfessorPortal/ProfessorCoursePortal.vue"),
     },
     {
-        path: "/professors/:professorId/lectures", component: () => import("@/components/ProfessorPortal/ProfessorPublishingPortal.vue"),
+        path: "/professors/lectures", component: () => import("@/components/ProfessorPortal/ProfessorPublishingPortal.vue"),
     },
     {
-        path: "/sdscoordinators/:sdscoordinatorId", component: () => import("@/components/SDSPortal/SDSStudentsPortal.vue"),
+        path: "/sdscoordinators", component: () => import("@/components/SDSPortal/SDSStudentsPortal.vue"),
     },
     {
-        path: "/sdscoordinators/:sdscoordinatorId/courses", component: () => import("@/components/SDSPortal/SDSCoursesPortal.vue"),
+        path: "/sdscoordinators/courses", component: () => import("@/components/SDSPortal/SDSCoursesPortal.vue"),
     },
     {
-        path: "/sdscoordinators/:sdscoordinatorId/professors", component: () => import("@/components/SDSPortal/SDSProfessorsPortal.vue"),
+        path: "/sdscoordinators/professors", component: () => import("@/components/SDSPortal/SDSProfessorsPortal.vue"),
     },
     {
-        path: "/tas/:taId", component: () => import("@/components/TAPortal/TAPortal.vue")
+        path: "/tas", component: () => import("@/components/TAPortal/TAPortal.vue")
     },
     {
         path: "/notepackets/:notepacketId/", component: () => import("@/components/NotePackets/NotePacketView.vue")

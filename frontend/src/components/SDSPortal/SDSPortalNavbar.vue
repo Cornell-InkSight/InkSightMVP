@@ -8,14 +8,14 @@ o
         <div class="flex space-x-4">
             <div class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium" active-class="text-white"> 
                 <router-link
-                :to="`/sdscoordinators/${sds_coordinator_id}`"
+                :to="`/sdscoordinators`"
                 >
                 Students
                 </router-link>
             </div>
             <div class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium" active-class="text-white">
                 <router-link
-                :to="`/sdscoordinators/${sds_coordinator_id}/courses`"
+                :to="`/sdscoordinators/courses`"
                 >
                 Courses
                 </router-link>
@@ -23,7 +23,7 @@ o
 
             <div class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium" active-class="text-white">
                 <router-link
-                :to="`/sdscoordinators/${sds_coordinator_id}/professors`"
+                :to="`/sdscoordinators/professors`"
                 >
                 Professors
                 </router-link>
@@ -38,15 +38,11 @@ import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const sds_coordinator_id = ref(); // the id of the SDS Coordinator for routes
 
 /**
  * Lifecycle hook called when the component is mounted.
  * Fetches and sets data for SDS Coordinator ID.
  */
-onMounted(() => {
-    sds_coordinator_id.value = route.params.sdscoordinatorId as string
-})
 </script>
 
 <style scoped>

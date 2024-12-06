@@ -120,6 +120,7 @@ import { addStudent } from '@/services/api/add';
 import { useRoute } from 'vue-router'
 import StudentSDSModal from '@/components/SDSPortal/StudentSDSModal.vue';
 import SDSPortalNavbar from "@/components/SDSPortal/SDSPortalNavbar.vue"
+import { useUserStore } from "@/stores/authStore";
 
 const route = useRoute()
 const sdscoordinator = ref<any | null>(null); // Holds SDS Coordinator data, initially null
@@ -230,12 +231,15 @@ const loadSchool = async (schoolId: string) => {
  * Fecthes and sets data for both SDS Coordinator and their students
  */
 onMounted(async () => {
-    const sdscoordinatorId = route.params.sdscoordinatorId as string;
-    await loadSDSCoordinator(sdscoordinatorId);
+    const userStore = useUserStore()
+    await userStore.fetchUser()
+    const user = userStore.user;
+    const sds_coordinator_id = user.user_ptr_id;
+    await loadSDSCoordinator(sds_coordinator_id);
     if (sdscoordinator.value) {
         await loadSchool(sdscoordinator.value.school_id);
         console.log(school.value)
-        await loadStudents(sdscoordinatorId);
+        await loadStudents(sds_coordinator_id);
     }
     loading.value = false;
 });

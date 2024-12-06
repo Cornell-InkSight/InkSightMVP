@@ -15,6 +15,7 @@
       const processRedirect = () => {
         const token = route.query.token; // Retrieve the token from query parameters
         const userId = route.query.user_id; // Ensure you include this in your backend redirect
+        
   
         if (token) {
           // Store the token and userId in localStorage for future API requests
@@ -25,13 +26,13 @@
           // Redirect the user to their respective dashboard based on their role
           const role = route.query.role; // Include role in your backend redirect URL
           if (role === "student") {
-            router.push(`/students/${userId}`);
+            router.push(`/students`);
           } else if (role === "professor") {
-            router.push(`/professors/${userId}`);
+            router.push(`/professors`);
           } else if (role === "teacher_assistant") {
-            router.push(`/tas/${userId}`);
+            router.push(`/tas`);
           } else if (role === "sds_coordinator") {
-            router.push(`/sdscoordinators/${userId}`);
+            router.push(`/sdscoordinators`);
           } else {
             router.push("/signin"); // Default fallback
           }

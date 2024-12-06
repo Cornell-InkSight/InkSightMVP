@@ -1,43 +1,41 @@
 
 /**
+ * Represents A User
+ */
+export interface User {
+    user_ptr_id: string;
+    name: string;
+    school_id: string,
+    email?: string,
+}
+
+/**
  * Represents a student.
  */
-export interface Student {
-    user_ptr_id?: string;
-    name: string;
+export interface Student extends User {
     sds_coordinator_id: string,
-    school_id: string,
     disability: string,
-    email?: string,
 }
 
 /**
  * Represents an SDS Coordinator.
  */
-export interface SDSCoordinator {
-    user_ptr_id?: string,
-    name: string,
-    email?: string,
+export interface SDSCoordinator extends User {
+    position?: string,
 }
 
 /**
  * Represents a professor.
  */
-export interface Professor {
-    user_ptr_id?: string;
-    name: string;
+export interface Professor extends User {
     title?: string;
-    email?: string,
 }
 
 /**
  * Represents a TA
  */
-export interface TA {
-    user_ptr_id?: string;
-    name: string,
+export interface TA extends User {
     professor_id: string,
-    email?: string,
 }
 
 /**

@@ -90,16 +90,16 @@ import {
   fetchCurrentOngoingLectureSession,
   fetchStudentNotePacketsForCourse
 } from "@/services/api/fetch";
+import { useUserStore } from "@/stores/authStore"
 import * as interfaces from "@/services/api/interfaces";
 import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue';
 import StudentCourseView from '@/components/StudentPortal/StudentCourseView.vue'
 
-const route = useRoute();
-const courses = ref<any[]>([]);
-const student = ref(null);
-const loading = ref<boolean>(true);
-const error = ref<string | null>(null);
-const selectedCourse = ref<String>();
+const courses = ref<any[]>([]); // Holds the courses for the student
+const student = ref(null); // Holds the data for the student
+const loading = ref<boolean>(true); // Holds the loading state
+const error = ref<string | null>(null); // Holds the error, if any
+const selectedCourse = ref<String>(); // Holds the selected course the student is viewing
 
 /**
  * Loads the data for the student from the API
@@ -216,7 +216,10 @@ const toggleCourseDetails = async (courseId : string) => {
  * Fetches and sets data for the student and their courses and additional data.
  */
 onMounted(async () => {
-  const studentId = route.params.studentId as string;
+  const userStore = useUserStore()
+  await userStore.fetchUser()
+  const user = userStore.user;
+  const studentId = user.user_ptr_id;
   await loadStudent(studentId);
   await loadCourses(studentId);
   loading.value = false; 

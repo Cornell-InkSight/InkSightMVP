@@ -35,13 +35,13 @@ import { fetchCoursesForProfessors } from '@/services/api/fetch';
 import { useRoute } from 'vue-router';
 import * as interfaces from "@/services/api/interfaces";
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
+import { useUserStore } from "@/stores/authStore"
 
 const courses = ref<interfaces.Course[]>([]);
 const showRecordingPortal = ref(false);
 const selectedcourseId = ref<string>("");
 
 const route = useRoute();
-const professorId = route.params.professorId as string;
 
 /**
  * Fetches the courses for a specific professor
@@ -77,6 +77,10 @@ const closeRecordingPortal = () => {
  * Fetches and sets data for both the professor and their students.
  */
 onMounted(async () => {
+    const userStore = useUserStore()
+    await userStore.fetchUser()
+    const user = userStore.user;
+    const professorId = user.user_ptr_id;
     await loadCoursesForProfessor(professorId);
 });
 </script>

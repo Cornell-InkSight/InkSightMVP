@@ -104,10 +104,10 @@ import * as interfaces from "@/services/api/interfaces";
 import { addNoteTakingRequest } from "@/services/api/add";
 import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue';
 import { fetchIsApprovedStudentForCourse } from '../../services/api/fetch';
+import { useUserStore } from "@/stores/authStore"
 
 const route = useRoute();
-const studentId = route.params.studentId as string;
-
+const studentId = ref<string>();
 const courses = ref<interfaces.Course[]>([]);
 const dropdownCourses = ref<interfaces.Course[]>([]);
 const student = ref<interfaces.Student | null>(null);
@@ -125,7 +125,7 @@ const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: st
 /**
  * Fetches data for the given student and assigns it to `student`.
  */
-const loadStudent = async () => {
+const loadStudent = async (studentId: string) => {
   const { data, error: studentError } = await fetchStudent(studentId);
   if (studentError) {
     error.value = studentError;
@@ -220,14 +220,14 @@ const submitNoteTakingRequest = async () => {
       submitErrorMessage.value = "Please select a course and enter request details.";
       return;
     }
-    await addNoteTakingRequest(studentId, selectedCourseId.value, noteTakingRequest.value);
+    await addNoteTakingRequest(studentId.value, selectedCourseId.value, noteTakingRequest.value);
     
     submitSuccessMessage.value = "Note-taking request added successfully!";
     
     selectedCourseId.value = "";
     noteTakingRequest.value = "";
     await loadNoteakingRequestsForCourses();
-    await loadCourses(studentId);
+    await loadCourses(studentId.value);
   } catch (error) {
     console.error("Error adding note-taking request:", error);
     submitErrorMessage.value = "Failed to add note-taking request. Please try again.";
@@ -267,9 +267,12 @@ const loadSDSCoordinator = async (sdscoordinatorId: string) => {
  * Fetches and sets data for the student and their courses and their notetaking requests.
  */
 onMounted(async () => {
-  const studentId = route.params.studentId as string;
-  await loadStudent();
-  await loadCourses(studentId);
+  const userStore = useUserStore()
+  await userStore.fetchUser()
+  const user = userStore.user;
+  studentId.value = user.user_ptr_id as string
+  await loadStudent(studentId.value);
+  await loadCourses(studentId.value);
   await loadNoteakingRequestsForCourses();
   if(student) {
     await loadSDSCoordinator(student.value.sds_coordinator_id)

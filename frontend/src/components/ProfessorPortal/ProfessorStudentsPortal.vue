@@ -88,7 +88,8 @@ import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse, fetchStudentCourses, fetchNoteTakingRequestStudentForCourse } from '@/services/api/fetch';
 import { approveNoteTakingRequest } from "@/services/api/add";
-import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
+import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
+import { useUserStore } from "@/stores/authStore";
 import Swal from 'sweetalert2';
 
 const route = useRoute();
@@ -266,7 +267,10 @@ const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId
  * Fetches and sets data for both the professor and their students.
  */
 onMounted(async () => {
-  const professorId = route.params.professorId as string;
+  const userStore = useUserStore()
+  await userStore.fetchUser()
+  const user = userStore.user;
+  const professorId = user.user_ptr_id;
   await loadProfessor(professorId);
   await loadStudents(professorId);
   await loadNoteTakingRequestsForCourses(); 

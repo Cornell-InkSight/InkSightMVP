@@ -85,7 +85,8 @@ import { updateStatusOfNotePacket } from '@/services/api/add';
 import { fetchCoursesForProfessors, fetchApprovedStudentsForCourse, fetchUnpublishedNotePacketsForCourse } from '@/services/api/fetch';
 import { useRoute } from 'vue-router';
 import * as interfaces from "@/services/api/interfaces";
-import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue";
+import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
+import { useUserStore } from "@/stores/authStore";
 
 const courses = ref<interfaces.Course[]>([]); // List of Professors Courses
 const addNotesPacketsError = ref<string>(""); // Error
@@ -199,6 +200,10 @@ const submitNotesPacketForm = async () => {
  * Fetches and sets data for both the professor and their courses.
  */
 onMounted(async () => {
+    const userStore = useUserStore()
+    await userStore.fetchUser()
+    const user = userStore.user;
+    const professorId = user.user_ptr_id;
     await loadCoursesForProfessor(professorId);
 });
 </script>

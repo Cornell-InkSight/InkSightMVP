@@ -82,10 +82,12 @@ import {
 fetchTA, 
 fetchCourses, 
 fetchProfessorsForCourses, 
-fetchUnpublishedNotePacketsForCourse,  
+fetchUnpublishedNotePacketsForCourse,
+fetchCoursesForProfessors,  
 } from "@/services/api/fetch";
 import * as interfaces from "@/services/api/interfaces";
 import TAPortalNavbar from '@/components/TAPortal/TAPortalNavbar.vue';
+import { useUserStore } from "@/stores/authStore";
 
 const route = useRoute(); 
 const courses = ref<any[]>([]); // the list of courses the TA has
@@ -99,6 +101,7 @@ const error = ref<string | null>(null); // logs errors if any
  */
 const loadTA = async (taId: string) => {
     const { data, error: taError } = await fetchTA(taId);
+    console.log(data)
     if (taError) {
         error.value = taError;
         return;
@@ -112,7 +115,7 @@ const loadTA = async (taId: string) => {
  * @param taId - ID of the TA 
  */
 const loadCourses = async (taId: string) => {
-    const { data, error: coursesError } = await fetchCourses(taId);
+    const { data, error: coursesError } = await fetchCoursesForProfessors(ta.value.assigned_professor_id);
     if (coursesError) {
         error.value = coursesError;
     } else {
@@ -164,7 +167,10 @@ const loadNotesPacketsForCourse = async (courseId: number) => {
  * Fetches and sets data for the TA and their courses and additional data.
  */
 onMounted(async () => {
-    const taId = route.params.taId as string;
+    const userStore = useUserStore()
+    await userStore.fetchUser()
+    const user = userStore.user;
+    const taId = user.user_ptr_id;
     await loadTA(taId);
     await loadCourses(taId);
     loading.value = false; 
