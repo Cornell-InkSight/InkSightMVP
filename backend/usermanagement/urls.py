@@ -4,6 +4,7 @@ from .views import *
 from .auth_login_api import *
 from .auth_login_api import *
 from .auth_signup_api import *
+from .stream_api import *
 
 app_name = "usermanagement"
 
@@ -31,5 +32,9 @@ urlpatterns = [
     path("login/callback/", GoogleLoginApi.as_view(), name="login/callback"),
     path('api-token-auth/', CustomAuthToken.as_view()),
 
-    path('get-current-user', get_current_user, name="get_current_user")
+    path('get-current-user', get_current_user, name="get_current_user"),
+    path('user/token/<int:user_id>', get_token, name="get_token"),
+    
+    path('user/stream-token/<int:user_id>', get_stream_token, name="get_stream_token"),
+    path('user/stream-admin/<int:user_id>', add_stream_permissions, name="add_stream_permissions")
 ]

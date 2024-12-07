@@ -56,7 +56,7 @@ object-fit: cover;
   
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStreamStore } from '@/stores/streamStore'
 import { addNewLectureSession, addNewNotesPacket } from "@/services/api/add"
@@ -69,19 +69,24 @@ const store = useStreamStore()
 const lectureSessionId = ref<string | null>(null);
 const isRecording = ref(false); 
 
-const { call, isBackstage, localParticipant } = storeToRefs(store)
 const props = defineProps<{ courseId: string }>();  
 
+const initialized = ref(false);
 const callId = ref('')
 
-const isCallLive = computed(() => {
-  return call.value && localParticipant.value
-})
+// const call = ref(null);
+// const localParticipant = ref(null);
+// const isBackstage = ref(null);
+
+let { call, localParticipant, isBackstage } = storeToRefs(store);
+
+// Computed property for whether the call is live
+let isCallLive, buttonText;
 
 function startBroadcast() {
-  if (callId.value) {
-    store.createCall(callId.value)
-  }
+    if (callId.value) {
+        store.createCall(callId.value)
+    }
 }
 
 async function goLiveClicked() {
@@ -94,10 +99,6 @@ async function goLiveClicked() {
     stopRecording();
   }
 }
-
-const buttonText = computed(() => {
-  return isBackstage.value ? 'Go live' : 'End broadcast'
-})
 
 /**
  * Starts the recording, creates new lecture in the API and calls the POST API
@@ -146,4 +147,23 @@ const stopRecording = async () => {
         console.error("Failed to stop recording:", error);
     }
 };
+
+ // Define computed properties after the store is ready
+ isCallLive = computed(() => call.value && localParticipant.value);
+buttonText = computed(() => (isBackstage.value ? 'Go live' : 'End broadcast'));
+
+onMounted(async () => {
+  try {
+    await store.loadUserData(); // Ensure data is loaded
+    console.log("User data loaded successfully.");
+    console.log(store.streamVideoClient)
+
+    // Dynamically destructure `storeToRefs` after loading
+
+    initialized.value = true; // Mark the store as initialized
+  } catch (error) {
+    console.error("Failed to load user data:", error);
+  }
+});
+
 </script>

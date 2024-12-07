@@ -58,17 +58,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStreamStore } from '@/stores/streamStore'
 import VideoComponent from '@/components/Streaming/CameraView.vue'
 
 const store = useStreamStore()
+
 const { call, remoteParticipant } = storeToRefs(store)
 
 const callId = ref('');
 const isActiveStream = ref(false);
 const validationError = ref(false);
+const initialized = ref(false);
 
 const showRemoteVideo = computed(() => {
   return call.value && remoteParticipant.value
@@ -105,5 +107,19 @@ const validateCallId = () => {
         validationError.value = true;
     }
 };
+
+onMounted(async () => {
+  try {
+    await store.loadUserData(); // Ensure data is loaded
+    console.log("User data loaded successfully.");
+    console.log(store.streamVideoClient)
+
+    // Dynamically destructure `storeToRefs` after loading
+
+    initialized.value = true; // Mark the store as initialized
+  } catch (error) {
+    console.error("Failed to load user data:", error);
+  }
+});
 
 </script>

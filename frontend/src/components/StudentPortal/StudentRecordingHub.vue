@@ -73,7 +73,7 @@ const goBack = () => {
  */
 const joinLecture = () => {
     if (ongoingLecture.value) {
-        router.push(`/students/${route.params.studentId}/${course.value.id}/lecture`);
+        router.push(`/students/${course.value.id}/lecture`);
     }
 };
 

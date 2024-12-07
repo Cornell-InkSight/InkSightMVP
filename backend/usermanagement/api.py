@@ -54,6 +54,20 @@ def get_current_user(request):
 
 
 @api_view(['GET'])
+def get_token(request, user_id):
+    """
+    Generate or retrieve a token for the given user_id.
+    """
+    try:
+        token, _ = Token.objects.get_or_create(user=user_id)
+        return Response({
+            "token": token.key,
+            "user_id": str(user_id)
+        }, status=200)
+    except User.DoesNotExist:
+        return Response({"error": "User does not exist"}, status=404)
+
+@api_view(['GET'])
 def get_students(request):
     """
     Retrieve all student records.
