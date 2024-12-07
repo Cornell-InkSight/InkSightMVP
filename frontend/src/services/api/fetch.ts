@@ -356,7 +356,7 @@ export const fetchStudentNotePacket = async (note_packet_id: string) => {
  */
 export const fetchLectureSessionData = async (lecture_session_id: string) => {
   try {
-    const response = await authAxios.get(`${baseURL}/lecturesessionmanagement/lecture-sessions/${lecture_session_id}/`)
+    const response = await authAxios.get(`${baseURL}/lecturesessionsmanagement/lecture-sessions/${lecture_session_id}/`)
     return { data: response.data, error: null }
   } catch(err) {
     return { data: null, error: "Failed to load Lecture Session" }

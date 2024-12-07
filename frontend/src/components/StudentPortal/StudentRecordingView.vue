@@ -14,7 +14,7 @@
             <!-- Viewer -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="col-span-2 bg-black rounded-lg overflow-hidden">
-                    <ViewerVue/>
+                    <ViewerVue :lectureSessionValidCode="lectureSessionValidCode"/>
                 </div>
 
                 <!-- Image to Text Notes -->
@@ -47,13 +47,16 @@ import { ref, onMounted } from 'vue';
 import { defineProps, defineEmits } from 'vue';
 import { faker } from '@faker-js/faker';
 import ViewerVue from '@/components/Streaming/ViewerVue.vue';
-import { fetchCourse } from "@/services/api/fetch";
+import { fetchCourse, fetchLectureSessionData } from "@/services/api/fetch";
 import StudentPortalNavbar from '@/components/StudentPortal/StudentPortalNavbar.vue';
+import { useRoute } from 'vue-router';
 
 const props = defineProps<{ courseId: string }>();  
 const emit = defineEmits(['closePortal']);  
+const route = useRoute()
 
 const courseName = ref<string>('');
+const lectureSessionValidCode = ref<string>('');
 const isRecording = ref(false); 
 const fakeNote = ref<string>(faker.lorem.paragraph(2)); 
 
@@ -70,11 +73,28 @@ const loadCourseName = async (courseId: string): Promise<void> => {
 };
 
 /**
+ * Loads lecture session data to get Id
+ */ 
+ const loadLectureSessionData = async (lecture_session_id: string): Promise<void> => {
+    const { data, error: fetchError } = await fetchLectureSessionData(lecture_session_id);
+    if (!fetchError && data) {
+        console.log(data)
+        lectureSessionValidCode.value = data.call_id
+    } else {
+        console.error(`Failed to fetch course name for course ID ${lecture_session_id}:`, fetchError);
+    }
+};
+
+
+
+/**
  * Lifecycle hook called when the component is mounted.
  * Fetches and sets data for both the student and their courses.
  */
 onMounted(async () => {
     loadCourseName(props.courseId);
+    const lecture_session_id = route.params.lectureId as string
+    loadLectureSessionData(lecture_session_id)
 });
 </script>
     

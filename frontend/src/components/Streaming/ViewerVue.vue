@@ -72,6 +72,10 @@ const isActiveStream = ref(false);
 const validationError = ref(false);
 const initialized = ref(false);
 
+const props = defineProps({
+  lectureSessionValidCode: String
+})
+
 const showRemoteVideo = computed(() => {
   return call.value && remoteParticipant.value
 })
@@ -99,7 +103,8 @@ function endStream() {
  * Validate the Stream ID
  */
 const validateCallId = () => {
-    const validCallId = "12345";
+    const validCallId = props.lectureSessionValidCode;
+    console.log(validCallId)
     if (callId.value === validCallId) {
       watchStreamHandler();
         validationError.value = false;

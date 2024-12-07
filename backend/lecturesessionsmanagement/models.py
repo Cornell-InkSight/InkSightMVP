@@ -8,6 +8,7 @@ class LectureSession(models.Model):
     date = models.DateTimeField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     status = models.TextField(default="recording")
+    call_id = models.CharField(max_length=6, default="123456")
 
 class RecordingSession(models.Model):
     """Model for Recording Session"""

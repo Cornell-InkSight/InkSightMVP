@@ -111,6 +111,7 @@ async function goLiveClicked() {
             course_id: parseInt(props.courseId),
             status: "recording",
             url: "https://example.com/stream-url",
+            call_id: callId.value,
         };
 
         const response = await addNewLectureSession(lectureSessionData);
@@ -148,8 +149,8 @@ const stopRecording = async () => {
     }
 };
 
- // Define computed properties after the store is ready
- isCallLive = computed(() => call.value && localParticipant.value);
+// Define computed properties after the store is ready
+isCallLive = computed(() => call.value && localParticipant.value);
 buttonText = computed(() => (isBackstage.value ? 'Go live' : 'End broadcast'));
 
 onMounted(async () => {

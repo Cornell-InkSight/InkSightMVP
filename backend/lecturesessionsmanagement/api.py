@@ -111,7 +111,7 @@ def add_lecture_session(request):
         JSON response containing the created lecture session data, or an error if validation fails.
     """
     lecture_session_data = request.data
-    required_fields = ["date", "course_id", "status"]
+    required_fields = ["date", "course_id", "status", "call_id"]
 
     # Validate required fields
     for field in required_fields:
@@ -122,7 +122,8 @@ def add_lecture_session(request):
     lecture_session = LectureSession.objects.create(
         date=lecture_session_data["date"],
         course_id=lecture_session_data["course_id"],
-        status=lecture_session_data["status"]
+        status=lecture_session_data["status"],
+        call_id = lecture_session_data["call_id"]
     )
 
     serializer = LectureSessionSerializer(lecture_session)
