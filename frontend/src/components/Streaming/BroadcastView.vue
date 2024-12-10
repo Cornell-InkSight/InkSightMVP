@@ -91,7 +91,7 @@ function startBroadcast() {
 
 async function goLiveClicked() {
   if (isBackstage.value) {
-    await call.value?.goLive()
+    await call.value?.goLive({ start_hls: true });
     startRecording()
   } else {
     await call.value?.stopLive()
@@ -152,6 +152,16 @@ const stopRecording = async () => {
 // Define computed properties after the store is ready
 isCallLive = computed(() => call.value && localParticipant.value);
 buttonText = computed(() => (isBackstage.value ? 'Go live' : 'End broadcast'));
+
+/**
+ * Gets the URL for the call
+ */
+ const getCallURL = async () => {
+    const resp = await call.value.getOrCreate();
+    console.log(resp.call)
+    const URL = resp.call.egress.hls?.playlist_url;
+    console.log(URL)
+}
 
 onMounted(async () => {
   try {

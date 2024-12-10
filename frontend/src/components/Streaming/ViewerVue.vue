@@ -113,11 +113,10 @@ const validateCallId = () => {
     }
 };
 
+
 onMounted(async () => {
   try {
     await store.loadUserData(); // Ensure data is loaded
-    console.log("User data loaded successfully.");
-    console.log(store.streamVideoClient)
 
     // Dynamically destructure `storeToRefs` after loading
 

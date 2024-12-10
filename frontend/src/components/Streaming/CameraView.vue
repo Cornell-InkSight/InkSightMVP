@@ -13,7 +13,6 @@ const unbindVideoElement = ref<(() => void) | undefined>()
 const unbindAudioElement = ref<(() => void) | undefined>()
 
 onMounted(() => {
-  console.log(props.participant)
   if (videoElement.value) {
     unbindVideoElement.value = props.call?.bindVideoElement(
       videoElement.value,
