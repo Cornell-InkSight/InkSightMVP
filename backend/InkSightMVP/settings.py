@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'lecturesessionsmanagement',
     'notepacketsmanagement',
     'permissionsmanagement',
+    'aimodelmanagement',
 
     'rest_framework',
     'rest_framework.authtoken',

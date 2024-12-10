@@ -27,6 +27,7 @@ urlpatterns = [
     path('notetakingrequestmanagement/', include('notetakingrequestmanagement.urls')),
     path('permissionsmanagement/', include('permissionsmanagement.urls')),
     path('usermanagement/', include('usermanagement.urls')),
+    path('aimodelmanagement/', include('aimodelmanagement.urls')),
     path("run-migrations/", run_migrations, name="run_migrations"),
 ]
 
