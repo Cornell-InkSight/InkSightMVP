@@ -1,117 +1,58 @@
 <template>
-<SDSPortalNavbar />
-<div class="max-w-6xl mx-auto p-6 bg-gray-100 min-h-screen">
-  <!-- Header with Title and Layout Options -->
-  <div class="flex items-center justify-between mb-6">
-    <h1 class="text-3xl font-bold text-gray-900">
-      Students under jurisdiction of
-      <span v-if="sdscoordinator">{{ sdscoordinator.name }} at {{ school?.name }}</span>
-    </h1>
-    <div class="flex items-center space-x-4">
-      <!-- Search Bar -->
-      <input 
-        type="text" 
-        placeholder="Search" 
-        class="px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring focus:border-blue-300"
-      />
-      <!-- Layout Icons -->
-      <button class="p-2 rounded-md hover:bg-gray-200">
-        <i class="fas fa-th-list"></i> <!-- List icon -->
-      </button>
-      <button class="p-2 rounded-md hover:bg-gray-200">
-        <i class="fas fa-th"></i> <!-- Grid icon -->
-      </button>
-    </div>
-  </div>
+  <div class="flex min-h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <SDSPortalNavbar />
 
-  <!-- Add New Student Button -->
-  <div class="mb-6" v-if="!selectedStudentId" >
-    <button 
-      @click="showAddStudentModal = true" 
-      class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
-    >
-      + Add New Student
-    </button>
-  </div>
-
-  <!-- Add Student Modal -->
-  <div 
-    v-if="showAddStudentModal" 
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-  >
-    <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-      <h2 class="text-xl font-bold mb-4">Add New Student</h2>
-      <form @submit.prevent="handleAddStudent">
-        <label class="block mb-2">
-          <input 
-            v-model="newStudentName" 
-            type="text" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
-            placeholder="Enter student name"
+    <!-- Main Content -->
+    <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-3xl font-bold text-gray-900">Students</h1>
+        <div class="flex items-center space-x-4">
+          <!-- Search Bar -->
+          <input
+            type="text"
+            placeholder="Search"
+            class="w-60 px-4 py-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-500"
           />
-          <input 
-            v-model="newStudentEmail" 
-            type="text" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
-            placeholder="Enter student email"
-          />
-          <input 
-            v-model="newStudentDisability" 
-            type="text" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
-            placeholder="Enter student disability"
-          />
-          <input 
-            v-model="newStudentYear" 
-            type="text" 
-            class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
-            placeholder="Enter student year"
-          />
-        </label>
-        <div class="flex items-center justify-end mt-4">
-          <button 
-            @click="showAddStudentModal = false" 
-            type="button" 
-            class="px-4 py-2 bg-gray-500 text-white rounded-md shadow hover:bg-gray-600 mr-2"
-          >
-            Cancel
+          <!-- View Icons -->
+          <button class="p-2 rounded-md hover:bg-gray-200">
+            <i class="fas fa-th-list"></i> <!-- List view icon -->
           </button>
-          <button 
-            type="submit" 
-            class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
-          >
-            Add Student
+          <button class="p-2 rounded-md bg-black text-white hover:bg-gray-800">
+            <i class="fas fa-th"></i> <!-- Grid view icon -->
           </button>
         </div>
-      </form>
+      </div>
+
+      
+
+      <!-- Profile View Transition -->
+      <transition name="fade" mode="out-in">
+        <StudentSDSModal
+          v-if="selectedStudentId"
+          :id="selectedStudentId"
+          @closeProfile="selectedStudentId = null"
+          key="profile-view"
+        />
+        <!-- Students Grid -->
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div
+            v-for="student in students"
+            :key="student.id"
+            class="p-6 bg-white rounded-lg shadow-md border border-gray-200 flex justify-between items-center"
+          >
+            <h2 class="text-lg font-semibold text-gray-800">{{ student.name }}</h2>
+            <button class="text-gray-500 hover:text-gray-700" @click="selectedStudentId=student.user_ptr_id">
+              <!-- Vertical Ellipsis Icon -->
+              <i class="fas fa-ellipsis-v"></i>
+            </button>
+          </div>
+        </div>
+        </transition>
     </div>
   </div>
-
-  <!-- Transition for Profile View -->
-  <transition name="fade" mode="out-in">
-    <StudentSDSModal 
-      v-if="selectedStudentId" 
-      :id="selectedStudentId" 
-      @closeProfile="selectedStudentId = null" 
-      key="profile-view" 
-    />
-    
-    <!-- Student Grid -->
-    <div v-else key="grid-view" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <button 
-        v-for="student in students" 
-        :key="student.id" 
-        class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
-        @click="selectedStudentId = student.user_ptr_id"
-      >
-        <h2 class="text-xl font-bold text-gray-800">{{ student.name }}</h2>
-        <p class="text-gray-600">{{ student.disability }}</p>
-      </button>
-    </div>
-  </transition>
-</div>
 </template>
-
   
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'

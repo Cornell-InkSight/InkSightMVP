@@ -62,6 +62,17 @@ class Student(User):
     sds_coordinator = models.ForeignKey(
         'SDSCoordinator', on_delete=models.SET_NULL, null=True, blank=True, related_name="students"
     )
+    accodomation_request = models.CharField(max_length=10000, blank=True)
+
+    def get_disability(self):
+        """Returns the student's disability as a string."""
+        return str(self.disability)
+
+    def save(self, *args, **kwargs):
+        """Override save method to dynamically set accommodation_request."""
+        if not self.accodomation_request:  # Set only if not already set
+            self.accodomation_request = f"I need notetaking accommodations for my classes because of my {self.get_disability()}"
+        super().save(*args, **kwargs)
 
 
 class Professor(User):

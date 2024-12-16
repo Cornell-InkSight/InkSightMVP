@@ -1,32 +1,61 @@
 <template>
-<ProfessorPortalNavbar />
-<div class="p-6 max-w-6xl mx-auto bg-white rounded-lg shadow-md">
-    <h1 class="text-2xl font-bold mb-4">Courses</h1>
-
-    <!-- Courses Grid -->
-    <div v-if="!showRecordingPortal" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
-    <div v-for="course in courses" :key="course.id" class="p-4 bg-white rounded-lg shadow-md border border-gray-200">
-        <h2 class="text-lg font-semibold">{{ course.name }}</h2>
-        <!-- <p class="text-sm text-gray-600">{{ course.description }}</p> -->
-        
-        <!-- Start Recording Button -->
-        <button 
-        @click="startRecording(String(course.id))" 
-        class="mt-4 bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-600"
-        >
-        Record Lecture
-        </button>
+<div class="flex min-h-screen bg-gray-100">
+    <ProfessorPortalNavbar />
+    <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
+      <!-- Main Content -->
+      <main class="flex-1 bg-gray-50 px-8 py-6" v-if="!showRecordingPortal">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+          <h1 class="text-3xl font-bold">Courses</h1>
+          <div>
+            <!-- Search and View Options -->
+            <input
+              type="text"
+              placeholder="Search"
+              class="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button class="ml-4 p-2 bg-black text-white rounded hover:bg-gray-800">
+              <span class="sr-only">Switch view</span>
+              ⬛
+            </button>
+          </div>
+        </div>
+  
+        <!-- Course Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div
+            v-for="course in courses"
+            :key="course.id"
+            class="bg-white border border-gray-200 rounded-lg shadow-sm p-6"
+          >
+            <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ course.name.split(": ")[0] }}</h2>
+            <p class="text-sm text-gray-600">{{ course.name.split(": ")[1] }}</p>
+            <div class="mt-4 flex space-x-4">
+              <button
+                class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
+                @click="startRecording(String(course.id))"
+              >
+                🎥 Record lecture
+              </button>
+              <button
+                class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
+              >
+                ⬆️ Upload lecture
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+      <!-- Recording Portal -->
+      <RecordingPortal 
+        v-if="showRecordingPortal" 
+        :courseId="selectedcourseId" 
+        @closePortal="closeRecordingPortal" 
+       />
     </div>
-    </div>
-
-    <!-- Recording Portal -->
-    <RecordingPortal 
-    v-if="showRecordingPortal" 
-    :courseId="selectedcourseId" 
-    @closePortal="closeRecordingPortal" 
-    />
 </div>
 </template>
+  
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';

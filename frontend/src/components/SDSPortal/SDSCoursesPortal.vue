@@ -1,6 +1,7 @@
 <template>
-<SDSPortalNavbar />
-<div class="p-6 max-w-10xl mx-auto bg-gray-100 min-h-screen">
+<div class="flex min-h-screen bg-gray-100">
+  <SDSPortalNavbar />
+  <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
     <!-- Error message -->
     <div v-if="error" class="text-red-500 font-semibold mb-4">
     {{ error }}
@@ -13,152 +14,180 @@
 
     <!-- Content -->
     <div v-else>
-    <!-- School and SDS Coordinator Information -->
-    <div class="mb-6">
-        <h1 class="text-3xl font-bold text-gray-900">School: {{ school?.name }}</h1>
-        <p class="text-gray-700">SDS Coordinator: {{ sdscoordinator?.name }}</p>
-    </div>
+        <!-- Add Course Section -->
+        <div v-if="addNewCourseModalIsOpen" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+            <div class="bg-white rounded-lg shadow-lg w-full max-w-3xl">
+                <!-- Modal Header -->
+                <div class="flex justify-between items-center p-4 border-b border-gray-200">
+                <h2 class="text-2xl font-semibold text-gray-800">Add New Course</h2>
+                <button @click="toggleAddNewCourseModal" class="text-gray-600 hover:text-gray-900">
+                    &times;
+                </button>
+                </div>
 
-    <!-- Add Course Section -->
-    <div class="mb-8">
-        <button class="text-2xl font-bold mb-4" @click="toggleAddNewCourseModal">Add New Course</button>
-        <form @submit.prevent="addNewCourse" v-if="addNewCourseModalIsOpen">
-            <label for="courseName" class="block text-sm font-semibold text-gray-700">Course Name:</label>
-            <input
-                id="courseName"
-                v-model="newCourseData.name"
-                type="text"
-                class="mt-2 w-full p-2 border border-gray-300 rounded-md"
-                placeholder="Enter course name"
-                required
-            />
-             <!-- Term -->
-            <div>
-                <label for="term" class="block text-sm font-semibold text-gray-700">Term</label>
-                <input
-                id="term"
-                v-model="newCourseData.term"
-                type="text"
-                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter term (e.g., Fall 2024)"
-                required
-                />
-            </div>
+                <!-- Modal Body -->
+                <div class="p-6 space-y-4">
+                <!-- Course Name -->
+                <div>
+                    <label for="courseName" class="block text-sm font-medium text-gray-700 mb-1">Course Name</label>
+                    <input
+                    id="courseName"
+                    v-model="newCourseData.name"
+                    type="text"
+                    placeholder="Enter course name"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:outline-none"
+                    />
+                </div>
 
-            <!-- Course UID -->
-            <div>
-                <label for="courseUID" class="block text-sm font-semibold text-gray-700">Course UID</label>
-                <input
-                id="courseUID"
-                v-model="newCourseData.courseUID"
-                type="number"
-                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter unique course ID"
-                required
-                />
-            </div>
+                <!-- Term -->
+                <div>
+                    <label for="term" class="block text-sm font-medium text-gray-700 mb-1">Term</label>
+                    <input
+                    id="term"
+                    v-model="newCourseData.term"
+                    type="text"
+                    placeholder="Enter term (e.g., Fall 2024)"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:outline-none"
+                    />
+                </div>
 
-            <!-- Type -->
-            <div>
-                <label for="type" class="block text-sm font-semibold text-gray-700">Type</label>
-                <select
-                id="type"
-                v-model="newCourseData.type"
-                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                required
+                <!-- Type Dropdown -->
+                <div>
+                    <label for="type" class="block text-sm font-medium text-gray-700 mb-1">Type</label>
+                    <select
+                    id="type"
+                    v-model="newCourseData.type"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:outline-none"
+                    >
+                    <option value="" disabled>Select type</option>
+                    <option value="Lecture">Lecture</option>
+                    <option value="Discussion">Discussion</option>
+                    </select>
+                </div>
+
+                <!-- Course UID -->
+                <div>
+                    <label for="courseUID" class="block text-sm font-medium text-gray-700 mb-1">Course UID</label>
+                    <input
+                    id="courseUID"
+                    v-model="newCourseData.courseUID"
+                    type="number"
+                    placeholder="Enter unique course UID"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:outline-none"
+                    />
+                </div>
+
+                <!-- Meeting Time -->
+                <div>
+                    <label for="meetingTime" class="block text-sm font-medium text-gray-700 mb-1">Meeting Time</label>
+                    <input
+                    id="meetingTime"
+                    v-model="newCourseData.meetingTime"
+                    type="time"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:outline-none"
+                    />
+                </div>
+
+                <!-- Campus -->
+                <div>
+                    <label for="campus" class="block text-sm font-medium text-gray-700 mb-1">Campus</label>
+                    <input
+                    id="campus"
+                    v-model="newCourseData.campus"
+                    type="text"
+                    placeholder="Enter campus location"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900 focus:outline-none"
+                    />
+                </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="flex justify-end items-center p-4 border-t border-gray-200">
+                <button
+                    @click="toggleAddNewCourseModal"
+                    class="text-gray-600 px-4 py-2 mr-2 hover:text-gray-800"
                 >
-                <option value="" disabled>Select a type</option>
-                <option value="Lecture">Lecture</option>
-                <option value="Discussion">Discussion</option>
-                </select>
-            </div>
-
-            <!-- Meeting Time -->
-            <div>
-                <label for="meetingTime" class="block text-sm font-semibold text-gray-700">Meeting Time</label>
-                <input
-                id="meetingTime"
-                v-model="newCourseData.meetingTime"
-                type="time"
-                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                required
-                />
-            </div>
-
-            <!-- Campus -->
-            <div>
-                <label for="campus" class="block text-sm font-semibold text-gray-700">Campus</label>
-                <input
-                id="campus"
-                v-model="newCourseData.campus"
-                type="text"
-                class="mt-2 w-full p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter campus location"
-                required
-                />
-            </div>
-            <button
-                type="submit"
-                class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md"
-            >
-                Add Course
-            </button>
-        </form>
-    </div>
-
-    <!-- Courses Section -->
-    <div class="mb-4">
-        <h2 class="text-2xl font-bold mb-4">Courses Offered</h2>
-
-        <div v-if="courses && courses.length > 0" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
-        <div
-            v-for="course in courses"
-            :key="course.id"
-            class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
-        >
-            <h3 class="text-lg font-bold text-gray-800">{{ course.name }}</h3>
-
-            <!-- Professors List -->
-            <div v-if="course.professors && course.professors.length > 0" class="mt-2">
-            <h4 class="text-sm font-semibold text-gray-700">Professors:</h4>
-            <ul class="mt-1 space-y-1">
-                <li
-                v-for="professor in course.professors"
-                :key="professor.id"
-                class="text-sm text-gray-600 bg-gray-100 rounded-md p-2"
+                    Cancel
+                </button>
+                <button
+                    @click="addNewCourse"
+                    class="px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-800 transition"
                 >
-                {{ professor.name }}
-                </li>
-            </ul>
+                    Add Course
+                </button>
+                </div>
             </div>
-            <!-- No Professors Message -->
-            <p v-else class="text-sm text-gray-500">No professors assigned to this course.</p>
-
-           
-            <!-- Add Professor Form -->
-            <form>
-                <label for="professorSelect" class="block mt-4 text-sm font-semibold text-gray-700">Add a Professor:</label>
-                <select
-                    id="professorSelect"
-                    v-model="course.selectedProfessor"
-                    class="w-full mt-2 p-2 border border-gray-300 rounded-md"
-                    required
-                >
-                    <option disabled value="">Select a professor</option>
-                    <option v-for="professor in availableProfessors.filter(p => !course.professors.some(cp => p.user_ptr_id === cp.user_ptr_id))" :key="professor.user_ptr_id" :value="professor.user_ptr_id">
-                    {{ professor.name }}
-                    </option>
-                </select>
-                <button type="submit" @click="addNewProfessorToCourse(course.id, course.selectedProfessor)" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md">
-                    Add Professor
-            </button>
-            </form>
-        </div>
         </div>
 
-        <!-- No Courses Message -->
-        <div v-else class="text-gray-500">
-        No courses available for this school.
+
+        <!-- Courses Section -->
+        <div class="mb-4 bg-gray-50 py-8 rounded-lg">
+            <div class="flex w-full">
+                <h2 class="text-2xl font-bold text-left pl-10 text-gray-900 mb-8 w-[83%]">Courses Offered @ {{ school?.name }}</h2>
+                <button
+                    @click="toggleAddNewCourseModal"
+                    class="bg-gray-900 h-[50%] text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-all"
+                >
+                    + Add New Course
+                </button>
+            </div>
+            <div v-if="courses && courses.length > 0" class="p-4  grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-6 w-full">
+                <div v-for="course in courses" :key="course.id" class="p-6 bg-white rounded-xl shadow-lg border border-gray-100 hover:shadow-2xl transition-all duration-30 flex flex-col justify-between items-stretch">
+                    <div class="min-h-[10%] mb-8">
+                        <h3 class="text-xl font-bold text-gray-900 w-[100%]">{{ course.name.split(": ")[0] }}</h3>
+                        <p class="text-sm text-gray-600">{{ course.name.split(": ")[1] }}</p>
+                    </div>
+                    <div class="min-h-[10%] mb-8 grid grid-cols-1 gap-y-1 mb-3 text-sm text-gray-700 min-h-6">
+                        <div class="font-semibold">Term: {{ course.term || 'N/A' }}</div>
+
+                        <div class="font-semibold">Type: {{ course.type || 'N/A' }}</div>
+                    </div>
+
+
+                    <!-- Professors Section -->
+                    <div class="h-[40%] mb-2">
+                        <h4 class="text-sm font-semibold text-gray-700 mb-2">Professors:</h4>
+                        <ul>
+                        <li
+                            v-for="professor in course.professors"
+                            :key="professor.id"
+                            class="text-sm text-gray-600 bg-gray-100 rounded-md p-2 mb-1"
+                        >
+                            {{ professor.name }}
+                        </li>
+                        </ul>
+                    </div>
+
+                    <!-- Add Professor Dropdown -->
+                    <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700">Add a Professor</label>
+                        <select
+                        v-model="course.selectedProfessor"
+                        class="w-full mt-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-gray-900"
+                        >
+                        <option value="" disabled>Select a professor</option>
+                        <option
+                            v-for="professor in availableProfessors.filter(p => !course.professors.some(cp => cp.id === p.id))"
+                            :key="professor.id"
+                            :value="professor.id"
+                        >
+                            {{ professor.name }}
+                        </option>
+                        </select>
+                        <button
+                        @click="addNewProfessorToCourse(course.id, course.selectedProfessor)"
+                        class="mt-2 w-full bg-gray-900 text-white py-2 rounded-md hover:bg-gray-800"
+                        >
+                        Add Professor
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- No Courses Message -->
+            <div v-else class="text-gray-500">
+                No courses available for this school.
+            </div>
         </div>
     </div>
     </div>

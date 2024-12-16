@@ -1,6 +1,7 @@
 <template>
-<ProfessorPortalNavbar />
-<div class="p-6 max-w-6xl mx-auto bg-white rounded-lg shadow-md">
+<div class="flex min-h-screen bg-gray-100">
+    <ProfessorPortalNavbar />
+    <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
     <h1 class="text-2xl font-bold mb-4">Courses</h1>
 
     <!-- Error Message -->
@@ -76,6 +77,7 @@
         </div>
     </div>
     </div>
+</div> 
 </div>
 </template>
 

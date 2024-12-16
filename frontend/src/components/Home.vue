@@ -293,17 +293,7 @@
   </body>
 </template>
   
-  <style>
-  @font-face {
-    font-family: Satoshi Bold;
-    src: url(Fonts/Satoshi-Bold.otf);
-  }
-  
-  @font-face {
-    font-family: Satoshi Medium;
-    src: url(Fonts/Satoshi-Medium.otf);
-  }
-  
+<style>  
   :root {
     --page: #F6F6F6;
     --surface: #FFFFFF;
@@ -319,32 +309,22 @@
     padding: 0;
   }
   
-  body,
-  html {
-    height: 100%;
-    width: 100%;
-    background: var(--page);
-    color: var(--foreground-1);
-    font-family: Satoshi Medium, sans-serif;
-    scroll-behavior: smooth;
-  }
-  
   h1 {
     font-size: 48px;
     line-height: 150%;
-    font-family: Satoshi Bold, sans-serif;
+    font-family: Satoshi, sans-serif;
   }
   
   h2 {
     font-size: 32px;
     line-height: 150%;
-    font-family: Satoshi Bold, sans-serif;
+    font-family: Satoshi, sans-serif;
   }
   
   h3 {
     font-size: 20px;
     line-height: 150%;
-    font-family: Satoshi Bold, sans-serif;
+    font-family: Satoshi, sans-serif;
   }
   
   p {

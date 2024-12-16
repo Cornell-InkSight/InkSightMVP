@@ -1,140 +1,154 @@
 <template>
-<SDSPortalNavbar />
-<div class="p-6 max-w-6xl mx-auto bg-gray-100 min-h-screen">
-    <!-- Error message -->
-    <div v-if="error" class="text-red-500 font-semibold mb-4">
-    {{ error }}
-    </div>
+<div class="flex min-h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <SDSPortalNavbar />
 
-    <!-- Loading Spinner -->
-    <div v-if="loading" class="text-center text-gray-500 animate-pulse">
-    Loading data...
-    </div>
-
-    <!-- Content -->
-    <div v-else>
-        <!-- School and SDS Coordinator Information -->
-        <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">School: {{ school?.name }}</h1>
-            <p class="text-gray-700">Location: {{ school?.location }}</p>
-            <p class="text-gray-700">SDS Coordinator: {{ sdscoordinator?.name }}</p>
+    <!-- Main Content -->
+    <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
+        <!-- Error message -->
+        <div v-if="error" class="text-red-500 font-semibold mb-4">
+        {{ error }}
         </div>
 
-        <!-- Add New Student Button -->
-        <div class="mb-6">
-            <button 
-            @click="showAddProfessorModal = true" 
-            class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
-            >
-            + Add New Professor
-            </button>
+        <!-- Loading Spinner -->
+        <div v-if="loading" class="text-center text-gray-500 animate-pulse">
+        Loading data...
         </div>
 
-        <!-- Add Student Modal -->
-        <div 
-            v-if="showAddProfessorModal" 
-            class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-        >
-            <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
-            <h2 class="text-xl font-bold mb-4">Add New Professor</h2>
-            <form @submit.prevent="handleAddProfessor">
-                <label class="block mb-2">
-                Professor Name
-                </label>
-                <input 
-                    v-model="newProfessorName" 
-                    type="text" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
-                    placeholder="Enter professor name"
-                />
-                <input 
-                    v-model="newProfessorEmail" 
-                    type="text" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
-                    placeholder="Enter professor email"
-                />
-                <input 
-                    v-model="newProfessorTitle" 
-                    type="text" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md mb-2"
-                    placeholder="Enter professor title (Dr, Professor, etc.)"
-                />
-                <div class="flex items-center justify-end mt-4">
-                <button 
-                    @click="showAddProfessorModal = false" 
-                    type="button" 
-                    class="px-4 py-2 bg-gray-500 text-white rounded-md shadow hover:bg-gray-600 mr-2"
-                >
-                    Cancel
-                </button>
-                <button 
-                    type="submit" 
-                    class="px-4 py-2 bg-blue-500 text-white rounded-md shadow hover:bg-blue-600"
-                >
-                    Add Professor
-                </button>
+        <!-- Content -->
+        <div v-else>
+            <div class ="mb-4 bg-gray-50 py-8 rounded-lg">
+                <!-- School Information Header -->
+                <div class="flex w-full">
+                    <h2 class="text-2xl font-bold text-left pl-10 text-gray-900 mb-8 w-[83%]">Professors @ {{ school?.name }}</h2>
+                    <button
+                        @click="showAddProfessorModal = true"
+                        class="bg-gray-900 h-[50%] text-white px-4 py-2 rounded-md hover:bg-gray-800 transition-all"
+                    >
+                        + Add New Professor
+                    </button>
                 </div>
-            </form>
-            </div>
-        </div>
-    
-        <!-- professors Section -->
-        <div class="mb-4">
-            <h2 class="text-2xl font-bold mb-4">Professors in School</h2>
-    
-            <div v-if="professors && professors.length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div
-                    v-for="professor in professors"
-                    :key="professor.user_ptr_id"
-                    class="p-4 bg-white rounded-lg shadow-md border border-gray-200"
-                >
-                    <h3 class="text-lg font-bold text-gray-800">{{ professor.name }}</h3>
-                    <ul class="mt-2 space-y-1">
-                        <li
-                        v-for="course in professor.courses"
-                        :key="course.id"
-                        class="text-sm text-gray-600 bg-gray-100 rounded-md p-2"
-                        >
-                        {{ course.name }}
-                        </li>
-                    </ul>
-                     <!-- Add Existing Course to Professor -->
-                    <form @submit.prevent="handleAddCourseToProfessor(professor.user_ptr_id, professor.selectedCourse)">
-                        <label class="block mt-4 text-sm font-semibold text-gray-700">Add Existing Course:</label>
-                        <select 
+
+            
+
+                <!-- Professors Section -->
+                <div class="mb-6 p-6">
+                    <!-- Professors Grid -->
+                    <div v-if="professors.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div
+                        v-for="professor in professors"
+                        :key="professor.user_ptr_id"
+                        class="bg-white p-6 rounded-lg shadow-lg hover:shadow-2xl transition-all flex flex-col justify-between"
+                    >
+                        <h3 class="text-lg font-bold text-gray-900 mb-2">{{ professor.title || 'Professor' }} {{ professor.name }}</h3>
+
+                        <!-- Courses List -->
+                        <div class="mt-4 h-[70%]">
+                            <h4 class="text-sm font-semibold text-gray-700 mb-2">Courses:</h4>
+                            <ul class="space-y-1">
+                                <li
+                                v-for="course in professor.courses"
+                                :key="course.id"
+                                class="bg-gray-100 text-gray-700 rounded-md px-3 py-1 text-sm"
+                                >
+                                {{ course.name }}
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Add Existing Course Form -->
+                        <div class="mt-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Add Course</label>
+                        <select
                             v-model="professor.selectedCourse"
-                            class="w-full mt-2 p-2 border border-gray-300 rounded-md"
-                            required
+                            class="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-black"
                         >
                             <option value="" disabled>Select a course</option>
                             <option
-                                v-for="course in availableCourses.filter(c => !professor.courses.some(pc => pc.id === c.id))"
-                                :key="course.id"
-                                :value="course.id"
+                            v-if="professor.courses"
+                            v-for="course in availableCourses.filter(c => !professor.courses.some(cp => cp.id === c.id))"
+                            :key="course.id"
+                            :value="course.id"
                             >
-                                {{ course.name }}
+                            {{ course.name }}
                             </option>
                         </select>
-                        <button 
-                            type="submit" 
-                            class="mt-2 px-4 py-2 bg-green-500 text-white rounded-md"
+                        <button
+                            @click="handleAddCourseToProfessor(professor.user_ptr_id, professor.selectedCourse)"
+                            class="mt-2 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800"
                         >
                             Add Course
                         </button>
-                    </form>
-                </div>
-            </div>
-           
+                        </div>
+                    </div>
+                    </div>
 
-    
-            <!-- No professors Message -->
-            <div v-else class="text-gray-500">
-            No professors available for this school.
+                    <!-- No Professors Message -->
+                    <div v-else class="text-gray-500 text-center py-6">
+                    No professors available for this school.
+                    </div>
+                </div>
+
+                <!-- Add Professor Modal -->
+                <div
+                    v-if="showAddProfessorModal"
+                    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
+                >
+                    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+                    <h2 class="text-2xl font-bold mb-4 text-gray-900">Add New Professor</h2>
+                    <form @submit.prevent="handleAddProfessor">
+                        <!-- Professor Name -->
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Professor Name</label>
+                        <input
+                        v-model="newProfessorName"
+                        type="text"
+                        class="w-full mb-4 px-4 py-2 border rounded-md focus:ring-2 focus:ring-black"
+                        placeholder="Enter professor name"
+                        />
+
+                        <!-- Professor Email -->
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Professor Email</label>
+                        <input
+                        v-model="newProfessorEmail"
+                        type="email"
+                        class="w-full mb-4 px-4 py-2 border rounded-md focus:ring-2 focus:ring-black"
+                        placeholder="Enter professor email"
+                        />
+
+                        <!-- Professor Title -->
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Professor Title</label>
+                        <input
+                        v-model="newProfessorTitle"
+                        type="text"
+                        class="w-full mb-4 px-4 py-2 border rounded-md focus:ring-2 focus:ring-black"
+                        placeholder="e.g., Dr, Professor"
+                        />
+
+                        <!-- Modal Buttons -->
+                        <div class="flex justify-end gap-2">
+                        <button
+                            @click="showAddProfessorModal = false"
+                            type="button"
+                            class="px-4 py-2 text-gray-700 rounded-md border border-gray-300 hover:bg-gray-200"
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            class="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                        >
+                            Add Professor
+                        </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 </template>
+  
     
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
@@ -276,6 +290,7 @@ const loadCoursesForProfessor = async (professorId: string) => {
     const addProfessors = await addProfessor(newProfessor);
 
     professors.value.push(addProfessors);
+    loadAvailableCourses(sdscoordinator.value.school_id)
 
     newProfessorName.value = '';
     newProfessorEmail.value = '';

@@ -3,7 +3,7 @@
  * Represents A User
  */
 export interface User {
-    user_ptr_id: string;
+    user_ptr_id?: string;
     name: string;
     school_id: string,
     email?: string,
@@ -15,6 +15,8 @@ export interface User {
 export interface Student extends User {
     sds_coordinator_id: string,
     disability: string,
+    year: string,
+    accodomation_request: string,
 }
 
 /**
