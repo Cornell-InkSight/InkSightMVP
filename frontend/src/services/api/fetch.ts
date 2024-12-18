@@ -32,6 +32,21 @@ export const fetchStudentsForProfessors = async (professorId: string): Promise<{
 };
 
 /**
+ * Fetches students associated with a specific course for a professor
+ * @param {string} professorId - The ID of the course.
+ * @returns {Promise<{ data: interfaces.Student[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of students or an error message.
+ */
+export const fetchStudentsForProfessorCourse = async (courseId: string): Promise<{ data: interfaces.Student[] | null, error: string | null }> => {
+  try {
+    const response = await authAxios.get(`${baseURL}/coursemanagement/professors/${courseId}`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load students" };
+  }
+};
+
+
+/**
  * Fetches details for a specific professor.
  * @param {string} professorId - The ID of the professor.
  * @returns {Promise<{ data: interfaces.Professor | null; error: string | null }>} - A Promise that resolves to an object containing either a professor or an error message.

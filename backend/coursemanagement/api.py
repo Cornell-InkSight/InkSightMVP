@@ -211,6 +211,22 @@ def get_all_students_for_professor(request, professor_id):
     return Response(course_students_dict)
 
 @api_view(["GET"])
+def get_all_students_for_professor_for_course(request, course_id):
+    """
+    Retrieve all students enrolled in a course for a professor.
+    Args:
+        professor_id (int): The ID of the professor.
+    Returns:
+        JSON response containing a dictionary with the list of students.
+    """
+    student_courses = StudentCourse.objects.filter(course_id = course_id)
+    student_ids = student_courses.values_list("student_id", flat=True).distinct()
+    students = Student.objects.filter(user_ptr_id__in = student_ids)
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)
+
+
+@api_view(["GET"])
 def get_all_students_for_sds_coordinator(request, sds_coordinator_id):
     """
     Retrieve all students associated with courses overseen by an SDS coordinator.

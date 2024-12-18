@@ -22,11 +22,8 @@ const routes = [
     {
         path: "/students/hub", component: () => import("@/components/StudentPortal/StudentRecordingHub.vue"),
     },    
-    { 
-        path: "/professors", component: () => import("@/components/ProfessorPortal/ProfessorStudentsPortal.vue"),
-    },
     {
-        path: "/professors/courses", component: () => import("@/components/ProfessorPortal/ProfessorCoursePortal.vue"),
+        path: "/professors", component: () => import("@/components/ProfessorPortal/ProfessorCoursePortal.vue"),
     },
     {
         path: "/professors/lectures", component: () => import("@/components/ProfessorPortal/ProfessorPublishingPortal.vue"),

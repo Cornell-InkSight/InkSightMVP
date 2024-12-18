@@ -7,11 +7,11 @@
       </div>
     </div>
 
-  <div class="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-lg">
+  <div class="w-[38%] p-8 space-y-6 bg-white rounded-lg shadow-lg">
     <h2 class="text-3xl font-bold text-gray-900 text-center">Welcome to InkSight</h2>
 
     <!-- Tabs for Login and Sign Up -->
-    <div class="flex space-x-4 border-b pb-2">
+    <div class="flex space-x-4 border-b border-gray-800 pb-2">
       <button
         class="flex-1 text-center font-semibold"
         :class="activeTab === 'login' ? 'border-blue-500 text-blue-500' : 'text-gray-700 hover:text-gray-900'"
@@ -31,8 +31,8 @@
     
 
     <!-- Login Tab -->
-    <div v-if="activeTab === 'login'">
-      <div class="flex space-x-4 mb-4">
+    <div class="flex flex-col items-center" v-if="activeTab === 'login'">
+      <div class="flex space-x-4 mb-4 w-[100%]">
         <button 
           class="flex-1 py-2 border rounded-md font-semibold"
           :class="role === 'student' ? 'bg-blue-500 text-white border-blue-500' : 'text-gray-700 border-gray-300 hover:bg-gray-100'"
@@ -52,7 +52,7 @@
           :class="role === 'teacher_assistant' ? 'bg-blue-500 text-white border-blue-500' : 'text-gray-700 border-gray-300 hover:bg-gray-100'"
           @click="setRole('teacher_assistant')"
         >
-          TA
+          Assistant
         </button>
         <button 
           class="flex-1 py-2 border rounded-md font-semibold"
@@ -63,7 +63,7 @@
         </button>
       </div>
       <button
-        class="w-full py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800"
+        class="w-[50%] px-4 py-2 bg-black text-white font-semibold rounded-md hover:bg-gray-800"
         @click="redirectToGoogleLogin"
       >
         Login with Google
@@ -93,7 +93,7 @@
           :class="role === 'teacher_assistant' ? 'bg-blue-500 text-white border-blue-500' : 'text-gray-700 border-gray-300 hover:bg-gray-100'"
           @click="setRole('teacher_assistant')"
         >
-          TA
+          Assistant
         </button>
         <button 
           class="flex-1 py-2 border rounded-md font-semibold"

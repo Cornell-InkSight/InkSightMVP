@@ -72,6 +72,7 @@ export interface Course {
     type: string,
     meetingTime: TimeRanges,
     campus: string,
+    active?: boolean,
 }
 
 /**
@@ -112,6 +113,7 @@ export interface NotesPacket {
     course_id: String,
     notes: string,
     status: string,
+    lectureData?: LectureSession,
 }
 
 /**

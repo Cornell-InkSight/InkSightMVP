@@ -1,95 +1,291 @@
 <template>
-<div class="flex min-h-screen bg-gray-100">
+  <div class="flex min-h-screen bg-gray-100">
     <ProfessorPortalNavbar />
     <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
-      <!-- Main Content -->
-      <main class="flex-1 bg-gray-50 px-8 py-6" v-if="!showRecordingPortal">
-        <!-- Header -->
+      <div v-if="!showRecordingPortal">
+        <!-- Header with Title and Layout Options -->
         <div class="flex items-center justify-between mb-6">
-          <h1 class="text-3xl font-bold">Courses</h1>
-          <div>
-            <!-- Search and View Options -->
-            <input
-              type="text"
-              placeholder="Search"
-              class="border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          <h1 class="text-3xl font-bold text-gray-900">
+            <span v-if="professor">{{ professor.name }}</span>
+          </h1>
+          <div class="flex items-center space-x-4">
+            <!-- Search Bar -->
+            <input 
+              type="text" 
+              placeholder="Search" 
+              class="px-4 py-2 border border-gray-300 rounded-md focus:ring focus:border-blue-300"
             />
-            <button class="ml-4 p-2 bg-black text-white rounded hover:bg-gray-800">
-              <span class="sr-only">Switch view</span>
-              ⬛
+            <!-- Layout Icons -->
+            <button class="p-2 rounded-md hover:bg-gray-200">
+              <i class="fas fa-th-list"></i> <!-- List icon -->
+            </button>
+            <button class="p-2 rounded-md hover:bg-gray-200">
+              <i class="fas fa-th"></i> <!-- Grid icon -->
             </button>
           </div>
         </div>
-  
-        <!-- Course Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div
-            v-for="course in courses"
-            :key="course.id"
-            class="bg-white border border-gray-200 rounded-lg shadow-sm p-6"
+    
+        <!-- Course Grid -->
+        <div v-if="loading" class="text-center text-gray-500">
+          <span class="animate-pulse">Loading courses...</span>
+        </div>
+        <div v-else-if="error" class="text-center text-red-500 font-semibold">
+          {{ error }}
+        </div>
+        
+
+        <!-- Course Details Modal -->
+        <transition name="fade" mode="out-in">
+          
+            <ProfessorCourseView 
+              v-if="selectedCourse" 
+              :course="selectedCourse" 
+              @closeModal="selectedCourse = null"
+            />
+            
+         <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div 
+            v-for="(students, courseId) in students" 
+            :key="courseId" 
+            class="p-4 bg-white rounded-lg shadow-md border border-gray-200 flex flex-col justify-between items-stretch"
           >
-            <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ course.name.split(": ")[0] }}</h2>
-            <p class="text-sm text-gray-600">{{ course.name.split(": ")[1] }}</p>
-            <div class="mt-4 flex space-x-4">
-              <button
-                class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
-                @click="startRecording(String(course.id))"
-              >
-                🎥 Record lecture
-              </button>
-              <button
-                class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
-              >
-                ⬆️ Upload lecture
-              </button>
+            <!-- Course Header -->
+            <div>
+              <div class="flex">
+                <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ courses[courseId].name.split(": ")[0] }}</h2>
+                <button class="text-gray-500 hover:text-gray-700" @click="selectedCourse=courses[courseId]">
+                  <!-- Vertical Ellipsis Icon -->
+                  <i class="fas fa-ellipsis-v"></i>
+                </button>
+              </div>
+              <p class="text-sm text-gray-600">{{ courses[courseId].name.split(": ")[1] }}</p>
+            </div>
+            
+    
+            <!--Recording-->
+            <div class="mb-4">
+              <div class="mt-4 flex space-x-4">
+                <button
+                  class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  @click="startRecording(String(courses[courseId].id))"
+                >
+                  🎥 Record lecture
+                </button>
+                <button
+                  class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
+                >
+                  ⬆️ Upload lecture
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </main>
+        </transition>
+      </div> 
       <!-- Recording Portal -->
       <RecordingPortal 
-        v-if="showRecordingPortal" 
-        :courseId="selectedcourseId" 
-        @closePortal="closeRecordingPortal" 
-       />
+      v-if="showRecordingPortal" 
+      :courseId="selectedCourse.id" 
+      @closePortal="closeRecordingPortal" 
+      />
     </div>
-</div>
+  </div>  
 </template>
   
-
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import RecordingPortal from '@/components/ProfessorPortal/ProfessorRecordingPortal.vue';
-import { fetchCoursesForProfessors } from '@/services/api/fetch';
 import { useRoute } from 'vue-router';
-import * as interfaces from "@/services/api/interfaces";
+import { fetchStudentsForProfessors, fetchProfessor, fetchNotetakingRequestsForCourses, fetchCourse, fetchStudentCourses, fetchNoteTakingRequestStudentForCourse, fetchCoursesForProfessors } from '@/services/api/fetch';
+import * as interfaces from "@/services/api/interfaces"
+import { approveNoteTakingRequest } from "@/services/api/add";
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
-import { useUserStore } from "@/stores/authStore"
+import { useUserStore } from "@/stores/authStore";
+import Swal from 'sweetalert2';
+import RecordingPortal from '@/components/ProfessorPortal/ProfessorRecordingPortal.vue';
+import ProfessorCourseView from '@/components/ProfessorPortal/ProfessorCourseView.vue'
 
-const courses = ref<interfaces.Course[]>([]);
-const showRecordingPortal = ref(false);
-const selectedcourseId = ref<string>("");
 
 const route = useRoute();
+const professor = ref<any | null>(null);  // Holds professor data, initially null
+const students = ref<any[]>([]);          // Holds list of courses+students associated with professor
+const loading = ref<boolean>(true);       // Loading state indicator
+const error = ref<string | null>(null);   // Error message, if any
+const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
+const courses = ref<Record<string, interfaces.Course>>({});         // Dictionary to store course names by ID
+const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for each student
+
+const showRecordingPortal = ref(false);
+const selectedCourse = ref<interfaces.Course>();
+
+
+// Store tooltip content to avoid async issues
+const tooltipContentCache = ref<Record<string, string>>({});
 
 /**
- * Fetches the courses for a specific professor
+ * Fetches students and courses for a specific professor by ID and assigns them to `studentscourses`.
  */
-const loadCoursesForProfessor = async (professorId: string) => {
-    const { data, error } = await fetchCoursesForProfessors(professorId);
-    if (error) {
-        console.error(error);
-        return;
-    }
-    courses.value = data;
+const loadStudents = async (professorId: string): Promise<void> => {
+  const { data, error: fetchError } = await fetchStudentsForProfessors(professorId);
+  if (fetchError) {
+    console.error(fetchError);
+    error.value = fetchError;
+    return;
+  }
+  students.value = data;
+  await loadCourses();
 };
+
+/**
+ * Fetches data for a specific professor by ID and assigns it to `professor`.
+ */
+const loadProfessor = async (professorId: string): Promise<void> => {
+  const { data, error: fetchError } = await fetchProfessor(professorId);
+  if (fetchError) {
+    console.error(fetchError);
+    error.value = fetchError;
+    return;
+  }
+  professor.value = data;
+};
+
+/**
+ * Loads course names for each course ID in `studentscourses`.
+ */
+const loadCourses = async (): Promise<void> => {
+  for (const courseId of Object.keys(students.value)) {
+    const { data, error: fetchError } = await fetchCourse(courseId);
+    if (!fetchError && data) {
+      courses.value[courseId] = data;
+    } else {
+      console.error(`Failed to fetch course name for course ID ${courseId}:`, fetchError);
+    }
+  }
+};
+
+/**
+ * Loads note-taking requests for each course and populates `noteTakingRequests`.
+ */
+const loadNoteTakingRequestsForCourses = async () => {
+  for (const courseId of Object.keys(courses.value)) {
+    const { data, error: requestsError } = await fetchNotetakingRequestsForCourses(courseId);
+    if (requestsError) {
+      console.error(requestsError);
+      error.value = requestsError;
+    } else {
+      for (const request of data) {
+        const studentCourse = await fetchStudentCourses(request.student_course_id);
+        const key = `${studentCourse.data.student_id}-${studentCourse.data.course_id}`;
+        noteTakingRequests.value[key] = { approved: request.approved, requestId: request.id };
+      }
+    }
+  }
+};
+
+/**
+ * Gets request tooltip content for a specific student and course.
+ */
+  const getRequestTooltip = (studentId: string, courseId: string): string => {
+  return tooltipContent(studentId, courseId);
+};
+
+
+/**
+ * Approves a note-taking request.
+ */
+const approveRequest = async (studentId: string, courseId: string) => {
+  const key = `${studentId}-${courseId}`;
+  const request = noteTakingRequests.value[key];
+  
+  if (request && !request.approved) {
+    const { data, error } = await approveNoteTakingRequest(request.requestId);
+    if (error) {
+      console.error("Failed to approve request:", error);
+      return;
+    }
+    Swal.fire({
+      title: 'Request Approved',
+      text: `The request has been approved.`,
+      icon: 'success',
+      confirmButtonText: 'OK'
+    });
+    request.approved = true;
+  }
+};
+
+/**
+ * Returns a tooltip message for a student's note-taking request.
+ */
+const tooltipContent = (studentId: string, courseId: string) => {
+  const key = `${studentId}-${courseId}`;
+
+  // If already cached, return it
+  if (tooltipContentCache.value[key]) return tooltipContentCache.value[key];
+
+  // Otherwise, load and cache
+  loadNoteTakingRequestStudentForCourse(studentId, courseId).then(data => {
+    tooltipContentCache.value[key] = data?.request
+      ? isApprovedNoteTakingRequest(studentId, courseId)
+        ? `Approved request: ${data.request}`
+        : `Click to approve: ${data.request}`
+      : "No request data available. Please notify student to send request.";
+  });
+
+  // Return a loading message until resolved
+  return "Loading request data...";
+};
+
+/**
+ * Checks if a student has an active note-taking request for a specific course.
+ */
+const hasActiveNoteTakingRequest = (studentId: string, courseId: string): boolean => {
+  const key = `${studentId}-${courseId}`;
+  return !!noteTakingRequests.value[key];
+};
+
+/**
+ * Checks if a note-taking request for a specific student and course is approved.
+ */
+const isApprovedNoteTakingRequest = (studentId: string, courseId: string): boolean => {
+  const key = `${studentId}-${courseId}`;
+  return noteTakingRequests.value[key]?.approved || false;
+};
+
+/**
+ * Fetches the Student Course Notetaking Request
+ */
+const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId: string) => {
+  const { data, error: fetchError } = await fetchNoteTakingRequestStudentForCourse(studentId, courseId);
+  if (fetchError) {
+    console.error(fetchError);
+    error.value = fetchError;
+    return null;
+  }
+  return data;
+};
+
+/**
+ * Toggles dropdown for the selected student.
+ */
+  const toggleDropdown = (studentId: string, courseId: string) => {
+  const dropdownKey = `${studentId}-${courseId}`;
+  openDropdownId.value = openDropdownId.value === dropdownKey ? null : dropdownKey;
+};
+
+
+/**
+ * Checks if the dropdown for a specific student is open.
+ */
+  const isDropdownOpen = (studentId: string, courseId: string) => {
+  return openDropdownId.value === `${studentId}-${courseId}`;
+};
+
 
 /**
  * Opens the recording portal for the selected course.
  * @param {string} courseId - The name of the course to display in the recording portal.
  */
 const startRecording = (courseId: string) => {
-    selectedcourseId.value = courseId;
+    selectedCourse.value.id = courseId;
     showRecordingPortal.value = true;
 };
 
@@ -98,19 +294,55 @@ const startRecording = (courseId: string) => {
  */
 const closeRecordingPortal = () => {
     showRecordingPortal.value = false;
-    selectedcourseId.value = "";
+    selectedCourse.value.id = "";
 };
+
 
 /**
  * Lifecycle hook called when the component is mounted.
  * Fetches and sets data for both the professor and their students.
  */
 onMounted(async () => {
-    const userStore = useUserStore()
-    await userStore.fetchUser()
-    const user = userStore.user;
-    const professorId = user.user_ptr_id;
-    await loadCoursesForProfessor(professorId);
+  const userStore = useUserStore()
+  await userStore.fetchUser()
+  const user = userStore.user;
+  const professorId = user.user_ptr_id;
+  await loadProfessor(professorId);
+  await loadStudents(professorId);
+  await loadNoteTakingRequestsForCourses(); 
+  loading.value = false;    
 });
 </script>
-  
+
+
+<style scoped>
+/* Additional styles for highlighting */
+.bg-yellow-100 {
+  background-color: #fef3c7;
+}
+.border-yellow-500 {
+  border-color: #d97706;
+}
+.bg-green-100 {
+  background-color: #d1fae5;
+}
+.border-green-500 {
+  border-color: #10b981;
+}
+
+.tippy-box[data-theme~='light-border'] {
+  border: 1px solid #e5e7eb;
+  background-color: #ffffff;
+  color: #4b5563;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tippy-box[data-theme~='light-border'] .tippy-content {
+  font-size: 0.875rem; /* Small font for readability */
+  line-height: 1.25;
+}
+
+.tippy-box[data-theme~='light-border'] .tippy-arrow {
+  color: #ffffff;
+}
+</style>
