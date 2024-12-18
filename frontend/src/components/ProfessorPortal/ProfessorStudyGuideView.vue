@@ -7,7 +7,7 @@
       class="flex items-center justify-between p-4 bg-white rounded-lg hover transition-all duration-300 border border-gray-200"
     >
       <!-- Left Content: Icon and Details -->
-      <router-link :to="`/notepackets/${packet.id}/`" target="_blank" class="flex items-center space-x-4">
+      <router-link :to="`/notepackets/${packet.id}/edit`" target="_blank" class="flex items-center space-x-4">
         <div class="w-12 h-16 bg-gray-100 rounded-md flex items-center justify-center">
           <i class="fas fa-file-alt text-gray-400 text-2xl"></i>
         </div>

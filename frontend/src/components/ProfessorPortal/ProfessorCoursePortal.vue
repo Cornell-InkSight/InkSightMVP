@@ -67,14 +67,14 @@
               <div class="mt-4 flex space-x-4">
                 <button
                   class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  @click="startRecording(String(courses[courseId].id))"
+                  @click="startRecording(courses[courseId])"
                 >
-                  🎥 Record lecture
+                  <i class="fas fa-camera mr-2"></i> Record
                 </button>
                 <button
                   class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
                 >
-                  ⬆️ Upload lecture
+                <i class="fas fa-upload mr-2"></i> Upload
                 </button>
               </div>
             </div>
@@ -103,6 +103,7 @@ import { useUserStore } from "@/stores/authStore";
 import Swal from 'sweetalert2';
 import RecordingPortal from '@/components/ProfessorPortal/ProfessorRecordingPortal.vue';
 import ProfessorCourseView from '@/components/ProfessorPortal/ProfessorCourseView.vue'
+import { icon } from '@fortawesome/fontawesome-svg-core';
 
 
 const route = useRoute();
@@ -284,9 +285,10 @@ const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId
  * Opens the recording portal for the selected course.
  * @param {string} courseId - The name of the course to display in the recording portal.
  */
-const startRecording = (courseId: string) => {
-    selectedCourse.value.id = courseId;
-    showRecordingPortal.value = true;
+const startRecording = (courseId: interfaces.Course) => {
+  
+  selectedCourse.value = courseId;
+  showRecordingPortal.value = true;
 };
 
 /**
@@ -294,7 +296,7 @@ const startRecording = (courseId: string) => {
  */
 const closeRecordingPortal = () => {
     showRecordingPortal.value = false;
-    selectedCourse.value.id = "";
+    selectedCourse.value = null;
 };
 
 

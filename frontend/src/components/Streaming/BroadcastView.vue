@@ -103,7 +103,7 @@ async function goLiveClicked() {
 /**
  * Starts the recording, creates new lecture in the API and calls the POST API
  */
- const startRecording = async () => {
+const startRecording = async () => {
     try {
         // API call to create lecture session
         const lectureSessionData = {
@@ -122,12 +122,47 @@ async function goLiveClicked() {
     }
 };
 
+
+/** Generates a Fake Note Using Faker */
+const generateFakeNote = () => {
+  const fakeContent = [];
+  
+  for (let i = 0; i < 5; i++) {
+    const type = faker.helpers.arrayElement(["text", "latex", "image"]);
+    if (type === "text") {
+      fakeContent.push({
+        id: faker.string.ulid,
+        type: "text",
+        value: faker.lorem.paragraph(2),
+      });
+    } else if (type === "latex") {
+      fakeContent.push({
+        id: faker.string.ulid,
+        type: "latex",
+        value: faker.helpers.arrayElement([
+          "E = mc^2",
+          "\\frac{a}{b} + \\frac{b}{a}",
+          "\\int_{a}^{b} x^2 dx",
+          "\\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^N (x_i - \\mu)^2}",
+        ]),
+      });
+    } else if (type === "image") {
+      fakeContent.push({
+        id: faker.string.ulid,
+        type: "image",
+        url: faker.image.url()
+      });
+    }
+  }
+
+  return fakeContent;
+};
+ 
+const fakeNote = ref<Object[]>(generateFakeNote()); // Generate a fake note using faker
+
 /**
  * Ends recording, downloads file using recorder uploads new notes packet to the API
  */
-
- const fakeNote = ref<string>(faker.lorem.paragraph(2)); // Generate a fake note using faker
-
 const stopRecording = async () => {
     if (!lectureSessionId.value) return; 
 
@@ -137,6 +172,7 @@ const stopRecording = async () => {
         "notes": fakeNote.value,
         "status": "draft",
     };
+    console.log(notes_packet_data)
 
     await addNewNotesPacket(notes_packet_data);
 
@@ -176,5 +212,6 @@ onMounted(async () => {
     console.error("Failed to load user data:", error);
   }
 });
+
 
 </script>

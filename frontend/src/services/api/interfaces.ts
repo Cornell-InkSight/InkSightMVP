@@ -111,9 +111,16 @@ export interface NotesPacket {
     id?: String,
     lecture_session_id: String,
     course_id: String,
-    notes: string,
+    notes: NotePacketEntry[],
     status: string,
     lectureData?: LectureSession,
+}
+
+interface NotePacketEntry {
+    id: string,
+    type: string,
+    value: string,
+    url?: string,
 }
 
 /**
