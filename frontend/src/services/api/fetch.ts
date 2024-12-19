@@ -133,9 +133,9 @@ export const fetchTA = async (taId: string): Promise<{ data: interfaces.TA | nul
 };
 
 /**
- * Fetches courses for a specific studTAent.
+ * Fetches courses for a specific TA.
  * @param {string} taId - The ID of the TA.
- * @returns {Promise<{ data: interfaces.TA | null; error: string | null }>} - A Promise that resolves to an object containing either a TA or an error message.
+ * @returns {Promise<{ data: interfaces.Course[] | null; error: string | null }>} - A Promise that resolves to an object containing either a array of courses or an error message.
  */
 export const fetchCoursesForTA = async (taId: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
   try {
@@ -143,6 +143,20 @@ export const fetchCoursesForTA = async (taId: string): Promise<{ data: interface
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load TA Courses" };
+  }
+};
+
+/**
+ * Fetches  for all TAs for a specific course.
+ * @param {string} taId - The ID of the course.
+ * @returns {Promise<{ data: interfaces.TA[] | null; error: string | null }>} - A Promise that resolves to an object containing either an array of TAs or an error message.
+ */
+export const fetchTAsForCourse = async (professorId: string, courseId: string): Promise<{ data: interfaces.TA[] | null; error: string | null }> => {
+  try {
+    const response = await authAxios.get(`${baseURL}/coursemanagement/courses/${professorId}/${courseId}/tas`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load TA for Courses" };
   }
 };
 

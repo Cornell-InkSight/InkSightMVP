@@ -38,9 +38,9 @@
         <transition name="fade" mode="out-in">
           
             <ProfessorCourseView 
-              v-if="selectedCourse" 
-              :course="selectedCourse" 
-              @closeModal="selectedCourse = null"
+              v-if="selectedProfessorCourseStore.selectedCourse" 
+              :course="selectedProfessorCourseStore.selectedCourse" 
+              @closeModal="selectedProfessorCourseStore.selectedCourse = null"
             />
             
          <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -53,7 +53,7 @@
             <div>
               <div class="flex">
                 <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ courses[courseId].name.split(": ")[0] }}</h2>
-                <button class="text-gray-500 hover:text-gray-700" @click="selectedCourse=courses[courseId]">
+                <button class="text-gray-500 hover:text-gray-700" @click="selectedProfessorCourseStore.setCourse(courses[courseId])">
                   <!-- Vertical Ellipsis Icon -->
                   <i class="fas fa-info-circle"></i>
                 </button>
@@ -67,7 +67,7 @@
               <div class="mt-4 flex space-x-4">
                 <button
                   class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  @click="startRecording(courses[courseId])"
+                  @click="startRecording(selectedProfessorCourseStore.selectedCourse)"
                 >
                   <i class="fas fa-camera mr-2"></i> Record
                 </button>
@@ -103,6 +103,7 @@ import { useUserStore } from "@/stores/authStore";
 import Swal from 'sweetalert2';
 import RecordingPortal from '@/components/ProfessorPortal/ProfessorRecordingPortal.vue';
 import ProfessorCourseView from '@/components/ProfessorPortal/ProfessorCourseView.vue'
+import { useSelectedProfessorCourseStore } from "@/stores/selectedProfessorCourseStore"
 import { icon } from '@fortawesome/fontawesome-svg-core';
 
 
@@ -117,7 +118,7 @@ const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for 
 
 const showRecordingPortal = ref(false);
 const selectedCourse = ref<interfaces.Course>(); // The course selected for the modal and recording
-
+const selectedProfessorCourseStore = useSelectedProfessorCourseStore();
 
 // Store tooltip content to avoid async issues
 const tooltipContentCache = ref<Record<string, string>>({});
@@ -183,37 +184,6 @@ const loadNoteTakingRequestsForCourses = async () => {
 };
 
 /**
- * Gets request tooltip content for a specific student and course.
- */
-  const getRequestTooltip = (studentId: string, courseId: string): string => {
-  return tooltipContent(studentId, courseId);
-};
-
-
-/**
- * Approves a note-taking request.
- */
-const approveRequest = async (studentId: string, courseId: string) => {
-  const key = `${studentId}-${courseId}`;
-  const request = noteTakingRequests.value[key];
-  
-  if (request && !request.approved) {
-    const { data, error } = await approveNoteTakingRequest(request.requestId);
-    if (error) {
-      console.error("Failed to approve request:", error);
-      return;
-    }
-    Swal.fire({
-      title: 'Request Approved',
-      text: `The request has been approved.`,
-      icon: 'success',
-      confirmButtonText: 'OK'
-    });
-    request.approved = true;
-  }
-};
-
-/**
  * Returns a tooltip message for a student's note-taking request.
  */
 const tooltipContent = (studentId: string, courseId: string) => {
@@ -236,14 +206,6 @@ const tooltipContent = (studentId: string, courseId: string) => {
 };
 
 /**
- * Checks if a student has an active note-taking request for a specific course.
- */
-const hasActiveNoteTakingRequest = (studentId: string, courseId: string): boolean => {
-  const key = `${studentId}-${courseId}`;
-  return !!noteTakingRequests.value[key];
-};
-
-/**
  * Checks if a note-taking request for a specific student and course is approved.
  */
 const isApprovedNoteTakingRequest = (studentId: string, courseId: string): boolean => {
@@ -262,22 +224,6 @@ const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId
     return null;
   }
   return data;
-};
-
-/**
- * Toggles dropdown for the selected student.
- */
-  const toggleDropdown = (studentId: string, courseId: string) => {
-  const dropdownKey = `${studentId}-${courseId}`;
-  openDropdownId.value = openDropdownId.value === dropdownKey ? null : dropdownKey;
-};
-
-
-/**
- * Checks if the dropdown for a specific student is open.
- */
-  const isDropdownOpen = (studentId: string, courseId: string) => {
-  return openDropdownId.value === `${studentId}-${courseId}`;
 };
 
 
@@ -305,6 +251,7 @@ const closeRecordingPortal = () => {
  * Fetches and sets data for both the professor and their students.
  */
 onMounted(async () => {
+  // Load User Data
   const userStore = useUserStore()
   await userStore.fetchUser()
   const user = userStore.user;
@@ -312,7 +259,9 @@ onMounted(async () => {
   await loadProfessor(professorId);
   await loadStudents(professorId);
   await loadNoteTakingRequestsForCourses(); 
-  loading.value = false;    
+  // Selected Course for Reactive Navbar
+  selectedCourse.value = selectedProfessorCourseStore.selectedCourse;
+  loading.value = false;      
 });
 </script>
 

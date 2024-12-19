@@ -29,14 +29,15 @@
             <!-- Bullet -->
             <span
                 class="w-3 h-3 rounded-full"
-                :class="course.active ? 'bg-purple-500' : 'bg-pink-300 opacity-50'"
+                :class="selectedProfessorCourseStore.getCourse()==course ? 'bg-purple-500' : 'bg-pink-300 opacity-50'"
             ></span>
             <!-- Course Name -->
-            <span
-                :class="course.active ? 'font-bold text-black' : 'text-gray-400 font-normal'"
+            <button
+                :class="selectedProfessorCourseStore.getCourse()==course ? 'font-bold text-black' : 'text-gray-400 font-normal'"
+                @click="selectedProfessorCourseStore.setCourse(course)"
             >
                 {{ course.name.split(": ")[0] }}
-            </span>
+            </button>
             </li>
         </ul>
         </ul>
@@ -78,10 +79,15 @@
 import { ref, onMounted } from 'vue';
 import { fetchCoursesForProfessors } from '@/services/api/fetch';
 import { useUserStore } from "@/stores/authStore"
+import { useSelectedProfessorCourseStore } from "@/stores/selectedProfessorCourseStore"
+import * as interfaces from "@/services/api/interfaces";
+
+
 
 const courses = ref<interfaces.Course[]>([]);
-    import * as interfaces from "@/services/api/interfaces";
-
+const selectedCourse = ref<interfaces.Course>();
+// Loading Data For Selected Course for Interactive Navbar Component
+const selectedProfessorCourseStore = useSelectedProfessorCourseStore();
 /**
  * Fetches the courses for a specific professor
  */
@@ -91,11 +97,7 @@ const courses = ref<interfaces.Course[]>([]);
         console.error(error);
         return;
     }
-    const active = false;
-    courses.value = data.map(course => ({
-        ...course,
-        active
-    }));
+    courses.value = data;
 };
 
 /**
@@ -103,6 +105,7 @@ const courses = ref<interfaces.Course[]>([]);
  * Fetches and sets data for both the professor and their students.
  */
  onMounted(async () => {
+    // Loading User Data
     const userStore = useUserStore()
     await userStore.fetchUser()
     const user = userStore.user;

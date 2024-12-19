@@ -72,7 +72,6 @@ import axios from 'axios';
 import { useRoute } from 'vue-router';
 import { 
 fetchTA, 
-fetchCourses, 
 fetchProfessorsForCourses, 
 fetchUnpublishedNotePacketsForCourse,
 fetchCoursesForTA,  

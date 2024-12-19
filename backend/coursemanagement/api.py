@@ -169,7 +169,7 @@ def get_all_courses_for_ta(request, ta_id):
     return Response(serializer.data)
 
 @api_view(["GET"])
-def get_all_tas_for_courses(request, course_id):
+def get_all_tas_for_courses(request, professor_id, course_id):
     """
     Retrieve all professors associated with a specific course.
     Args:
@@ -177,9 +177,9 @@ def get_all_tas_for_courses(request, course_id):
     Returns:
         JSON response containing tas associated with the course, or an error message.
     """
-    professor_courses = ProfessorCourse.objects.filter(course_id=course_id)
-    professor_ids = professor_courses.values_list("professor_id", flat=True).distinct()
-    tas = TeacherAssistant.objects.filter(professor_id__in=professor_ids)
+    professor_course = ProfessorCourse.objects.get(professor_id=professor_id, course_id=course_id)
+    tas = TeacherAssistant.objects.filter(assigned_professor_course_id=professor_course)
+    print(professor_course.id)
     serializer = TeacherAssistantSerializer(tas, many=True)
     return Response(serializer.data)
 
