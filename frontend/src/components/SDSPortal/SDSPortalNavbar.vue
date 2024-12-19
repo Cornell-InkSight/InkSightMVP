@@ -1,7 +1,7 @@
 <template>
 <div class="flex h-screen w-[15%] border-r-2 border-gray-100">
     <!-- Sidebar -->
-    <aside class="w-full bg-gray-100 shadow-md flex flex-col">
+    <aside class="w-full bg-gray-100 shadow-md flex flex-col sticky">
     <!-- Header -->
     <div class="p-4 border-b">
         <button class="bg-blue-500 text-white text-sm px-4 py-2 rounded-lg w-full font-semibold">

@@ -67,7 +67,7 @@
               <div class="mt-4 flex space-x-4">
                 <button
                   class="flex items-center justify-center border border-gray-300 rounded-lg px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  @click="startRecording(selectedProfessorCourseStore.selectedCourse)"
+                  @click="startRecording(courses[courseId])"
                 >
                   <i class="fas fa-camera mr-2"></i> Record
                 </button>

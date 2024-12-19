@@ -1,45 +1,43 @@
 <template>
-<section class="content-section" v-if="isCallLive">
-    <div class="flex flex-col items-center justify-center h-screen bg-gray-900">
-    <!-- Video Component -->
-    <div class="relative w-full h-[80vh] max-w-5xl bg-black rounded-lg overflow-hidden">
+  <section class="h-[10%] bg-gray-50 flex items-center justify-center">
+    <div v-if="isCallLive" class="flex flex-col items-center justify-center w-full">
+      <!-- Video Component -->
+      <div class="relative w-full max-w-5xl bg-black rounded-xl overflow-hidden shadow-md">
         <VideoComponent :call="call" :participant="localParticipant" />
         <span
-        class="absolute top-2 left-2 bg-red-600 text-white text-sm px-3 py-1 rounded-full"
+          class="absolute top-4 left-4 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-md font-semibold"
         >
-        🔴 Live Broadcast
+          🔴 Live Broadcast
         </span>
-    </div>
+      </div>
 
-    <!-- Controls -->
-    <div class="flex gap-4 mt-4">
+      <!-- Controls -->
+      <div class="flex gap-4 mt-6">
         <button
-        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md"
-        @click="goLiveClicked"
+          class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md font-medium transition"
+          @click="goLiveClicked"
         >
-        {{ buttonText }}
+          {{ buttonText }}
         </button>
+      </div>
     </div>
-    </div>
-</section>
 
-<section v-if="!isCallLive" class="input-form content-section h-screen flex flex-col items-center justify-center bg-gray-100">
-    <div class="w-1/2 text-center">
-    <h1 class="text-2xl font-semibold mb-4">Start a Broadcast</h1>
-    <input
+    <div v-else class="flex flex-col items-center w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+      <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Start a Broadcast</h1>
+      <input
         type="text"
         v-model="callId"
         placeholder="Enter call ID"
-        class="w-full p-3 mb-4 border border-gray-300 rounded-lg"
-    />
-    <button
-        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md"
+        class="w-full px-4 py-3 mb-6 border border-gray-300 rounded-lg shadow-sm focus:ring focus:border-blue-300"
+      />
+      <button
+        class="w-full px-6 py-3 bg-black text-white font-bold text-white rounded-lg shadow-md font-medium transition"
         @click="startBroadcast"
-    >
+      >
         Start Broadcast
-    </button>
+      </button>
     </div>
-</section>
+  </section>
 </template>
 
 <style scoped>
