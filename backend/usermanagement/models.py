@@ -82,7 +82,7 @@ class Professor(User):
 
 class TeacherAssistant(User):
     """Teacher Assistant User Model with Additional Fields"""
-    assigned_professor = models.ForeignKey(
+    assigned_professor_course = models.ForeignKey(
         'coursemanagement.ProfessorCourse', on_delete=models.SET_NULL, null=True, blank=True, related_name="teacher_assistants"
     )
 

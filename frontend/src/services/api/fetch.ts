@@ -119,7 +119,7 @@ export const fetchStudent = async (studentId: string): Promise<{ data: interface
 };
 
 /**
- * Fetches details for a specific student.
+ * Fetches details for a specific TA.
  * @param {string} taId - The ID of the TA.
  * @returns {Promise<{ data: interfaces.TA | null; error: string | null }>} - A Promise that resolves to an object containing either a TA or an error message.
  */
@@ -129,6 +129,20 @@ export const fetchTA = async (taId: string): Promise<{ data: interfaces.TA | nul
     return { data: response.data, error: null };
   } catch (err) {
     return { data: null, error: "Failed to load TA" };
+  }
+};
+
+/**
+ * Fetches courses for a specific studTAent.
+ * @param {string} taId - The ID of the TA.
+ * @returns {Promise<{ data: interfaces.TA | null; error: string | null }>} - A Promise that resolves to an object containing either a TA or an error message.
+ */
+export const fetchCoursesForTA = async (taId: string): Promise<{ data: interfaces.Course[] | null; error: string | null }> => {
+  try {
+    const response = await authAxios.get(`${baseURL}/coursemanagement/tas/courses/${taId}`);
+    return { data: response.data, error: null };
+  } catch (err) {
+    return { data: null, error: "Failed to load TA Courses" };
   }
 };
 

@@ -116,7 +116,7 @@ export interface NotesPacket {
     lectureData?: LectureSession,
 }
 
-interface NotePacketEntry {
+export interface NotePacketEntry {
     id: string,
     type: string,
     value: string,

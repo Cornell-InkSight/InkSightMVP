@@ -205,7 +205,7 @@ export const updateStatusOfNotePacket = async (notepacket_id: string, status: st
  * Approves status of note packet request by calling API
  * @param notetakingrequest_id - the ID of the notetaking request to approve
  */
-export const updateTextOfNotePacket = async (notepacket_id: string, text: string) => {
+export const updateTextOfNotePacket = async (notepacket_id: string, text: interfaces.NotePacketEntry[]) => {
     try {
         const response = await authAxios.post(`${baseURL}/notepacketsmanagement/notes-packet/${notepacket_id}/edit`, { "text": text })
         return response.data;

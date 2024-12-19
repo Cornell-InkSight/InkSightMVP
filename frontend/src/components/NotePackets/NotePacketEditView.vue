@@ -54,7 +54,7 @@
                         <canvas
                             ref="canvasRefs[index]"
                             :id="`canvas-${index}`"
-                            class="border mt-2 w-full h-64"
+                            class="border mt-2"
                         ></canvas>
                         <div class="flex space-x-2 mt-2">
                             <button @click="togglePen(index)" :class="penActive[index] ? 'bg-blue-500 text-white' : 'bg-gray-200'" class="px-4 py-2 rounded-md">
@@ -91,6 +91,7 @@
 <script setup lang="ts">
 import { ref, onMounted, reactive, nextTick } from 'vue';
 import { fetchNotePacket, fetchCourse } from '@/services/api/fetch';
+import * as interfaces from '@/services/api/interfaces';
 import { updateTextOfNotePacket } from '@/services/api/add';
 import { useRoute } from 'vue-router';
 import 'katex/dist/katex.min.css';
@@ -101,7 +102,7 @@ const notePacket = ref<any>(null);
 const loading = ref(true);
 const isSaving = ref(false);
 const courseName = ref<string>("");
-const editableNotes = reactive<any[]>([]);
+const editableNotes = reactive<interfaces.NotePacketEntry[]>([]);
 const canvasRefs = ref<HTMLCanvasElement[]>([]);
 const penActive = reactive<boolean[]>([]);
 const undoStack = reactive<Array<ImageData[]>>([]);
@@ -134,10 +135,11 @@ const initCanvases = () => {
 };
 
 const setupCanvas = (index: number) => {
-    const canvas = canvasRefs.value[index];
+    const canvas = document.getElementById("canvas-"+index);
     if (!canvas) return;
 
     const imageUrl = editableNotes[index].url; 
+    console.log(imageUrl)
     addImageToCanvas(imageUrl, canvas);
 
     const ctx = canvas.getContext('2d');
@@ -232,15 +234,36 @@ const renderLatex = (latex: string) => {
     }
 };
 
-const addImageToCanvas = (url: string, canvas) => {
-    const context = canvas.getContext('2d');
-    const base_image = new Image();
-    console.log(base_image, url)
-    base_image.src = url;
-    base_image.onload = function(){
-        context.drawImage(base_image, 0, 0);
-    }
-}
+const addImageToCanvas = (url: string, canvas: HTMLCanvasElement) => {
+    const context = canvas.getContext("2d");
+    if (!context) return;
+
+    const baseImage = new Image();
+    baseImage.src = url;
+
+    baseImage.onload = () => {
+        const targetHeight = 384;
+
+        canvas.height = targetHeight;
+        canvas.width = baseImage.width;
+
+        const cropY = (baseImage.height - targetHeight) / 2;
+
+        context.drawImage(
+            baseImage, 
+            0, cropY, baseImage.width, targetHeight, 
+            0, 0, baseImage.width, targetHeight 
+        );
+
+        console.log("Canvas Size:", canvas.width, canvas.height);
+        console.log("Crop Start Y:", cropY, "Image Height:", baseImage.height);
+    };
+
+    baseImage.onerror = () => {
+        console.error("Failed to load image:", url);
+    };
+};
+
 
 /** Status Class */
 const statusClass = (status: string) => {

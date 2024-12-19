@@ -47,7 +47,7 @@
           <div 
             v-for="(students, courseId) in students" 
             :key="courseId" 
-            class="p-4 bg-white rounded-lg shadow-md border border-gray-200 flex flex-col justify-between items-stretch"
+            class="p-4 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col justify-between items-stretch"
           >
             <!-- Course Header -->
             <div>
@@ -55,7 +55,7 @@
                 <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ courses[courseId].name.split(": ")[0] }}</h2>
                 <button class="text-gray-500 hover:text-gray-700" @click="selectedCourse=courses[courseId]">
                   <!-- Vertical Ellipsis Icon -->
-                  <i class="fas fa-ellipsis-v"></i>
+                  <i class="fas fa-info-circle"></i>
                 </button>
               </div>
               <p class="text-sm text-gray-600">{{ courses[courseId].name.split(": ")[1] }}</p>
@@ -116,7 +116,7 @@ const courses = ref<Record<string, interfaces.Course>>({});         // Dictionar
 const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for each student
 
 const showRecordingPortal = ref(false);
-const selectedCourse = ref<interfaces.Course>();
+const selectedCourse = ref<interfaces.Course>(); // The course selected for the modal and recording
 
 
 // Store tooltip content to avoid async issues

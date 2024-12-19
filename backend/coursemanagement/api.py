@@ -162,11 +162,9 @@ def get_all_courses_for_ta(request, ta_id):
     Returns:
         JSON response containing courses associated with the ta, or an error message.
     """
-    ta = Professor.objects.get(id=ta_id)
-    professor = Professor.objects.get(id=ta.assigned_professor_id)
-    ta_courses = ProfessorCourse.objects.filter(professor_id=professor.id)
-    course_ids = ta_courses.values_list("course_id", flat=True).distinct()
-    courses = Course.objects.filter(user_ptr_id__in=course_ids)
+    ta = TeacherAssistant.objects.get(id=ta_id)
+    professorcourse = ProfessorCourse.objects.get(id=ta.assigned_professor_course_id)
+    courses = Course.objects.filter(id=professorcourse.course_id)
     serializer = CourseSerializer(courses, many=True)
     return Response(serializer.data)
 
