@@ -68,9 +68,9 @@ export interface Course {
     professors?: Professor[],
     cannotRequest?: string,
     term: string,
-    courseUID: number,
+    course_uid: number,
     type: string,
-    meetingTime: TimeRanges,
+    meeting_time: TimeRanges,
     campus: string,
     active?: boolean,
 }

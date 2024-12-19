@@ -39,7 +39,6 @@
           
             <ProfessorCourseView 
               v-if="selectedProfessorCourseStore.selectedCourse" 
-              :course="selectedProfessorCourseStore.selectedCourse" 
               @closeModal="selectedProfessorCourseStore.selectedCourse = null"
             />
             

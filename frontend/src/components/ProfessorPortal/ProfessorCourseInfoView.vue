@@ -5,15 +5,14 @@
     <div class="border border-gray-300 bg-white p-4 rounded-lg">
     <h3 class="text-lg font-bold text-gray-900 mb-4">Course Information</h3>
     <ul class="text-sm text-gray-700 space-y-2">
-        <li><strong class="text-gray-900">Term:</strong> {{ course.term }}</li>
-        <li><strong class="text-gray-900">Course ID:</strong> {{ course.course_uid }}</li>
-        <li><strong class="text-gray-900">Type:</strong> {{ course.type }}</li>
-        <li><strong class="text-gray-900">Campus:</strong> {{ course.campus }}</li>
+        <li><strong class="text-gray-900">Term:</strong> {{ selectedProfessorCourseStore.selectedCourse.term }}</li>
+        <li><strong class="text-gray-900">Course ID:</strong> {{ selectedProfessorCourseStore.selectedCourse.course_uid }}</li>
+        <li><strong class="text-gray-900">Type:</strong> {{ selectedProfessorCourseStore.selectedCourse.type }}</li>
+        <li><strong class="text-gray-900">Campus:</strong> {{ selectedProfessorCourseStore.selectedCourse.campus }}</li>
         <li>
         <strong class="text-gray-900">Meeting Times:</strong>
         <div class="text-gray-700 space-y-1">
-            <p>{{ course.meeting_time }}</p>
-            <p>{{ course.location }}</p>
+            <p>{{ selectedProfessorCourseStore.selectedCourse.meeting_time }}</p>
         </div>
         </li>
         <!-- TA Section -->
@@ -36,13 +35,10 @@ import { ref, onMounted } from 'vue';
 import * as interfaces from "@/services/api/interfaces";
 import { useUserStore } from "@/stores/authStore";
 import { da } from '@faker-js/faker/.';
+import { useSelectedProfessorCourseStore } from "@/stores/selectedProfessorCourseStore"
 
-const props = defineProps({
-    course: {
-        type: Object,
-        required: true,
-    },
-});
+
+const selectedProfessorCourseStore = useSelectedProfessorCourseStore();
 
 const tas = ref<interfaces.TA[]>(); // TAs for course
 const error = ref<string>();
@@ -69,7 +65,7 @@ onMounted(async () => {
     await userStore.fetchUser()
     const user = userStore.user;
     const professorId = user.user_ptr_id;
-    await loadTAs(professorId, props.course.id)
+    await loadTAs(professorId, selectedProfessorCourseStore.selectedCourse.id)
 });
 </script>
 

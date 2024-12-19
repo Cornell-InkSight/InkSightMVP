@@ -6,12 +6,12 @@
         :key="student.user_ptr_id"
         class="flex items-center justify-between bg-white rounded-lg p-4 border hover:shadow-lg transition-shadow duration-300"
         :class="{
-        'border-green-500': isApprovedNoteTakingRequest(student.user_ptr_id, course.id.toString()),
-        'border-yellow-500': hasActiveNoteTakingRequest(student.user_ptr_id, course.id.toString()) && !isApprovedNoteTakingRequest(student.user_ptr_id, course.id.toString()),
+        'border-green-500': isApprovedNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()),
+        'border-yellow-500': hasActiveNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()) && !isApprovedNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()),
         }"
     >
         <!-- Student Information -->
-        <div class="flex items-center gap-4 cursor-pointer" @click="toggleDropdown(student.user_ptr_id, course.id.toString())">
+        <div class="flex items-center gap-4 cursor-pointer" @click="toggleDropdown(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString())">
         <div
             class="w-10 h-10 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-semibold text-lg"
         >
@@ -24,21 +24,21 @@
         </div>
 
         <!-- Request Status and Action -->
-        <div v-if="hasActiveNoteTakingRequest(student.user_ptr_id, course.id.toString())" class="flex items-center gap-4">
+        <div v-if="hasActiveNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString())" class="flex items-center gap-4">
         <div>
             <span
             class="px-2 py-1 text-xs rounded-full font-medium"
             :class="{
-                'bg-green-100 text-green-800': isApprovedNoteTakingRequest(student.user_ptr_id, course.id.toString()),
-                'bg-yellow-100 text-yellow-800': !isApprovedNoteTakingRequest(student.user_ptr_id, course.id.toString()),
+                'bg-green-100 text-green-800': isApprovedNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()),
+                'bg-yellow-100 text-yellow-800': !isApprovedNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()),
             }"
             >
-            {{ isApprovedNoteTakingRequest(student.user_ptr_id, course.id.toString()) ? 'Approved' : 'Pending' }}
+            {{ isApprovedNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()) ? 'Approved' : 'Pending' }}
             </span>
         </div>
         <button
-            v-if="!isApprovedNoteTakingRequest(student.user_ptr_id, course.id.toString())"
-            @click="approveRequest(student.user_ptr_id, course.id.toString())"
+            v-if="!isApprovedNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString())"
+            @click="approveRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString())"
             class="px-3 py-1 bg-green-500 hover:bg-green-600 text-white text-sm font-medium rounded-lg transition-colors duration-200"
         >
             Approve
@@ -47,15 +47,15 @@
 
         <!-- Dropdown with Details -->
         <div
-        v-if="isDropdownOpen(student.user_ptr_id, course.id.toString())"
+        v-if="isDropdownOpen(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString())"
         class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 rounded-lg p-4 z-10"
         >
         <p class="text-sm text-gray-700 mb-2">
             <strong>Status:</strong>
-            {{ isApprovedNoteTakingRequest(student.user_ptr_id, course.id.toString()) ? 'Approved' : 'Pending approval' }}
+            {{ isApprovedNoteTakingRequest(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()) ? 'Approved' : 'Pending approval' }}
         </p>
         <p class="text-sm text-gray-700">
-            <strong>Request Details:</strong> {{ getRequestTooltip(student.user_ptr_id, course.id.toString()) }}
+            <strong>Request Details:</strong> {{ getRequestTooltip(student.user_ptr_id, selectedProfessorCourseStore.selectedCourse.id.toString()) }}
         </p>
         </div>
     </li>
@@ -71,6 +71,8 @@ import { approveNoteTakingRequest } from "@/services/api/add";
 import ProfessorPortalNavbar from "@/components/ProfessorPortal/ProfessorPortalNavbar.vue"
 import { useUserStore } from "@/stores/authStore";
 import Swal from 'sweetalert2';
+import { useSelectedProfessorCourseStore } from "@/stores/selectedProfessorCourseStore"
+
 
 const route = useRoute();
 const professor = ref<any | null>(null);  // Holds professor data, initially null
@@ -80,16 +82,10 @@ const error = ref<string | null>(null);   // Error message, if any
 const noteTakingRequests = ref<Record<string, { approved: boolean; requestId: string }>>({}); // Tracks note-taking requests by `studentId-courseId` key with approval status
 const courses = ref<Record<string, string>>({});         // Dictionary to store course names by ID
 const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for each student
+const selectedProfessorCourseStore = useSelectedProfessorCourseStore(); // Store for holding reactive state for professor course
 
 // Store tooltip content to avoid async issues
 const tooltipContentCache = ref<Record<string, string>>({});
-
-const props = defineProps({
-    course: {
-        type: Object,
-        required: true,
-    },
-});
 
 
 /**
@@ -123,7 +119,7 @@ const loadProfessor = async (professorId: string): Promise<void> => {
  * Loads note-taking requests for each course and populates `noteTakingRequests`.
  */
 const loadNoteTakingRequestsForCourses = async () => {
-    const { data, error: requestsError } = await fetchNotetakingRequestsForCourses(props.course.id);
+    const { data, error: requestsError } = await fetchNotetakingRequestsForCourses(selectedProfessorCourseStore.selectedCourse.id);
         if (requestsError) {
         console.error(requestsError);
         error.value = requestsError;
@@ -239,7 +235,7 @@ const isDropdownOpen = (studentId: string, courseId: string) => {
  * Fetches and sets data for both the professor and their students.
  */
 onMounted(async () => {
-    await loadStudents(props.course.id);
+    await loadStudents(selectedProfessorCourseStore.selectedCourse.id);
     await loadNoteTakingRequestsForCourses(); 
     loading.value = false;    
 });

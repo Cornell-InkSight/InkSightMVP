@@ -68,19 +68,13 @@ import { fetchCoursesForProfessors, fetchApprovedStudentsForCourse, fetchUnpubli
 import { useRoute } from 'vue-router';
 import * as interfaces from "@/services/api/interfaces";
 import { useUserStore } from "@/stores/authStore";
-
-
-const props = defineProps({
-    course: {
-        type: Object,
-        required: true,
-    },
-});
+import { useSelectedProfessorCourseStore } from "@/stores/selectedProfessorCourseStore"
 
 const addNotesPacketsError = ref<string>(""); // Error
-
+const selectedProfessorCourseStore = useSelectedProfessorCourseStore(); // Store for holding reactive state for professor course
 const showPublishModal = ref(false);
 const selectedPacket = ref<any>(null);
+
 
 
 // Input for New Notes Session
@@ -131,7 +125,7 @@ const loadLectureSessionData = async (lecture_session_id: string) => {
  * Loads the notepackets for a specific course
  * @param courseId - the ID of the course whose notespackets to load
  */
-const loadNotesPacketsForCourse = async (courseId: number) => {
+const loadNotesPacketsForCourse = async (courseId: string) => {
     const { data, error } = await fetchdNotePacketsForCourse(courseId.toString());
     if (error) {
         console.error(error);
@@ -204,7 +198,7 @@ const submitNotesPacketForm = async () => {
  * Fetches and sets data for both the professor and their courses.
  */
 onMounted(async () => {
-    await loadNotesPacketsForCourse(props.course.id)
+    await loadNotesPacketsForCourse(selectedProfessorCourseStore.selectedCourse.id)
 });
 </script>
 

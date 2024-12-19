@@ -4,7 +4,7 @@
     <button @click="$emit('closeModal')" class="text-blue-500 mb-4">&larr; Back to Classes</button>
 
     <!-- Header -->
-    <h2 class="text-2xl font-bold mb-4">{{ course.name }}</h2>
+    <h2 class="text-2xl font-bold mb-4">{{ selectedProfessorCourseStore.selectedCourse.name }}</h2>
 
     <!-- Tab Navigation -->
     <div class="flex border-b border-gray-300 mb-4">
@@ -23,9 +23,9 @@
 
     <!-- Tab Content -->
     <div>
-    <ProfessorCourseInfoView v-if="activeTab === 'info'" :course="course" />
-    <ProfessorStudentRequestsView v-if="activeTab === 'approvals'" :course="course" />
-    <ProfessorStudyGuideView v-if="activeTab === 'guides'" :course="course" />
+    <ProfessorCourseInfoView v-if="activeTab === 'info'" />
+    <ProfessorStudentRequestsView v-if="activeTab === 'approvals'" />
+    <ProfessorStudyGuideView v-if="activeTab === 'guides'" />
     </div>
 </div>
 </template>
@@ -35,13 +35,7 @@ import { ref } from 'vue'
 import ProfessorCourseInfoView from '@/components/ProfessorPortal/ProfessorCourseInfoView.vue';
 import ProfessorStudyGuideView from '@/components/ProfessorPortal/ProfessorStudyGuideView.vue';
 import ProfessorStudentRequestsView from '@/components/ProfessorPortal/ProfessorStudentRequestsView.vue';
-
-const props = defineProps({
-    course: {
-        type: Object,
-        required: true,
-    },
-});
+import { useSelectedProfessorCourseStore } from "@/stores/selectedProfessorCourseStore"
 
 const emit = defineEmits(['closeModal']);
 
@@ -51,6 +45,7 @@ const tabs = [
     { id: 'guides', label: 'Study guides' },
 ];
 
+const selectedProfessorCourseStore = useSelectedProfessorCourseStore();
 const activeTab = ref('info'); 
 </script>
 
