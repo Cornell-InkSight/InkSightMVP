@@ -35,7 +35,7 @@
     <div v-else class="flex flex-col items-center w-full">
       <!-- Video Section -->
       <div class="w-full max-w-5xl bg-black rounded-xl overflow-hidden shadow-md relative">
-        <VideoComponent :call="call" :participant="remoteParticipant" />
+        <VideoComponent :call="call" :participant="remoteParticipant"  :isBroadcaster="false" />
         <span class="absolute top-4 left-4 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-md font-semibold">
           🔴 Live Stream
         </span>

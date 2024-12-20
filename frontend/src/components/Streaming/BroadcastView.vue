@@ -3,7 +3,7 @@
     <div v-if="isCallLive" class="flex flex-col items-center justify-center w-full">
       <!-- Video Component -->
       <div class="relative w-full max-w-5xl bg-black rounded-xl overflow-hidden shadow-md">
-        <VideoComponent :call="call" :participant="localParticipant" />
+        <VideoComponent :call="call" :participant="localParticipant" :isBroadcaster="true" />
         <span
           class="absolute top-4 left-4 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-md font-semibold"
         >
@@ -60,7 +60,7 @@ import { useStreamStore } from '@/stores/streamStore'
 import { addNewLectureSession, addNewNotesPacket } from "@/services/api/add"
 import { updateStatusOfLecture } from "@/services/api/add"
 import { faker } from '@faker-js/faker';
-
+import * as interfaces from "@/services/api/interfaces";
 import VideoComponent from '@/components/Streaming/CameraView.vue'
 
 const store = useStreamStore()
@@ -156,7 +156,7 @@ const generateFakeNote = () => {
   return fakeContent;
 };
  
-const fakeNote = ref<Object[]>(generateFakeNote()); // Generate a fake note using faker
+const fakeNote = ref<interfaces.NotePacketEntry[]>(generateFakeNote()); // Generate a fake note using faker
 
 /**
  * Ends recording, downloads file using recorder uploads new notes packet to the API
@@ -164,13 +164,12 @@ const fakeNote = ref<Object[]>(generateFakeNote()); // Generate a fake note usin
 const stopRecording = async () => {
     if (!lectureSessionId.value) return; 
 
-    const notes_packet_data = {
+    const notes_packet_data: interfaces.NotesPacket = {
         "lecture_session_id": lectureSessionId.value,
         "course_id": props.courseId,
         "notes": fakeNote.value,
         "status": "draft",
     };
-    console.log(notes_packet_data)
 
     await addNewNotesPacket(notes_packet_data);
 

@@ -1,6 +1,6 @@
 <template>
   <div class="flex min-h-screen bg-gray-100">
-    <ProfessorPortalNavbar />
+    <ProfessorPortalNavbar class="sticky"/>
     <div class="p-6 bg-gray-100 min-h-screen w-[80%]">
       <div v-if="!showRecordingPortal">
         <!-- Header with Title and Layout Options -->

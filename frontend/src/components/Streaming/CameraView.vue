@@ -5,6 +5,7 @@ import type { Call, StreamVideoParticipant } from '@stream-io/video-client'
 const props = defineProps<{
   call: Call | undefined
   participant: StreamVideoParticipant | undefined
+  isBroadcaster: boolean,
 }>()
 
 const videoElement = ref<HTMLVideoElement | null>(null)
@@ -36,7 +37,9 @@ onMounted(() => {
     context.value = canvasElement.value.getContext('2d')
   }
 
-  startCapturingFrames()
+  if(props.isBroadcaster) {
+    startCapturingFrames();
+  }
 })
 
 onUnmounted(() => {
@@ -57,6 +60,7 @@ const startCapturingFrames = () => {
         context.value!.drawImage(video, 0, 0, canvas.width, canvas.height)
         const frame = canvas.toDataURL('image/jpeg')
         const frameData = { "frame": frame }
+        console.log(frameData)
 
       }
     }, 10000) 
