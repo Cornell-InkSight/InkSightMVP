@@ -1,45 +1,43 @@
 <template>
-<section class="content-section" v-if="isCallLive">
-    <div class="flex flex-col items-center justify-center h-screen bg-gray-900">
-    <!-- Video Component -->
-    <div class="relative w-full h-[80vh] max-w-5xl bg-black rounded-lg overflow-hidden">
-        <VideoComponent :call="call" :participant="localParticipant" />
+  <section class="h-[10%] bg-gray-50 flex items-center justify-center">
+    <div v-if="isCallLive" class="flex flex-col items-center justify-center w-full">
+      <!-- Video Component -->
+      <div class="relative w-full max-w-5xl bg-black rounded-xl overflow-hidden shadow-md">
+        <VideoComponent :call="call" :participant="localParticipant" :isBroadcaster="true" />
         <span
-        class="absolute top-2 left-2 bg-red-600 text-white text-sm px-3 py-1 rounded-full"
+          class="absolute top-4 left-4 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-md font-semibold"
         >
-        🔴 Live Broadcast
+          🔴 Live Broadcast
         </span>
-    </div>
+      </div>
 
-    <!-- Controls -->
-    <div class="flex gap-4 mt-4">
+      <!-- Controls -->
+      <div class="flex gap-4 mt-6">
         <button
-        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md"
-        @click="goLiveClicked"
+          class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md font-medium transition"
+          @click="goLiveClicked"
         >
-        {{ buttonText }}
+          {{ buttonText }}
         </button>
+      </div>
     </div>
-    </div>
-</section>
 
-<section v-if="!isCallLive" class="input-form content-section h-screen flex flex-col items-center justify-center bg-gray-100">
-    <div class="w-1/2 text-center">
-    <h1 class="text-2xl font-semibold mb-4">Start a Broadcast</h1>
-    <input
+    <div v-else class="flex flex-col items-center w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+      <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Start a Broadcast</h1>
+      <input
         type="text"
         v-model="callId"
         placeholder="Enter call ID"
-        class="w-full p-3 mb-4 border border-gray-300 rounded-lg"
-    />
-    <button
-        class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md"
+        class="w-full px-4 py-3 mb-6 border border-gray-300 rounded-lg shadow-sm focus:ring focus:border-blue-300"
+      />
+      <button
+        class="w-full px-6 py-3 bg-black text-white font-bold text-white rounded-lg shadow-md font-medium transition"
         @click="startBroadcast"
-    >
+      >
         Start Broadcast
-    </button>
+      </button>
     </div>
-</section>
+  </section>
 </template>
 
 <style scoped>
@@ -62,7 +60,7 @@ import { useStreamStore } from '@/stores/streamStore'
 import { addNewLectureSession, addNewNotesPacket } from "@/services/api/add"
 import { updateStatusOfLecture } from "@/services/api/add"
 import { faker } from '@faker-js/faker';
-
+import * as interfaces from "@/services/api/interfaces";
 import VideoComponent from '@/components/Streaming/CameraView.vue'
 
 const store = useStreamStore()
@@ -103,7 +101,7 @@ async function goLiveClicked() {
 /**
  * Starts the recording, creates new lecture in the API and calls the POST API
  */
- const startRecording = async () => {
+const startRecording = async () => {
     try {
         // API call to create lecture session
         const lectureSessionData = {
@@ -122,16 +120,51 @@ async function goLiveClicked() {
     }
 };
 
+
+/** Generates a Fake Note Using Faker */
+const generateFakeNote = () => {
+  const fakeContent = [];
+  
+  for (let i = 0; i < 5; i++) {
+    const type = faker.helpers.arrayElement(["text", "latex", "image"]);
+    if (type === "text") {
+      fakeContent.push({
+        id: faker.string.ulid,
+        type: "text",
+        value: faker.lorem.paragraph(2),
+      });
+    } else if (type === "latex") {
+      fakeContent.push({
+        id: faker.string.ulid,
+        type: "latex",
+        value: faker.helpers.arrayElement([
+          "E = mc^2",
+          "\\frac{a}{b} + \\frac{b}{a}",
+          "\\int_{a}^{b} x^2 dx",
+          "\\sigma = \\sqrt{\\frac{1}{N} \\sum_{i=1}^N (x_i - \\mu)^2}",
+        ]),
+      });
+    } else if (type === "image") {
+      fakeContent.push({
+        id: faker.string.ulid,
+        type: "image",
+        url: faker.image.url()
+      });
+    }
+  }
+
+  return fakeContent;
+};
+ 
+const fakeNote = ref<interfaces.NotePacketEntry[]>(generateFakeNote()); // Generate a fake note using faker
+
 /**
  * Ends recording, downloads file using recorder uploads new notes packet to the API
  */
-
- const fakeNote = ref<string>(faker.lorem.paragraph(2)); // Generate a fake note using faker
-
 const stopRecording = async () => {
     if (!lectureSessionId.value) return; 
 
-    const notes_packet_data = {
+    const notes_packet_data: interfaces.NotesPacket = {
         "lecture_session_id": lectureSessionId.value,
         "course_id": props.courseId,
         "notes": fakeNote.value,
@@ -176,5 +209,6 @@ onMounted(async () => {
     console.error("Failed to load user data:", error);
   }
 });
+
 
 </script>

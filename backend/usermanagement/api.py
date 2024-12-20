@@ -265,7 +265,7 @@ def add_professor(request):
 def add_ta(request):
     """
     Add a new teaching assistant (TA) entry to the database.
-    Expected JSON fields: email, name, school_id, assigned_professor_user_ptr_id.
+    Expected JSON fields: email, name, school_id, assigned_professor_course_user_ptr_id.
     Args:
         request (Request): The HTTP request containing TA data in JSON format.
     Returns:
@@ -273,7 +273,7 @@ def add_ta(request):
     """
     ta_data = request.data
 
-    required_fields = ["email", "name", "school_id", "assigned_professor_user_ptr_id"]
+    required_fields = ["email", "name", "school_id", "assigned_professor_course_user_ptr_id"]
     for field in required_fields:
         if field not in ta_data:
             return Response({"error": f"{field} is required"}, status=status.HTTP_400_BAD_REQUEST)
@@ -282,7 +282,7 @@ def add_ta(request):
         email=ta_data["email"],
         name=ta_data["name"],
         school_id=ta_data["school_id"],
-        assigned_professor_id=ta_data["assigned_professor_user_ptr_id"]
+        assigned_professor_course_id=ta_data["assigned_professor_course_user_ptr_id"]
     )
 
     serializer = TeacherAssistantSerializer(ta)

@@ -3,7 +3,7 @@
  * Represents A User
  */
 export interface User {
-    user_ptr_id: string;
+    user_ptr_id?: string;
     name: string;
     school_id: string,
     email?: string,
@@ -15,6 +15,8 @@ export interface User {
 export interface Student extends User {
     sds_coordinator_id: string,
     disability: string,
+    year: string,
+    accodomation_request: string,
 }
 
 /**
@@ -66,10 +68,11 @@ export interface Course {
     professors?: Professor[],
     cannotRequest?: string,
     term: string,
-    courseUID: number,
+    course_uid: number,
     type: string,
-    meetingTime: TimeRanges,
+    meeting_time: TimeRanges,
     campus: string,
+    active?: boolean,
 }
 
 /**
@@ -108,8 +111,16 @@ export interface NotesPacket {
     id?: String,
     lecture_session_id: String,
     course_id: String,
-    notes: string,
+    notes: NotePacketEntry[],
     status: string,
+    lectureData?: LectureSession,
+}
+
+export interface NotePacketEntry {
+    id: string,
+    type: string,
+    value: string,
+    url?: string,
 }
 
 /**

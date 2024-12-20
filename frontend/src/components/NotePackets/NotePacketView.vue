@@ -24,12 +24,34 @@
         </div>
 
         <!-- Notes Content -->
-        <div v-if="notePacket.notes && Object.keys(notePacket.notes).length" class="p-4 bg-white rounded-md shadow-sm">
+        <div v-if="notePacket.notes && notePacket.notes.length" class="p-4 bg-white rounded-md shadow-sm">
             <h4 class="text-lg font-semibold text-gray-800 mb-3">Notes:</h4>
-            <ul class="space-y-2">
-                <span class="font-medium text-gray-900">{{ notePacket.notes }} </span>
+            <ul class="space-y-4">
+                <li
+                    v-for="note in notePacket.notes"
+                    :key="note.id"
+                    class="p-3 border-l-4 rounded-md shadow-sm"
+                    :class="noteTypeClass(note.type)"
+                >
+                    <!-- Render Text Notes -->
+                    <p v-if="note.type === 'text'" class="text-gray-700">{{ note.value }}</p>
+
+                    <!-- Render LaTeX Notes -->
+                    <p v-else-if="note.type === 'latex'" class="font-mono text-gray-800 text-lg">
+                        <span v-html="renderLatex(note.value)"></span>
+                    </p>
+
+                    <!-- Render Image Notes -->
+                    <div v-else-if="note.type === 'image'" class="flex justify-center">
+                        <img :src="note.url" alt="Image Note" class="max-w-xs rounded-md shadow-md" />
+                    </div>
+
+                    <!-- Unsupported Type -->
+                    <p v-else class="text-red-500">Unsupported note type: {{ note.type }}</p>
+                </li>
             </ul>
         </div>
+
 
         <!-- Empty State -->
         <div v-else class="text-gray-500 text-center">
@@ -48,6 +70,8 @@ import { ref, onMounted } from 'vue';
 import { fetchNotePacket, fetchCourse } from "@/services/api/fetch";
 import * as interfaces from "@/services/api/interfaces";
 import { useRoute } from 'vue-router';
+import 'katex/dist/katex.min.css';
+import katex from 'katex';
 
 const notePacket = ref<interfaces.NotesPacket | null>(null);
 const loading = ref(true); // Loading state
@@ -86,6 +110,38 @@ const statusClass = (status: string | undefined) => {
         return 'bg-gray-100 text-gray-600';
         default:
         return 'bg-gray-100 text-gray-600';
+    }
+};
+
+/**
+ * Returns dynamic classes for different note types.
+ * @param {string} type - Type of the note (text, latex, image).
+ */
+ const noteTypeClass = (type: string) => {
+    switch (type) {
+        case 'text':
+            return 'border-blue-500 bg-blue-50';
+        case 'latex':
+            return 'border-green-500 bg-green-50';
+        case 'image':
+            return 'border-yellow-500 bg-yellow-50';
+        default:
+            return 'border-gray-300 bg-gray-50';
+    }
+};
+
+/**
+ * Renders LaTeX content using a LaTeX library like KaTeX.
+ * Replace with any LaTeX renderer library setup.
+ * @param {string} latex - The LaTeX string to render.
+ */
+const renderLatex = (latex: string) => {
+    try {
+        // Example for KaTeX: replace with your preferred library
+        return window.katex.renderToString(latex, { throwOnError: false });
+    } catch (error) {
+        console.error('Failed to render LaTeX:', error);
+        return latex;
     }
 };
 

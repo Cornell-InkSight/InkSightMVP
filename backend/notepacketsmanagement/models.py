@@ -10,6 +10,7 @@ class NotesPacket(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE, default=1)
     lecture_session = models.ForeignKey(LectureSession, on_delete=models.CASCADE, default=1)
     status = models.TextField(default="draft") # states can be draft, edits, approved
+    edit_history = models.JSONField(default=dict)
  
 class StudentNotePacket(models.Model):
     """Model for creating Student Notes packet"""

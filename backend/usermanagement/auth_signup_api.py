@@ -231,7 +231,7 @@ class GoogleSignupAPI(PublicApi):
 
         elif role == "teacher_assistant":
             try:
-                assigned_professor = Professor.objects.get(pk=professor_id)
+                assigned_professor_course = Professor.objects.get(pk=professor_id)
             except Professor.DoesNotExist:
                 return Response(
                     {"error": f"Professor with ID {professor_id} does not exist."},
@@ -242,7 +242,7 @@ class GoogleSignupAPI(PublicApi):
             user_defaults = {
                 "name": f"{first_name} {last_name}",
                 "school": school,
-                "assigned_professor": assigned_professor,
+                "assigned_professor_course": assigned_professor_course,
             }
 
         elif role == "sds_coordinator":

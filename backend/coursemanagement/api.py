@@ -162,16 +162,14 @@ def get_all_courses_for_ta(request, ta_id):
     Returns:
         JSON response containing courses associated with the ta, or an error message.
     """
-    ta = Professor.objects.get(id=ta_id)
-    professor = Professor.objects.get(id=ta.assigned_professor_id)
-    ta_courses = ProfessorCourse.objects.filter(professor_id=professor.id)
-    course_ids = ta_courses.values_list("course_id", flat=True).distinct()
-    courses = Course.objects.filter(user_ptr_id__in=course_ids)
+    ta = TeacherAssistant.objects.get(id=ta_id)
+    professorcourse = ProfessorCourse.objects.get(id=ta.assigned_professor_course_id)
+    courses = Course.objects.filter(id=professorcourse.course_id)
     serializer = CourseSerializer(courses, many=True)
     return Response(serializer.data)
 
 @api_view(["GET"])
-def get_all_tas_for_courses(request, course_id):
+def get_all_tas_for_courses(request, professor_id, course_id):
     """
     Retrieve all professors associated with a specific course.
     Args:
@@ -179,9 +177,9 @@ def get_all_tas_for_courses(request, course_id):
     Returns:
         JSON response containing tas associated with the course, or an error message.
     """
-    professor_courses = ProfessorCourse.objects.filter(course_id=course_id)
-    professor_ids = professor_courses.values_list("professor_id", flat=True).distinct()
-    tas = TeacherAssistant.objects.filter(professor_id__in=professor_ids)
+    professor_course = ProfessorCourse.objects.get(professor_id=professor_id, course_id=course_id)
+    tas = TeacherAssistant.objects.filter(assigned_professor_course_id=professor_course)
+    print(professor_course.id)
     serializer = TeacherAssistantSerializer(tas, many=True)
     return Response(serializer.data)
 
@@ -209,6 +207,22 @@ def get_all_students_for_professor(request, professor_id):
         course_students_dict[course.id] = serializer.data
     
     return Response(course_students_dict)
+
+@api_view(["GET"])
+def get_all_students_for_professor_for_course(request, course_id):
+    """
+    Retrieve all students enrolled in a course for a professor.
+    Args:
+        professor_id (int): The ID of the professor.
+    Returns:
+        JSON response containing a dictionary with the list of students.
+    """
+    student_courses = StudentCourse.objects.filter(course_id = course_id)
+    student_ids = student_courses.values_list("student_id", flat=True).distinct()
+    students = Student.objects.filter(user_ptr_id__in = student_ids)
+    serializer = StudentSerializer(students, many=True)
+    return Response(serializer.data)
+
 
 @api_view(["GET"])
 def get_all_students_for_sds_coordinator(request, sds_coordinator_id):
