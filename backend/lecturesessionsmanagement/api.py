@@ -1,8 +1,12 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import LectureSession, RecordingSession
-from .serializers import LectureSessionSerializer, RecordingSessionSerializer
+from .models import LectureSession, RecordingSession, LectureSlides
+from .serializers import LectureSessionSerializer, RecordingSessionSerializer, LectureSlidesSerializer
 from rest_framework import status
+from django.conf import settings
+from django.core.files.storage import default_storage
+import boto3
+import os
 
 """
 GET (LectureSession Management) Methods
@@ -175,4 +179,35 @@ def update_lecture_session_status(request, lecture_session_id):
         return Response({"message": "Lecture Session updated successfully."}, status=status.HTTP_200_OK)
     except LectureSession.DoesNotExist:
         return Response({"error": "Lecture Session not found."}, status=status.HTTP_404_NOT_FOUND)
+        
+@api_view(['POST'])
+def upload_lecture_session_slides(request, lecture_session_id):
+    """
+    Updates the slides for the lecture session to AmazonS3
+    Creates A Temporary File Path in Django Storage and S3k3y
+    Args:
+        lecture_session_id (int): the ID of the lecture session for file naming purposes
+    """
+    bucket_name = "inksightslidestorage"
+    try:
+        if 'file' not in request.FILES:
+                return Response({"error": "No file uploaded."}, status=400)
+
+        uploaded_file = request.FILES['file']
+        temp_file_path = default_storage.save(uploaded_file.name, uploaded_file)
+
+        s3_key = f"uploads/{lecture_session_id}/{uploaded_file.name}"
+        
+        settings.S3CLIENT.upload_file(temp_file_path, bucket_name, s3_key)
+
+        AWS_REGION = os.getenv("AWS_COGNITO_REGION")
+        
+        url_to_s3 = f"https://{bucket_name}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
+        os.remove(temp_file_path)
+
+        slides = LectureSlides.objects.get_or_create(file_slides=url_to_s3, lecture_session_id=lecture_session_id)
+        return Response({"message": "Slides uploaded successfully!", "slides": url_to_s3}, status=200)
+    except Exception as e:
+        return Response({"error": str(e)}, status=500)
+
         

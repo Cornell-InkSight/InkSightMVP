@@ -38,6 +38,37 @@
       </button>
     </div>
   </section>
+  <section>
+    <!-- Upload Slides Section -->
+    <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Upload Slides</h2>
+        <p class="text-sm text-gray-600 mb-6">Share lecture slides with your students. Supported formats: PDF, PowerPoint.</p>
+        
+        <input 
+            type="file" 
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring focus:border-blue-300" 
+            @change="handleFileUpload"
+            accept=".pdf, .ppt, .pptx"
+        />
+        <button
+            class="mt-4 px-6 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md font-medium transition"
+            @click="uploadSlides"
+            :enabled="lectureSessionId"
+        >
+            Upload
+        </button>
+
+        <!-- Uploaded Files Display -->
+        <div v-if="uploadedSlides.length" class="mt-6">
+            <h3 class="text-lg font-semibold mb-2 text-gray-800">Uploaded Slides</h3>
+            <ul class="list-disc pl-5 text-gray-700">
+                <li v-for="(slide, index) in uploadedSlides" :key="index" class="mb-2">
+                    {{ slide.name }} - <a :href="slide.url" target="_blank" class="text-blue-500 hover:underline">View</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+  </section>
 </template>
 
 <style scoped>
@@ -58,10 +89,11 @@ import { computed, ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStreamStore } from '@/stores/streamStore'
 import { addNewLectureSession, addNewNotesPacket } from "@/services/api/add"
-import { updateStatusOfLecture } from "@/services/api/add"
+import { updateStatusOfLecture, uploadSlidesForLecture } from "@/services/api/add"
 import { faker } from '@faker-js/faker';
 import * as interfaces from "@/services/api/interfaces";
 import VideoComponent from '@/components/Streaming/CameraView.vue'
+import Swal from 'sweetalert2';
 
 const store = useStreamStore()
 const lectureSessionId = ref<string | null>(null);
@@ -71,6 +103,10 @@ const props = defineProps<{ courseId: string }>();
 
 const initialized = ref(false);
 const callId = ref('')
+
+const uploadedSlides = ref<{ name: string, url: string }[]>([]); // Track uploaded slides
+const selectedFile = ref<File | null>(null); // Store the selected file
+
 
 // const call = ref(null);
 // const localParticipant = ref(null);
@@ -114,6 +150,7 @@ const startRecording = async () => {
 
         const response = await addNewLectureSession(lectureSessionData);
         lectureSessionId.value = response.id;
+        console.log(lectureSessionId.value)
         console.log("Lecture session created:", response);
     } catch (error) {
         console.error("Failed to start recording:", error);
@@ -195,6 +232,44 @@ buttonText = computed(() => (isBackstage.value ? 'Go live' : 'End broadcast'));
     const URL = resp.call.egress.hls?.playlist_url;
     console.log(URL)
 }
+
+
+/**
+ * Handle file selection
+ */
+ const handleFileUpload = (event: Event) => {
+    const target = event.target as HTMLInputElement;
+    if (target.files && target.files[0]) {
+        selectedFile.value = target.files[0];
+    }
+}
+
+const uploadSlides = async () => {
+    if (!selectedFile.value) {
+        alert("Please select a file before uploading.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile.value);
+
+    try {
+        console.log(lectureSessionId.value)
+        const data = await uploadSlidesForLecture(formData, lectureSessionId.value);
+
+        Swal.fire({
+            title: 'File Uploaded',
+            text: `The file has been uploaded..`,
+            icon: 'success',
+            confirmButtonText: 'OK'
+        });
+
+        selectedFile.value = null;
+        return data
+    } catch (error) {
+        alert(error.message || "An unexpected error occurred while uploading slides.");
+    }
+};
 
 onMounted(async () => {
   try {
