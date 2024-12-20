@@ -19,7 +19,7 @@ def preprocess_image(frame_data, **kwargs):
     image = Image.open(io.BytesIO(decoded_image))
 
     # Preprocessing (e.g., resizing and normalization)
-    resized_image = image.resize((224, 224))  # Example: Resize to 224x224
+    resized_image = image.resize((224, 224))  
     image_array = np.array(resized_image)
     normalized_image = image_array / 255.0  # Normalize to [0, 1]
 
@@ -41,7 +41,7 @@ def preprocess_image(frame_data, **kwargs):
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2023, 1, 1),
+    'start_date': datetime(2024, 1, 1),
     'retries': 1,
 }
 
@@ -49,7 +49,7 @@ with DAG(
     'image_preprocessing_dag',
     default_args=default_args,
     description='ETL pipeline for image preprocessing',
-    schedule_interval=None,  # Run manually
+    schedule_interval=None,  
 ) as dag:
 
     preprocess_task = PythonOperator(
