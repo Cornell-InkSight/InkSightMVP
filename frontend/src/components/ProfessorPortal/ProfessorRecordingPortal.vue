@@ -4,10 +4,10 @@
     <button @click="$emit('closePortal')" class="text-blue-500 mb-4">&larr; Back to classes</button>
     
     <!-- Course Name -->
-    <h1 class="text-3xl font-bold mb-4">{{ courseName }}</h1>
+    <h1 class="text-3xl font-bold mb-4">{{ selectedProfessorCourseStore.selectedCourse.name }}</h1>
 
     <!-- Broadcast Section -->
-    <BroadcastView :courseId="courseId" :upoloadedSlideId="upoloadedSlideId" />
+    <BroadcastView :courseId="selectedProfessorCourseStore.selectedCourse.id" :upoloadedSlideId="upoloadedSlideId" />
 
     <!-- Upload Slides Section -->
     <div class="mt-8 bg-white p-6 rounded-lg shadow-md">
@@ -48,14 +48,14 @@ import { uploadSlidesForLecture } from "@/services/api/add"
 import BroadcastView from '@/components/Streaming/BroadcastView.vue';
 import authAxios from '@/services/api/setup';
 import Swal from 'sweetalert2';
+import { useSelectedProfessorCourseStore } from "@/stores/selectedProfessorCourseStore"
 
-const props = defineProps<{ courseId: string }>();  
 const emit = defineEmits(['closePortal']);  
 
-const courseName = ref<String>();
 const uploadedSlides = ref<{ name: string, url: string }[]>([]); // Track uploaded slides
 const selectedFile = ref<File | null>(null); // Store the selected file
 const upoloadedSlideId = ref<string>();
+const selectedProfessorCourseStore = useSelectedProfessorCourseStore(); // For interactive professor navbar
 
 /**
  * Handle file selection
@@ -80,7 +80,7 @@ const uploadSlides = async () => {
     formData.append("file", selectedFile.value);
 
     try {
-        const data = await uploadSlidesForLecture(props.courseId, formData);
+        const data = await uploadSlidesForLecture(selectedProfessorCourseStore.selectedCourse.id, formData);
 
         Swal.fire({
             title: 'File Uploaded',
@@ -96,24 +96,10 @@ const uploadSlides = async () => {
     }
 };
 
-
-/**
- * Fetch course name
- */
-const loadCourseName = async (courseId: string): Promise<void> => {
-    const { data, error: fetchError } = await fetchCourse(courseId);
-    if (!fetchError && data) {
-        courseName.value = data.name;
-    } else {
-        console.error(`Failed to fetch course name for course ID ${courseId}:`, fetchError);
-    }
-}
-
 /**
  * Lifecycle hook called when the component is mounted.
  */
 onMounted(async () => {
-    loadCourseName(props.courseId);
 })
 </script>
     
