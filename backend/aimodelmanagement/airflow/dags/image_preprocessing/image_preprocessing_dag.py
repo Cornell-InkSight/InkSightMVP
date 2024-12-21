@@ -27,14 +27,14 @@ def preprocess_image(frame_data, **kwargs):
     _, buffer = cv2.imencode('.jpg', normalized_image * 255)
     preprocessed_frame = base64.b64encode(buffer).decode('utf-8')
 
-    # Add any metadata or transformations here
+    # Add metadata for time synchronization
     result = {
         'preprocessed_frame': f"data:image/jpeg;base64,{preprocessed_frame}",
         'metadata': {
             'timestamp': kwargs.get('execution_date').isoformat(),
         },
     }
-    print(result)  # For testing or debugging
+    print(result)  
     return result
 
 # Define the DAG
@@ -45,17 +45,21 @@ default_args = {
     'retries': 1,
 }
 
-with DAG(
-    'image_preprocessing_dag',
-    default_args=default_args,
-    description='ETL pipeline for image preprocessing',
-    schedule_interval=None,  
-) as dag:
+def run_image_pre_processing(frame_data):
+    """
+    Defines the worker for image preprocessing
+    """
+    with DAG(
+        'image_preprocessing_dag',
+        default_args=default_args,
+        description='ETL pipeline for image preprocessing',
+        schedule_interval=None,  
+    ) as dag:
 
-    preprocess_task = PythonOperator(
-        task_id='preprocess_image',
-        python_callable=preprocess_image,
-        op_kwargs={'frame_data': {'frame': 'YOUR_BASE64_FRAME_DATA_HERE'}},
-    )
+        preprocess_task = PythonOperator(
+            task_id='preprocess_image',
+            python_callable=preprocess_image,
+            op_kwargs={'frame_data': frame_data},
+        )
 
-    preprocess_task
+        preprocess_task
