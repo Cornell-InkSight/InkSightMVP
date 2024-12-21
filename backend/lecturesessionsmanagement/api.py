@@ -181,12 +181,12 @@ def update_lecture_session_status(request, lecture_session_id):
         return Response({"error": "Lecture Session not found."}, status=status.HTTP_404_NOT_FOUND)
         
 @api_view(['POST'])
-def upload_lecture_session_slides(request, lecture_session_id):
+def upload_lecture_session_slides(request, course_id):
     """
     Updates the slides for the lecture session to AmazonS3
     Creates A Temporary File Path in Django Storage and S3k3y
     Args:
-        lecture_session_id (int): the ID of the lecture session for file naming purposes
+        course_id (int): the ID of the course for file naming purposes
     """
     bucket_name = "inksightslidestorage"
     try:
@@ -196,18 +196,58 @@ def upload_lecture_session_slides(request, lecture_session_id):
         uploaded_file = request.FILES['file']
         temp_file_path = default_storage.save(uploaded_file.name, uploaded_file)
 
-        s3_key = f"uploads/{lecture_session_id}/{uploaded_file.name}"
-        
-        settings.S3CLIENT.upload_file(temp_file_path, bucket_name, s3_key)
+        s3_key = f"uploads/{course_id}/{uploaded_file.name}"
+        s3_client = settings.GETS3CLIENT()
+        s3_client.upload_file(temp_file_path, bucket_name, s3_key)
 
         AWS_REGION = os.getenv("AWS_COGNITO_REGION")
         
         url_to_s3 = f"https://{bucket_name}.s3.{AWS_REGION}.amazonaws.com/{s3_key}"
         os.remove(temp_file_path)
 
-        slides = LectureSlides.objects.get_or_create(file_slides=url_to_s3, lecture_session_id=lecture_session_id)
-        return Response({"message": "Slides uploaded successfully!", "slides": url_to_s3}, status=200)
+        slides, created = LectureSlides.objects.get_or_create(file_slides=url_to_s3)
+        if(created):
+            serializer = LectureSlidesSerializer(created)
+        else:
+            serializer = LectureSlidesSerializer(slides)
+        return Response({"message": "Slides uploaded successfully!", "slides": serializer.data}, status=200)
     except Exception as e:
         return Response({"error": str(e)}, status=500)
+    
 
-        
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from django.http import Http404
+
+@api_view(['POST'])
+def set_lecture_session_for_slides(request, slides_id, lecture_session_id):
+    """
+    Associate a LectureSlides instance with a LectureSession.
+    Updates the `lecture_session` field of a `LectureSlides` object to 
+    associate it with a specific `LectureSession`
+    Args:
+        slides_id (int): The ID of the LectureSlides instance to update.
+        lecture_session_id (int): The ID of the LectureSession to associate with the LectureSlides.
+    Returns:
+        Response: A JSON response with a success message or an error message.
+    """
+    try:
+        # Retrieve the LectureSlides instance
+        slides = LectureSlides.objects.get(id=slides_id)
+
+        # Update the lecture_session field
+        slides.lecture_session_id = lecture_session_id
+        slides.save()
+
+        # Return a success response
+        return Response({"message": "Lecture session associated successfully."}, status=200)
+
+    except LectureSlides.DoesNotExist:
+        # Handle case where the slides ID does not exist
+        raise Http404(f"LectureSlides with id {slides_id} does not exist.")
+
+    except Exception as e:
+        # Handle unexpected errors
+        return Response({"error": str(e)}, status=500)
+
+

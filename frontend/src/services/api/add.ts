@@ -342,14 +342,30 @@ export const addStudentToCourse = async (studentId: Number, courseId: Number) =>
  * Upload slides for Lecture session 
  * @param slides - the data containing info of the new SDSCoordinator
  */
-export const uploadSlidesForLecture = async (formData: FormData, lecture_session_id: string) => {
+export const uploadSlidesForLecture = async (course_id: string, formData: FormData) => {
     try {
-        const response = await authAxios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/${lecture_session_id}/upload_slides`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const response = await authAxios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/${course_id}/upload_slides`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         return response.data;
     } 
     catch(error) {
         console.error("Failed to upload slides", error);
         throw new Error("Failed to upload slides. Please check the provided data and try again.");
+    }
+}
+
+
+/**
+ * set lecture session for slides
+ * @param slides - the data containing info of the new SDSCoordinator
+ */
+export const updateLectureSessionForSlides = async (lecture_session_id: string, slides_id: string) => {
+    try {
+        const response = await authAxios.post(`${baseURL}/lecturesessionsmanagement/lecture-sessions/${lecture_session_id}/${slides_id}`);
+        return response.data;
+    } 
+    catch(error) {
+        console.error("Failed to update data for slides", error);
+        throw new Error("Failed to update data for slides. Please check the provided data and try again.");
     }
 }
 

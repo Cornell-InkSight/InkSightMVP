@@ -40,16 +40,16 @@ ALLOWED_HOSTS = [
     "*"
 ]
 
-# AWS Credentials
-credentials = get_unauthenticated_credentials()
-
-# Get up Global S3 Client
-S3CLIENT = boto3.client(
-    "s3",
-    aws_access_key_id=credentials["AccessKeyId"],
-    aws_secret_access_key=credentials["SecretKey"],
-    aws_session_token=credentials["SessionToken"],
-)
+# AWS Credentials (must be capital for settings)
+def GETS3CLIENT():
+    credentials = get_unauthenticated_credentials()
+    S3CLIENT = boto3.client(
+        "s3",
+        aws_access_key_id=credentials["AccessKeyId"],
+        aws_secret_access_key=credentials["SecretKey"],
+        aws_session_token=credentials["SessionToken"],
+    )
+    return S3CLIENT
 
 # Application definition
 
