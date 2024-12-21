@@ -14,6 +14,7 @@ from pathlib import Path
 import json 
 import os
 from django.core.exceptions import ImproperlyConfigured
+from .aws_auth import *
 import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -33,13 +34,22 @@ if SECRET_KEY == "default_secret_key":
     print("WARNING: Using default SECRET_KEY. Check if DJANGO_SECRET_KEY is being loaded from the environment.")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
     "*"
 ]
-print("ALLOWED_HOSTS:", ALLOWED_HOSTS)
 
+# AWS Credentials (must be capital for settings)
+def GETS3CLIENT():
+    credentials = get_unauthenticated_credentials()
+    S3CLIENT = boto3.client(
+        "s3",
+        aws_access_key_id=credentials["AccessKeyId"],
+        aws_secret_access_key=credentials["SecretKey"],
+        aws_session_token=credentials["SessionToken"],
+    )
+    return S3CLIENT
 
 # Application definition
 

@@ -15,15 +15,15 @@
       <div class="flex gap-4 mt-6">
         <button
           class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-lg shadow-md font-medium transition"
-          @click="goLiveClicked"
+          @click="endCall"
         >
-          {{ buttonText }}
+          End Stream
         </button>
       </div>
     </div>
 
     <div v-else class="flex flex-col items-center w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
-      <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Start a Broadcast</h1>
+      <h1 class="text-3xl font-extrabold text-gray-800 mb-6">Start Broadcast</h1>
       <input
         type="text"
         v-model="callId"
@@ -34,7 +34,7 @@
         class="w-full px-6 py-3 bg-black text-white font-bold text-white rounded-lg shadow-md font-medium transition"
         @click="startBroadcast"
       >
-        Start Broadcast
+        Go Live!
       </button>
     </div>
   </section>
@@ -58,7 +58,7 @@ import { computed, ref, onMounted } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useStreamStore } from '@/stores/streamStore'
 import { addNewLectureSession, addNewNotesPacket } from "@/services/api/add"
-import { updateStatusOfLecture } from "@/services/api/add"
+import { updateStatusOfLecture, updateLectureSessionForSlides } from "@/services/api/add"
 import { faker } from '@faker-js/faker';
 import * as interfaces from "@/services/api/interfaces";
 import VideoComponent from '@/components/Streaming/CameraView.vue'
@@ -67,7 +67,7 @@ const store = useStreamStore()
 const lectureSessionId = ref<string | null>(null);
 const isRecording = ref(false); 
 
-const props = defineProps<{ courseId: string }>();  
+const props = defineProps<{ courseId: string, upoloadedSlideId: string }>();  
 
 const initialized = ref(false);
 const callId = ref('')
@@ -81,25 +81,22 @@ let { call, localParticipant, isBackstage } = storeToRefs(store);
 // Computed property for whether the call is live
 let isCallLive, buttonText;
 
-function startBroadcast() {
+async function startBroadcast() {
     if (callId.value) {
         store.createCall(callId.value)
+        await call.value?.goLive({ start_hls: true });
+        startRecording()
     }
 }
 
-async function goLiveClicked() {
-  if (isBackstage.value) {
-    await call.value?.goLive({ start_hls: true });
-    startRecording()
-  } else {
-    await call.value?.stopLive()
-    store.endCall()
-    stopRecording();
-  }
+async function endCall() {
+  await call.value?.stopLive()
+  store.endCall()
+  stopRecording();
 }
 
 /**
- * Starts the recording, creates new lecture in the API and calls the POST API
+ * Starts the recording, creates new lecture in the API and calls the POST API, updates reference for slides in API
  */
 const startRecording = async () => {
     try {
@@ -114,6 +111,10 @@ const startRecording = async () => {
 
         const response = await addNewLectureSession(lectureSessionData);
         lectureSessionId.value = response.id;
+        if(props.upoloadedSlideId) {
+          console.log("Works")
+          updateLectureSessionForSlides(lectureSessionId.value, props.upoloadedSlideId)
+        }
         console.log("Lecture session created:", response);
     } catch (error) {
         console.error("Failed to start recording:", error);

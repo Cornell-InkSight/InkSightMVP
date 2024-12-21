@@ -29,11 +29,11 @@
             <!-- Bullet -->
             <span
                 class="w-3 h-3 rounded-full"
-                :class="selectedProfessorCourseStore.getCourse()==course ? 'bg-purple-500' : 'bg-pink-300 opacity-50'"
+                :class="(selectedProfessorCourseStore.selectedCourse && selectedProfessorCourseStore.selectedCourse.id==course.id) ? 'bg-purple-500' : 'bg-pink-300 opacity-50'"
             ></span>
             <!-- Course Name -->
             <button
-                :class="selectedProfessorCourseStore.getCourse()==course ? 'font-bold text-black' : 'text-gray-400 font-normal'"
+                :class="(selectedProfessorCourseStore.selectedCourse && selectedProfessorCourseStore.selectedCourse.id==course.id) ? 'font-bold text-black' : 'text-gray-400 font-normal'"
                 @click="selectedProfessorCourseStore.setCourse(course)"
             >
                 {{ course.name.split(": ")[0] }}

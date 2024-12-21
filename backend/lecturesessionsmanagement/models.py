@@ -17,3 +17,8 @@ class RecordingSession(models.Model):
     recording_type = models.TextField()
     file_path = models.CharField(max_length=2000)
     created_at = models.DateTimeField()
+
+class LectureSlides(models.Model):
+    id = models.AutoField(primary_key=True)
+    file_slides = models.URLField(max_length=2000, default="")
+    lecture_session = models.ForeignKey(LectureSession, on_delete=models.CASCADE, blank=True, null=True)

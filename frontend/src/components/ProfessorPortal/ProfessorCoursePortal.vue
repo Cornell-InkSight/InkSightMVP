@@ -51,13 +51,13 @@
             <!-- Course Header -->
             <div>
               <div class="flex">
-                <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]">{{ courses[courseId].name.split(": ")[0] }}</h2>
+                <h2 class="text-xl font-bold text-gray-900 mb-2 w-[100%]" v-if="courses[courseId]">{{ courses[courseId].name.split(": ")[0] }}</h2>
                 <button class="text-gray-500 hover:text-gray-700" @click="selectedProfessorCourseStore.setCourse(courses[courseId])">
                   <!-- Vertical Ellipsis Icon -->
                   <i class="fas fa-info-circle"></i>
                 </button>
               </div>
-              <p class="text-sm text-gray-600">{{ courses[courseId].name.split(": ")[1] }}</p>
+              <p class="text-sm text-gray-600" v-if="courses[courseId]">{{ courses[courseId].name.split(": ")[1] }}</p>
             </div>
             
     
@@ -84,7 +84,6 @@
       <!-- Recording Portal -->
       <RecordingPortal 
       v-if="showRecordingPortal" 
-      :courseId="selectedCourse.id" 
       @closePortal="closeRecordingPortal" 
       />
     </div>
@@ -116,7 +115,6 @@ const courses = ref<Record<string, interfaces.Course>>({});         // Dictionar
 const openDropdownId = ref<string | null>(null);    // Tracks open dropdown for each student
 
 const showRecordingPortal = ref(false);
-const selectedCourse = ref<interfaces.Course>(); // The course selected for the modal and recording
 const selectedProfessorCourseStore = useSelectedProfessorCourseStore();
 
 // Store tooltip content to avoid async issues
@@ -230,9 +228,8 @@ const loadNoteTakingRequestStudentForCourse = async (studentId: string, courseId
  * Opens the recording portal for the selected course.
  * @param {string} courseId - The name of the course to display in the recording portal.
  */
-const startRecording = (courseId: interfaces.Course) => {
-  
-  selectedCourse.value = courseId;
+const startRecording = (course: interfaces.Course) => {
+  selectedProfessorCourseStore.selectedCourse = course
   showRecordingPortal.value = true;
 };
 
@@ -241,7 +238,7 @@ const startRecording = (courseId: interfaces.Course) => {
  */
 const closeRecordingPortal = () => {
     showRecordingPortal.value = false;
-    selectedCourse.value = null;
+    selectedProfessorCourseStore.selectedCourse = null;
 };
 
 
@@ -258,8 +255,6 @@ onMounted(async () => {
   await loadProfessor(professorId);
   await loadStudents(professorId);
   await loadNoteTakingRequestsForCourses(); 
-  // Selected Course for Reactive Navbar
-  selectedCourse.value = selectedProfessorCourseStore.selectedCourse;
   loading.value = false;      
 });
 </script>
