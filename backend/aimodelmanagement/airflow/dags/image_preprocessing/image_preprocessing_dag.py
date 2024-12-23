@@ -5,6 +5,7 @@ import cv2
 import base64
 import io
 import numpy as np
+from .preprocessing_functions import *
 from PIL import Image
 
 def preprocess_image(frame_data, **kwargs):
@@ -19,7 +20,7 @@ def preprocess_image(frame_data, **kwargs):
     image = Image.open(io.BytesIO(decoded_image))
 
     # Preprocessing (e.g., resizing and normalization)
-    resized_image = image.resize((224, 224))  
+    resized_image = load_and_pad_img(image)  
     image_array = np.array(resized_image)
     normalized_image = image_array / 255.0  # Normalize to [0, 1]
 

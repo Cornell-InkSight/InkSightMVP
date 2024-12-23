@@ -2,54 +2,6 @@ import numpy as np
 from PIL import Image
 import tensorflow as tf
 
-def rotate_crop_scale_and_pad(original, data_idx, data, pad_black=True):
-    """
-    Rotate, crop, scale, and pad an image based on bounding box data.
-
-    Args:
-        original (PIL.Image): Original image to transform.
-        data_idx (int): Index of the bounding box in the data dictionary.
-        data (dict): Dictionary containing bounding box information (e.g., 'left', 'top', 'width', 'height').
-        pad_black (bool): Whether to pad with black (True) or average border color (False).
-
-    Returns:
-        tuple: Transformed image (PIL.Image), scale ratio (float), 
-               padding offsets (dx, dy), and bounding box coordinates.
-
-    Example:
-        rotate_crop_scale_and_pad(image, 0, data)
-        # Output: (<PIL.Image>, 0.8, 10, 15, ...)
-    """
-    angle = 0
-    height = data['height'][data_idx]
-    width = data['width'][data_idx]
-    min_x, min_y = 0
-    max_x = min_x + width
-    max_y = min_y + height
-
-    output = original.rotate(angle, center=(min_x, min_y))
-    crop = output.crop((min_x, min_y, max_x, max_y))
-
-    ratio = min(224 / crop.width, 224 / crop.height)
-    new_crop = crop.resize((int(crop.width * ratio), int(crop.height * ratio)))
-    new_crop_np = np.array(new_crop)
-
-    pixel_1 = new_crop_np[1, 1]
-    pixel_2 = new_crop_np[1, new_crop_np.shape[-1] - 1]
-    pixel_3 = new_crop_np[new_crop_np.shape[0] - 1, 1]
-    pixel_4 = new_crop_np[new_crop_np.shape[0] - 1, new_crop_np.shape[-1] - 1]
-    avg = np.rint(np.mean([pixel_1, pixel_2, pixel_3, pixel_4], axis=0)).astype(
-        np.uint8
-    )
-
-    color = tuple(avg) if not pad_black else (0, 0, 0)
-    new_image = Image.new(new_crop.mode, (224, 224), color)
-    dx = (224 - new_crop.width) // 2
-    dy = (224 - new_crop.height) // 2
-    new_image.paste(new_crop, (dx, dy))
-    return new_image, ratio, dx, dy, min_x, min_y, angle, crop
-
-
 def load_and_pad_img(image):
     """
     Resize and pad an image to fit a 224x224 frame while maintaining aspect ratio.
