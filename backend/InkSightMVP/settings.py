@@ -72,7 +72,9 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'corsheaders'
+    'corsheaders',
+
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -120,6 +122,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'InkSightMVP.wsgi.application'
 
+ASGI_APPLICATION = "InkSightMVP.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("localhost", 6379)], 
+        },
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

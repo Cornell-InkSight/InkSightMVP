@@ -17,6 +17,9 @@ const unbindAudioElement = ref<(() => void) | undefined>()
 const canvasElement = ref<HTMLCanvasElement | null>(null)
 const context = ref<CanvasRenderingContext2D | null>(null)
 
+let mediaRecorder: MediaRecorder | null = null;
+let recordedChunks: Blob[] = [];
+
 onMounted(() => {
   if (videoElement.value) {
     unbindVideoElement.value = props.call?.bindVideoElement(
@@ -45,34 +48,43 @@ onMounted(() => {
 onUnmounted(() => {
   unbindVideoElement.value?.()
   unbindAudioElement.value?.()
+  stopCapturingFrames()
 })
 
-let captureInterval: ReturnType<typeof setInterval> | undefined;
 
 const startCapturingFrames = () => {
-  if (videoElement.value && context.value) {
-    captureInterval = setInterval(() => {
-      const video = videoElement.value
-      const canvas = canvasElement.value
-      if (canvas && video) {
-        canvas.width = video.videoWidth
-        canvas.height = video.videoHeight
-        context.value!.drawImage(video, 0, 0, canvas.width, canvas.height)
-        const frame = canvas.toDataURL('image/jpeg')
-        const frameData = { "frame": frame }
-        console.log(frameData)
+  if(videoElement.value) {
+    const stream = videoElement.value?.srcObject as MediaStream;
+    if (!stream) return;
 
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+    
+    mediaRecorder.ondataavailable = (event) => {
+      if (event.data.size > 0) {
+        recordedChunks.push(event.data);
       }
-    }, 10000) 
+    };
+
+    mediaRecorder.start(); 
+
   }
 }
 
-const stopCapturingFrames = () => {
-  if (captureInterval) {
-    clearInterval(captureInterval)
-    captureInterval = undefined
+const stopCapturingFrames = async () => {
+  if (mediaRecorder) {
+    mediaRecorder.stop();
+    console.log('Recording stopped...');
+
+    mediaRecorder.onstop = () => {
+      const fullVideoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+
+      const videoURL = URL.createObjectURL(fullVideoBlob);
+      
+      // sendVideoToServer(fullVideoBlob);
+    };
   }
-}
+};
+
 </script>
 
 <template>

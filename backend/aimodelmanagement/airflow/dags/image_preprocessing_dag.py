@@ -1,12 +1,15 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
+from airflow.operators.bash import BashOperator
+from airflow.providers.apache.kafka.operators.produce import ProduceToTopicOperator
 from datetime import datetime
 import cv2
 import base64
 import io
 import numpy as np
-from .preprocessing_functions import *
+from image_preprocessing import *
 from PIL import Image
+import json
 
 def preprocess_image(frame_data, **kwargs):
     """
@@ -14,29 +17,12 @@ def preprocess_image(frame_data, **kwargs):
     Args:
         frame_data (jpeg): serialized image data in JPEG form
     """
-    # Decode Base64 image
-    frame_base64 = frame_data['frame'].split(',')[1]
-    decoded_image = base64.b64decode(frame_base64)
-    image = Image.open(io.BytesIO(decoded_image))
-
-    # Preprocessing (e.g., resizing and normalization)
-    resized_image = load_and_pad_img(image)  
-    image_array = np.array(resized_image)
-    normalized_image = image_array / 255.0  # Normalize to [0, 1]
-
-    # Encode back to Base64 for storage or transmission
-    _, buffer = cv2.imencode('.jpg', normalized_image * 255)
-    preprocessed_frame = base64.b64encode(buffer).decode('utf-8')
-
-    # Add metadata for time synchronization
-    result = {
-        'preprocessed_frame': f"data:image/jpeg;base64,{preprocessed_frame}",
-        'metadata': {
-            'timestamp': kwargs.get('execution_date').isoformat(),
-        },
-    }
-    print(result)  
+    
+    result = ""
     return result
+
+def producer_function(data : dict):
+    yield json.dumps('data_1'), json.dumps({'data': data})
 
 # Define the DAG
 default_args = {
@@ -64,3 +50,14 @@ def run_image_pre_processing(frame_data):
         )
 
         preprocess_task
+            
+        Kafka_Producer = ProduceToTopicOperator(
+                                                task_id='Enter_data_to_kafka_topic',
+                                                topic=KAFKA_TOPIC,
+                                                producer_function=producer_function, 
+                                                producer_function_args=["{{ ti.xcom_pull(key='data') }}"],
+                                                poll_timeout=10,
+                                                dag=dag,
+                                                kafka_config={"bootstrap.servers": "localhost:9092"}
+        )
+
