@@ -5,13 +5,13 @@ import * as interfaces from './interfaces'
 import { fetchSDSCoordinatorForCourses } from './fetch'
 import { PathOrFileDescriptor } from "fs";
 
+const baseURL = import.meta.env.VITE_API_URL;
+
 /**
  * Adds New Student Data Given Request
  * @param {Course} newCourse - The request data for the course.
  * @returns {Promise<void>} - A Promise that resolves to an object when the new course is added
  */
-
-const baseURL = import.meta.env.VITE_API_URL;
 
 export const addNewCourseForStudent = async (student_id: Number, newCourse: interfaces.newCourse) => {
     try {

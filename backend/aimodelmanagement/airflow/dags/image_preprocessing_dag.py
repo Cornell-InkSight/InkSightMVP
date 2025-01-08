@@ -7,7 +7,7 @@ import cv2
 import base64
 import io
 import numpy as np
-from image_preprocessing import *
+# from image_preprocessing import *
 from PIL import Image
 import json
 

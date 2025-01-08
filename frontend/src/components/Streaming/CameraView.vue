@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue'
 import type { Call, StreamVideoParticipant } from '@stream-io/video-client'
+import { uploadVideoToAIModel } from "@/services/api/ai"
 
 const props = defineProps<{
+  lectureSession: String,
   call: Call | undefined
   participant: StreamVideoParticipant | undefined
   isBroadcaster: boolean,
@@ -72,16 +74,23 @@ const startCapturingFrames = () => {
 
 const stopCapturingFrames = async () => {
   if (mediaRecorder) {
-    mediaRecorder.stop();
     console.log('Recording stopped...');
 
-    mediaRecorder.onstop = () => {
+    mediaRecorder.onstop = async () => {
       const fullVideoBlob = new Blob(recordedChunks, { type: 'video/webm' });
-
-      const videoURL = URL.createObjectURL(fullVideoBlob);
       
-      // sendVideoToServer(fullVideoBlob);
+      const formData = new FormData();
+      formData.append("video_blob", fullVideoBlob);
+
+      try {
+        const data = await uploadVideoToAIModel(props.lectureSession, formData);
+        console.log(data)
+      } catch (error) {
+          console.error(error.message || "An unexpected error occurred while uploading slides.");
+      }
     };
+
+    mediaRecorder.stop();
   }
 };
 

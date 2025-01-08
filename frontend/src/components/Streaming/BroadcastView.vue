@@ -3,7 +3,7 @@
     <div v-if="isCallLive" class="flex flex-col items-center justify-center w-full">
       <!-- Video Component -->
       <div class="relative w-full max-w-5xl bg-black rounded-xl overflow-hidden shadow-md">
-        <VideoComponent :call="call" :participant="localParticipant" :isBroadcaster="true" />
+        <VideoComponent :lectureSession="lectureSessionId" :call="call" :participant="localParticipant" :isBroadcaster="true" />
         <span
           class="absolute top-4 left-4 bg-red-600 text-white text-sm px-4 py-2 rounded-full shadow-md font-semibold"
         >
@@ -172,7 +172,7 @@ const stopRecording = async () => {
         "status": "draft",
     };
 
-    await addNewNotesPacket(notes_packet_data);
+    // await addNewNotesPacket(notes_packet_data);
 
     try {
         const response = await updateStatusOfLecture(lectureSessionId.value, "done");
